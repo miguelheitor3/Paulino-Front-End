@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paulino Imóveis — Três Pontas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green:#0C3B2C;
+    --green-dark:#082B20;
+    --green-tint:#E8EFEA;
+    --red:#C81E2C;
+    --white:#FFFFFF;
+    --offwhite:#F6F7F5;
+    --ink:#121815;
+    --ink-soft:#5C665F;
+    --line:#E3E7E2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--white);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;text-decoration:none;}
+  img{display:block;max-width:100%;}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 32px;}
+  .display{font-family:'Archivo',sans-serif;}
+  .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--green);}
+
+  /* HEADER */
+  header{border-bottom:1px solid var(--line);}
+  .header-inner{display:flex;align-items:center;justify-content:space-between;padding:20px 0;}
+  .logo{display:flex;align-items:center;gap:10px;}
+  .logo-mark{width:30px;height:30px;background:var(--green);border-radius:4px;position:relative;flex-shrink:0;}
+  .logo-mark::after{content:"";position:absolute;right:5px;bottom:5px;width:9px;height:9px;background:var(--red);border-radius:2px;}
+  .logo-text{font-family:'Archivo',sans-serif;font-weight:700;font-size:19px;letter-spacing:-.01em;}
+  .logo-sub{font-size:10px;color:var(--ink-soft);letter-spacing:.04em;margin-top:1px;}
+  nav{display:flex;gap:32px;}
+  nav a{font-size:14px;font-weight:500;color:var(--ink);}
+  .header-right{display:flex;align-items:center;gap:20px;}
+  .header-phone{font-size:13.5px;color:var(--ink-soft);}
+  .btn-green{background:var(--green);color:#fff;font-size:13.5px;font-weight:600;padding:12px 22px;border-radius:6px;transition:background .15s ease;}
+  .btn-green:hover{background:var(--green-dark);}
+
+  /* HERO */
+  .hero{background:var(--offwhite);padding:64px 0 0;overflow:hidden;}
+  .hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;}
+  .hero-title{font-family:'Archivo',sans-serif;font-weight:800;font-size:clamp(34px,4vw,52px);line-height:1.06;letter-spacing:-.01em;margin:16px 0 20px;}
+  .hero-title .accent{color:var(--green);}
+  .hero-sub{font-size:16px;color:var(--ink-soft);line-height:1.6;max-width:440px;margin-bottom:32px;}
+  .hero-stats{display:flex;gap:36px;}
+  .stat-num{font-family:'Archivo',sans-serif;font-weight:800;font-size:26px;color:var(--green);}
+  .stat-label{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  .hero-photo{position:relative;}
+  .hero-photo img{width:100%;aspect-ratio:4/3.2;object-fit:cover;border-radius:14px;}
+  .hero-badge{position:absolute;bottom:20px;left:20px;background:#fff;padding:12px 18px;border-radius:10px;box-shadow:0 12px 30px rgba(12,59,44,.16);display:flex;align-items:center;gap:10px;}
+  .hero-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--red);}
+  .hero-badge span{font-size:12.5px;font-weight:600;}
+
+  /* SEARCH CARD (overlaps hero) */
+  .search-card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 48px rgba(12,24,18,.08);margin-top:48px;transform:translateY(50%);padding:8px;display:grid;grid-template-columns:repeat(5,1fr) auto;}
+  .search-card .field{padding:16px 20px;border-right:1px solid var(--line);}
+  .search-card .field:last-of-type{border-right:none;}
+  .search-card label{display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px;font-weight:600;}
+  .search-card select{border:0;background:transparent;font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);width:100%;appearance:none;font-weight:500;}
+  .search-submit{background:var(--green);color:#fff;border:0;border-radius:10px;font-size:13.5px;font-weight:600;padding:0 30px;cursor:pointer;transition:background .15s ease;}
+  .search-submit:hover{background:var(--green-dark);}
+
+  .spacer-search{height:64px;}
+
+  /* TRUST STRIP */
+  .trust{padding:96px 0 72px;}
+  .trust-head{max-width:560px;margin-bottom:48px;}
+  .trust-head h2{font-family:'Archivo',sans-serif;font-weight:700;font-size:30px;margin-top:12px;line-height:1.2;}
+  .trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+  .trust-item{background:#fff;padding:32px 28px;}
+  .trust-num{font-family:'Archivo',sans-serif;font-weight:800;font-size:15px;color:var(--red);margin-bottom:14px;}
+  .trust-item h3{font-size:16px;font-weight:600;margin-bottom:8px;}
+  .trust-item p{font-size:13.5px;color:var(--ink-soft);line-height:1.6;}
+
+  /* CATEGORY PILLS */
+  .pills{display:flex;gap:10px;margin-bottom:44px;flex-wrap:wrap;}
+  .pill{border:1px solid var(--line);border-radius:100px;padding:10px 20px;font-size:13.5px;font-weight:500;color:var(--ink-soft);background:#fff;cursor:pointer;}
+  .pill.active{background:var(--green);border-color:var(--green);color:#fff;}
+
+  /* LISTINGS */
+  .section{padding:16px 0 88px;}
+  .section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:32px;}
+  .section-head h2{font-family:'Archivo',sans-serif;font-weight:700;font-size:26px;}
+  .see-all{font-size:13.5px;font-weight:600;color:var(--green);border-bottom:1.5px solid var(--green);padding-bottom:2px;}
+
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .card{display:block;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;transition:box-shadow .2s ease,transform .2s ease;}
+  .card:hover{box-shadow:0 18px 40px rgba(12,24,18,.1);transform:translateY(-2px);}
+  .card-photo{position:relative;aspect-ratio:4/3;overflow:hidden;background:#eee;}
+  .card-photo img{width:100%;height:100%;object-fit:cover;}
+  .tag-destaque{position:absolute;top:14px;left:14px;background:var(--red);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:5px 11px;border-radius:6px;}
+  .tag-fav{position:absolute;top:14px;right:14px;width:32px;height:32px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--ink-soft);}
+  .card-body{padding:18px 20px 20px;}
+  .card-price{font-family:'Archivo',sans-serif;font-weight:800;font-size:21px;}
+  .card-code{font-size:11px;color:var(--ink-soft);font-weight:500;margin-top:2px;}
+  .card-title{font-size:14px;font-weight:600;margin-top:10px;}
+  .card-place{font-size:13px;color:var(--ink-soft);margin-top:2px;}
+  .card-specs{display:flex;gap:14px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-soft);font-weight:500;}
+  .empty-msg{color:var(--ink-soft);font-size:14px;padding:8px 0 24px;grid-column:1/-1;}
+
+  /* CTA BAND */
+  .cta-band{background:var(--green);border-radius:20px;padding:56px;margin:0 32px 96px;max-width:1176px;margin-left:auto;margin-right:auto;display:flex;justify-content:space-between;align-items:center;gap:32px;flex-wrap:wrap;}
+  .cta-band h2{font-family:'Archivo',sans-serif;font-weight:700;font-size:26px;color:#fff;max-width:480px;line-height:1.25;}
+  .cta-band p{font-size:14px;color:rgba(255,255,255,.72);margin-top:10px;max-width:440px;}
+  .btn-white{background:#fff;color:var(--green);font-size:13.5px;font-weight:700;padding:14px 26px;border-radius:8px;white-space:nowrap;}
+  .btn-white:hover{background:var(--offwhite);}
+
+  /* FAQ */
+  .faq{padding-bottom:96px;}
+  .faq-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:56px;}
+  .faq-head h2{font-family:'Archivo',sans-serif;font-weight:700;font-size:28px;line-height:1.25;margin-top:12px;}
+  .faq-item{padding:22px 0;border-bottom:1px solid var(--line);}
+  .faq-item h3{font-size:15px;font-weight:600;margin-bottom:8px;}
+  .faq-item p{font-size:13.5px;color:var(--ink-soft);line-height:1.65;}
+
+  /* FOOTER */
+  footer{background:var(--green-dark);color:rgba(255,255,255,.7);padding:56px 0 28px;}
+  .footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;margin-bottom:44px;}
+  .footer-col h4{color:#fff;font-size:13px;font-weight:600;margin-bottom:16px;letter-spacing:.02em;}
+  .footer-col a{display:block;font-size:13px;margin-bottom:10px;color:rgba(255,255,255,.65);}
+  .footer-logo{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .footer-logo .logo-mark{background:#fff;}
+  .footer-logo .logo-mark::after{background:var(--red);}
+  .footer-logo .logo-text{color:#fff;}
+  .footer-desc{font-size:13px;color:rgba(255,255,255,.55);max-width:280px;line-height:1.6;}
+  .footer-bottom{border-top:1px solid rgba(255,255,255,.14);padding-top:22px;display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.45);flex-wrap:wrap;gap:10px;}
+
+  @media (max-width:960px){
+    .hero-grid{grid-template-columns:1fr;}
+    .search-card{grid-template-columns:1fr 1fr;transform:none;margin-top:24px;}
+    .search-card .field{border-right:none;border-bottom:1px solid var(--line);}
+    .search-submit{grid-column:1/-1;padding:16px;margin-top:6px;border-radius:8px;}
+    .spacer-search{height:0;}
+    .trust-grid{grid-template-columns:1fr;}
+    .grid{grid-template-columns:1fr 1fr;}
+    .faq-grid{grid-template-columns:1fr;}
+    .footer-grid{grid-template-columns:1fr 1fr;}
+    nav{display:none;}
+  }
+  @media (max-width:560px){
+    .grid{grid-template-columns:1fr;}
+    .cta-band{padding:36px 28px;}
+    .footer-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap header-inner">
+    <div class="logo">
+      <div class="logo-mark"></div>
+      <div>
+        <div class="logo-text">Paulino Imóveis</div>
+        <div class="logo-sub">CRECI 37888 · Três Pontas–MG</div>
+      </div>
+    </div>
+    <nav>
+      <a href="#resultados">Comprar</a>
+      <a href="#resultados">Alugar</a>
+      <a href="#resultados">Terrenos</a>
+      <a href="#">Negociar imóvel</a>
+    </nav>
+    <div class="header-right">
+      <span class="header-phone">(35) 3266-1985</span>
+      <a class="btn-green" href="https://wa.me/5535998848963" target="_blank" rel="noopener">Falar no WhatsApp</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">Imobiliária em Três Pontas — MG</span>
+        <h1 class="hero-title">Encontre o imóvel certo <span class="accent">com quem conhece a região.</span></h1>
+        <p class="hero-sub">Casas, terrenos e imóveis comerciais avaliados e acompanhados de perto, do primeiro contato até a assinatura do contrato.</p>
+        <div class="hero-stats">
+          <div><div class="stat-num" id="stat-ativos">—</div><div class="stat-label">imóveis ativos</div></div>
+          <div><div class="stat-num">4</div><div class="stat-label">cidades atendidas</div></div>
+          <div><div class="stat-num">CRECI</div><div class="stat-label">37888 registrado</div></div>
+        </div>
+      </div>
+      <div class="hero-photo">
+        <img src="https://paulinoimoveis.com.br/wp-content/uploads/2026/07/389ad09b-57b1-4796-8907-06f79ed7b1a6-600x450.jpg" alt="Imóvel à venda">
+        <div class="hero-badge"><span class="dot"></span><span>Novo imóvel adicionado hoje</span></div>
+      </div>
+    </div>
+
+    <form class="search-card" id="form-busca">
+      <div class="field">
+        <label>Finalidade</label>
+        <select id="f-finalidade">
+          <option value="Qualquer">Qualquer</option>
+          <option value="Comprar">Comprar</option>
+          <option value="Alugar">Alugar</option>
+          <option value="Temporada">Temporada</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tipo</label>
+        <select id="f-tipo">
+          <option value="Qualquer">Qualquer</option>
+          <option value="Casa">Casas</option>
+          <option value="Terreno">Terrenos</option>
+          <option value="Apartamento">Apartamentos</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Cidade</label>
+        <select id="f-cidade">
+          <option value="Todas">Todas</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Bairro</label>
+        <select id="f-bairro">
+          <option value="Todos">Todos</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Quartos</label>
+        <select id="f-quartos">
+          <option value="">Qualquer</option>
+          <option value="1">1+</option>
+          <option value="2">2+</option>
+          <option value="3">3+</option>
+        </select>
+      </div>
+      <button class="search-submit" type="submit">Buscar imóveis</button>
+    </form>
+  </div>
+</section>
+<div class="spacer-search"></div>
+
+<section class="trust">
+  <div class="wrap">
+    <div class="trust-head">
+      <span class="eyebrow">Por que a Paulino</span>
+      <h2>Atendimento próximo, do jeito que negócio de imóvel deveria ser</h2>
+    </div>
+    <div class="trust-grid">
+      <div class="trust-item">
+        <div class="trust-num">01</div>
+        <h3>Você fala direto com quem decide</h3>
+        <p>Sem central de atendimento, sem fila. O corretor responsável acompanha sua busca do início ao fim.</p>
+      </div>
+      <div class="trust-item">
+        <div class="trust-num">02</div>
+        <h3>Imóveis avaliados na região</h3>
+        <p>Cada anúncio é conferido presencialmente antes de entrar no catálogo — sem surpresa na visita.</p>
+      </div>
+      <div class="trust-item">
+        <div class="trust-num">03</div>
+        <h3>Anuncie sem custo</h3>
+        <p>Quer vender ou alugar seu imóvel? Cadastro e divulgação são gratuitos, sem taxa de entrada.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <span class="eyebrow">Mais procurados</span>
+    <div class="section-head">
+      <h2>Imóveis em destaque</h2>
+    </div>
+    <div class="grid" id="grid-destaques"></div>
+  </div>
+</section>
+
+<section class="section" id="resultados">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="titulo-resultados">Todos os imóveis disponíveis</h2>
+    </div>
+    <div class="pills" id="pills-preco">
+      <span class="pill active" data-min="" data-max="">Todas as faixas</span>
+      <span class="pill" data-min="" data-max="300000">Até R$ 300 mil</span>
+      <span class="pill" data-min="300000" data-max="600000">R$ 300–600 mil</span>
+      <span class="pill" data-min="600000" data-max="">Acima de R$ 600 mil</span>
+    </div>
+    <div class="grid" id="grid-resultados"></div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="cta-band">
+    <div>
+      <h2>Pensando em vender ou alugar seu imóvel?</h2>
+      <p>Cadastro gratuito, avaliação com base no mercado local e divulgação para nossa base ativa de interessados.</p>
+    </div>
+    <a class="btn-white" href="https://wa.me/5535998848963" target="_blank" rel="noopener">Anunciar meu imóvel</a>
+  </div>
+</div>
+
+<section class="faq">
+  <div class="wrap faq-grid">
+    <div class="faq-head">
+      <span class="eyebrow">Dúvidas frequentes</span>
+      <h2>Tudo o que você precisa saber antes de comprar ou alugar</h2>
+    </div>
+    <div>
+      <div class="faq-item">
+        <h3>Como funciona a visita a um imóvel?</h3>
+        <p>Você entra em contato pelo WhatsApp ou telefone, combinamos um horário e o corretor acompanha a visita pessoalmente.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Preciso pagar algo para anunciar meu imóvel?</h3>
+        <p>Não. O cadastro e a divulgação do seu imóvel na Paulino Imóveis são gratuitos, sem taxa de entrada.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Vocês atendem outras cidades além de Três Pontas?</h3>
+        <p>Sim. Também temos imóveis em Boa Esperança, Campos Gerais, Nepomuceno, Santana da Vargem e Varginha.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Como verifico se a imobiliária é regularizada?</h3>
+        <p>A Paulino Imóveis é registrada no CRECI sob o número 37888, consultável no site do conselho regional de Minas Gerais.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">
+          <div class="logo-mark"></div>
+          <div class="logo-text">Paulino Imóveis</div>
+        </div>
+        <p class="footer-desc">Imobiliária em Três Pontas–MG. Casas, terrenos e imóveis comerciais com atendimento direto e sem burocracia.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Imóveis</h4>
+        <a href="#resultados">Casas à venda</a>
+        <a href="#resultados">Terrenos à venda</a>
+        <a href="#resultados">Imóveis para alugar</a>
+        <a href="https://wa.me/5535998848963" target="_blank" rel="noopener">Anunciar imóvel</a>
+      </div>
+      <div class="footer-col">
+        <h4>Institucional</h4>
+        <a href="#">Sobre nós</a>
+        <a href="#">Documentos</a>
+        <a href="#">Trabalhe conosco</a>
+        <a href="#">Financiamento</a>
+      </div>
+      <div class="footer-col">
+        <h4>Contato</h4>
+        <a href="tel:3532661985">(35) 3266-1985</a>
+        <a href="https://wa.me/5535998848963" target="_blank" rel="noopener">(35) 99884-8963</a>
+        <a href="mailto:imobiliariapaulino@gmail.com">imobiliariapaulino@gmail.com</a>
+        <a href="#">Rua Bento de Brito, 170 — Centro</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Paulino Imóveis — CRECI 37888</span>
+      <span>Três Pontas, Minas Gerais</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/site.js"></script>
+<script>
+  let filtroPrecoMin = "";
+  let filtroPrecoMax = "";
+
+  function pegarFiltrosAtuais() {
+    return {
+      finalidade: document.getElementById("f-finalidade").value,
+      tipo: document.getElementById("f-tipo").value,
+      cidade: document.getElementById("f-cidade").value,
+      bairro: document.getElementById("f-bairro").value,
+      quartosMin: document.getElementById("f-quartos").value ? Number(document.getElementById("f-quartos").value) : null,
+      precoMin: filtroPrecoMin ? Number(filtroPrecoMin) : null,
+      precoMax: filtroPrecoMax ? Number(filtroPrecoMax) : null,
+    };
+  }
+
+  async function renderizarResultados() {
+    const gridResultados = document.getElementById("grid-resultados");
+    gridResultados.innerHTML = '<div class="empty-msg">Carregando...</div>';
+    const filtros = pegarFiltrosAtuais();
+    const imoveis = await buscarImoveis(filtros);
+
+    gridResultados.innerHTML = imoveis.length
+      ? imoveis.map(im => cardHtml(im, false)).join("")
+      : '<div class="empty-msg">Nenhum imóvel encontrado com esses filtros. Tente ajustar a busca.</div>';
+  }
+
+  async function renderizarDestaques() {
+    const gridDestaques = document.getElementById("grid-destaques");
+    const imoveis = await buscarImoveis({ ordenarPorViews: true, limite: 3 });
+    gridDestaques.innerHTML = imoveis.length
+      ? imoveis.map(im => cardHtml(im, true)).join("")
+      : '<div class="empty-msg">Nenhum imóvel em destaque no momento.</div>';
+  }
+
+  async function atualizarStatAtivos() {
+    const { count } = await sb.from("imoveis").select("*", { count: "exact", head: true }).eq("disponivel", true);
+    document.getElementById("stat-ativos").textContent = count ?? "0";
+  }
+
+  document.getElementById("form-busca").addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    document.getElementById("resultados").scrollIntoView({ behavior: "smooth" });
+    renderizarResultados();
+  });
+
+  document.getElementById("pills-preco").addEventListener("click", (ev) => {
+    const pill = ev.target.closest(".pill");
+    if (!pill) return;
+    document.querySelectorAll("#pills-preco .pill").forEach(p => p.classList.remove("active"));
+    pill.classList.add("active");
+    filtroPrecoMin = pill.dataset.min;
+    filtroPrecoMax = pill.dataset.max;
+    renderizarResultados();
+  });
+
+  (async function init() {
+    await preencherSelectDistintos(document.getElementById("f-cidade"), "cidade");
+    await preencherSelectDistintos(document.getElementById("f-bairro"), "bairro");
+    await Promise.all([renderizarDestaques(), renderizarResultados(), atualizarStatAtivos()]);
+  })();
+</script>
+</body>
+</html>
