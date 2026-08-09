@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -58,12 +57,20 @@
   .hero-badge span{font-size:12.5px;font-weight:600;}
 
   /* SEARCH CARD (overlaps hero) */
-  .search-card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 48px rgba(12,24,18,.08);margin-top:28px;padding:8px;display:grid;grid-template-columns:repeat(5,minmax(100px,1fr)) auto;align-items:stretch;}
-  .search-card .field{padding:16px 18px;border-right:1px solid var(--line);min-width:0;cursor:pointer;transition:background .15s ease;}
-  .search-card .field:hover{background:var(--offwhite);border-radius:8px;}
+  .search-card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 48px rgba(12,24,18,.08);margin-top:28px;padding:8px;display:grid;grid-template-columns:repeat(5,minmax(100px,1fr)) auto;align-items:stretch;position:relative;}
+  .search-card .field{position:relative;border-right:1px solid var(--line);min-width:0;}
   .search-card .field:last-of-type{border-right:none;}
-  .search-card label{display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px;font-weight:600;white-space:nowrap;}
-  .search-card select{border:0;background:transparent;font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);width:100%;appearance:none;font-weight:500;cursor:pointer;padding-right:16px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235C665F' stroke-width='1.5' fill='none' fill-rule='evenodd'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right center;}
+  .search-card .field label{display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin:16px 18px 4px;font-weight:600;white-space:nowrap;pointer-events:none;}
+  .dropdown-btn{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:0 18px 14px;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);font-weight:500;border-radius:10px;}
+  .dropdown-valor{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .dropdown-seta{font-size:10px;color:var(--ink-soft);flex-shrink:0;transition:transform .15s ease;}
+  .field:hover{background:var(--offwhite);border-radius:10px;}
+  .field.aberto .dropdown-seta{transform:rotate(180deg);}
+  .dropdown-menu{display:none;position:absolute;top:calc(100% + 8px);left:0;min-width:100%;width:max-content;max-width:260px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 16px 36px rgba(12,24,18,.14);padding:6px;z-index:20;max-height:260px;overflow-y:auto;}
+  .field.aberto .dropdown-menu{display:block;}
+  .dropdown-opcao{padding:10px 12px;font-size:13.5px;font-weight:500;border-radius:7px;cursor:pointer;color:var(--ink);white-space:nowrap;}
+  .dropdown-opcao:hover{background:var(--green-tint);}
+  .dropdown-opcao.selecionada{background:var(--green);color:#fff;}
   .search-submit{background:var(--green);color:#fff;border:0;border-radius:10px;font-size:13.5px;font-weight:600;padding:0 24px;cursor:pointer;transition:background .15s ease;white-space:nowrap;flex-shrink:0;}
   .search-submit:hover{background:var(--green-dark);}
 
@@ -191,48 +198,53 @@
       </div>
     </div>
 
-    <form class="search-card" id="form-busca">
-      <div class="field">
+    <div class="search-card" id="form-busca">
+      <div class="field dropdown" data-campo="finalidade" tabindex="0">
         <label>Finalidade</label>
-        <select id="f-finalidade">
-          <option value="Qualquer">Qualquer</option>
-          <option value="Comprar">Comprar</option>
-          <option value="Alugar">Alugar</option>
-          <option value="Temporada">Temporada</option>
-        </select>
+        <button type="button" class="dropdown-btn"><span class="dropdown-valor">Qualquer</span><span class="dropdown-seta">▾</span></button>
+        <div class="dropdown-menu">
+          <div class="dropdown-opcao selecionada" data-value="Qualquer">Qualquer</div>
+          <div class="dropdown-opcao" data-value="Comprar">Comprar</div>
+          <div class="dropdown-opcao" data-value="Alugar">Alugar</div>
+          <div class="dropdown-opcao" data-value="Temporada">Temporada</div>
+        </div>
       </div>
-      <div class="field">
+      <div class="field dropdown" data-campo="tipo" tabindex="0">
         <label>Tipo</label>
-        <select id="f-tipo">
-          <option value="Qualquer">Qualquer</option>
-          <option value="Casa">Casas</option>
-          <option value="Terreno">Terrenos</option>
-          <option value="Apartamento">Apartamentos</option>
-        </select>
+        <button type="button" class="dropdown-btn"><span class="dropdown-valor">Qualquer</span><span class="dropdown-seta">▾</span></button>
+        <div class="dropdown-menu">
+          <div class="dropdown-opcao selecionada" data-value="Qualquer">Qualquer</div>
+          <div class="dropdown-opcao" data-value="Casa">Casas</div>
+          <div class="dropdown-opcao" data-value="Terreno">Terrenos</div>
+          <div class="dropdown-opcao" data-value="Apartamento">Apartamentos</div>
+        </div>
       </div>
-      <div class="field">
+      <div class="field dropdown" data-campo="cidade" tabindex="0">
         <label>Cidade</label>
-        <select id="f-cidade">
-          <option value="Todas">Todas</option>
-        </select>
+        <button type="button" class="dropdown-btn"><span class="dropdown-valor">Todas</span><span class="dropdown-seta">▾</span></button>
+        <div class="dropdown-menu" id="menu-cidade">
+          <div class="dropdown-opcao selecionada" data-value="Todas">Todas</div>
+        </div>
       </div>
-      <div class="field">
+      <div class="field dropdown" data-campo="bairro" tabindex="0">
         <label>Bairro</label>
-        <select id="f-bairro">
-          <option value="Todos">Todos</option>
-        </select>
+        <button type="button" class="dropdown-btn"><span class="dropdown-valor">Todos</span><span class="dropdown-seta">▾</span></button>
+        <div class="dropdown-menu" id="menu-bairro">
+          <div class="dropdown-opcao selecionada" data-value="Todos">Todos</div>
+        </div>
       </div>
-      <div class="field">
+      <div class="field dropdown" data-campo="quartos" tabindex="0">
         <label>Quartos</label>
-        <select id="f-quartos">
-          <option value="">Qualquer</option>
-          <option value="1">1+</option>
-          <option value="2">2+</option>
-          <option value="3">3+</option>
-        </select>
+        <button type="button" class="dropdown-btn"><span class="dropdown-valor">Qualquer</span><span class="dropdown-seta">▾</span></button>
+        <div class="dropdown-menu">
+          <div class="dropdown-opcao selecionada" data-value="">Qualquer</div>
+          <div class="dropdown-opcao" data-value="1">1+</div>
+          <div class="dropdown-opcao" data-value="2">2+</div>
+          <div class="dropdown-opcao" data-value="3">3+</div>
+        </div>
       </div>
-      <button class="search-submit" type="submit">Buscar imóveis</button>
-    </form>
+      <button class="search-submit" type="button" id="btn-buscar">Buscar imóveis</button>
+    </div>
   </div>
 </section>
 
@@ -370,13 +382,22 @@
   let filtroPrecoMin = "";
   let filtroPrecoMax = "";
 
+  // Guarda o valor selecionado de cada dropdown (finalidade, tipo, cidade, bairro, quartos)
+  const valoresDropdown = {
+    finalidade: "Qualquer",
+    tipo: "Qualquer",
+    cidade: "Todas",
+    bairro: "Todos",
+    quartos: "",
+  };
+
   function pegarFiltrosAtuais() {
     return {
-      finalidade: document.getElementById("f-finalidade").value,
-      tipo: document.getElementById("f-tipo").value,
-      cidade: document.getElementById("f-cidade").value,
-      bairro: document.getElementById("f-bairro").value,
-      quartosMin: document.getElementById("f-quartos").value ? Number(document.getElementById("f-quartos").value) : null,
+      finalidade: valoresDropdown.finalidade,
+      tipo: valoresDropdown.tipo,
+      cidade: valoresDropdown.cidade,
+      bairro: valoresDropdown.bairro,
+      quartosMin: valoresDropdown.quartos ? Number(valoresDropdown.quartos) : null,
       precoMin: filtroPrecoMin ? Number(filtroPrecoMin) : null,
       precoMax: filtroPrecoMax ? Number(filtroPrecoMax) : null,
     };
@@ -437,8 +458,63 @@
     }
   }
 
-  document.getElementById("form-busca").addEventListener("submit", (ev) => {
-    ev.preventDefault();
+  /* ---------------- Dropdown customizado dos filtros ---------------- */
+
+  function fecharTodosDropdowns(exceto) {
+    document.querySelectorAll(".field.dropdown.aberto").forEach(el => {
+      if (el !== exceto) el.classList.remove("aberto");
+    });
+  }
+
+  function selecionarOpcao(campoEl, opcaoEl) {
+    const campo = campoEl.dataset.campo;
+    const valor = opcaoEl.dataset.value;
+    const texto = opcaoEl.textContent;
+
+    valoresDropdown[campo] = valor;
+    campoEl.querySelector(".dropdown-valor").textContent = texto;
+    campoEl.querySelectorAll(".dropdown-opcao").forEach(o => o.classList.remove("selecionada"));
+    opcaoEl.classList.add("selecionada");
+    campoEl.classList.remove("aberto");
+  }
+
+  // Reconstrói as opções de um dropdown (usado para Cidade e Bairro, que vêm do banco)
+  function popularDropdown(menuId, valores, valorPadrao) {
+    const menu = document.getElementById(menuId);
+    const campoEl = menu.closest(".field.dropdown");
+    menu.innerHTML = `<div class="dropdown-opcao selecionada" data-value="${valorPadrao}">${valorPadrao}</div>` +
+      valores.map(v => `<div class="dropdown-opcao" data-value="${v}">${v}</div>`).join("");
+    campoEl.querySelector(".dropdown-valor").textContent = valorPadrao;
+    valoresDropdown[campoEl.dataset.campo] = valorPadrao;
+  }
+
+  async function popularCidadeEBairro() {
+    const { data } = await sb.from("imoveis").select("cidade, bairro").eq("disponivel", true);
+    const cidades = [...new Set((data || []).map(r => r.cidade).filter(Boolean))].sort();
+    const bairros = [...new Set((data || []).map(r => r.bairro).filter(Boolean))].sort();
+    popularDropdown("menu-cidade", cidades, "Todas");
+    popularDropdown("menu-bairro", bairros, "Todos");
+  }
+
+  document.querySelectorAll(".field.dropdown").forEach(campoEl => {
+    const botao = campoEl.querySelector(".dropdown-btn");
+    botao.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      const jaAberto = campoEl.classList.contains("aberto");
+      fecharTodosDropdowns();
+      campoEl.classList.toggle("aberto", !jaAberto);
+    });
+
+    campoEl.querySelector(".dropdown-menu").addEventListener("click", (ev) => {
+      const opcao = ev.target.closest(".dropdown-opcao");
+      if (!opcao) return;
+      selecionarOpcao(campoEl, opcao);
+    });
+  });
+
+  document.addEventListener("click", () => fecharTodosDropdowns());
+
+  document.getElementById("btn-buscar").addEventListener("click", () => {
     document.getElementById("resultados").scrollIntoView({ behavior: "smooth" });
     renderizarResultados();
   });
@@ -454,8 +530,7 @@
   });
 
   (async function init() {
-    await preencherSelectDistintos(document.getElementById("f-cidade"), "cidade");
-    await preencherSelectDistintos(document.getElementById("f-bairro"), "bairro");
+    await popularCidadeEBairro();
     await Promise.all([renderizarDestaques(), renderizarResultados(), atualizarStatAtivos(), carregarFotoCapa()]);
   })();
 </script>
