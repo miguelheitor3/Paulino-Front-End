@@ -49,6 +49,9 @@
   .status.disp{background:#E8EFEA;color:var(--green);}
   .status.vend{background:#FBE8E9;color:var(--red);}
   .acoes{display:flex;gap:6px;flex-wrap:wrap;}
+  .tabela-topo{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:16px;}
+  .input-busca{max-width:280px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13.5px;}
+  .codigo-cell{font-family:'Archivo',sans-serif;font-weight:700;font-size:12.5px;color:var(--green);background:var(--offwhite);padding:3px 8px;border-radius:6px;display:inline-block;}
 </style>
 </head>
 <body>
@@ -77,7 +80,7 @@
         <input type="hidden" name="id" id="f-id">
         <div class="form-grid">
           <div><label>Título</label><input name="titulo" required placeholder="Terreno no Bairro X"></div>
-          <div><label>Código</label><input name="codigo" placeholder="0023"></div>
+          <div><label>Código</label><input name="codigo" placeholder="Gerado automaticamente"></div>
           <div>
             <label>Tipo</label>
             <select name="tipo">
@@ -127,11 +130,14 @@
       </form>
     </div>
 
-    <h2>Imóveis cadastrados</h2>
+    <div class="tabela-topo">
+      <h2 style="margin-bottom:0;">Imóveis cadastrados</h2>
+      <input type="text" id="busca-imovel" placeholder="Buscar por código ou título..." class="input-busca">
+    </div>
     <table>
       <thead>
         <tr>
-          <th>Foto</th><th>Título</th><th>Tipo</th><th>Local</th><th>Preço</th><th>Views</th><th>Status</th><th>Ações</th>
+          <th>Foto</th><th>Código</th><th>Título</th><th>Tipo</th><th>Local</th><th>Preço</th><th>Views</th><th>Status</th><th>Ações</th>
         </tr>
       </thead>
       <tbody id="tabela-imoveis"></tbody>
@@ -301,12 +307,17 @@ async function carregarTabela() {
   const { data, error } = await sb.from("imoveis").select("*").order("criado_em", { ascending: false });
   if (error) { console.error(error); return; }
   imoveisCache = data;
+  renderizarTabela(imoveisCache);
+}
+
+function renderizarTabela(lista) {
   const tbody = document.getElementById("tabela-imoveis");
 
-  tbody.innerHTML = data.map(im => `
+  tbody.innerHTML = lista.map(im => `
     <tr>
       <td><img class="thumb" src="${im.fotos && im.fotos[0] ? urlFoto(im.fotos[0]) : 'https://via.placeholder.com/56x42?text=—'}"></td>
-      <td>${im.titulo}${im.codigo ? '<br><span style="color:#5C665F;font-size:11.5px;">Cód. ' + im.codigo + '</span>' : ""}</td>
+      <td><span class="codigo-cell">${im.codigo || "—"}</span></td>
+      <td>${im.titulo}</td>
       <td>${im.tipo || "—"}</td>
       <td>${[im.bairro, im.cidade].filter(Boolean).join(", ") || "—"}</td>
       <td>${fmtPreco(im.preco)}</td>
@@ -320,8 +331,21 @@ async function carregarTabela() {
         <button class="btn btn-red btn-sm" onclick="excluirImovel('${im.id}')">Excluir</button>
       </td>
     </tr>
-  `).join("") || '<tr><td colspan="8" style="color:#5C665F;">Nenhum imóvel cadastrado ainda.</td></tr>';
+  `).join("") || '<tr><td colspan="9" style="color:#5C665F;">Nenhum imóvel encontrado.</td></tr>';
 }
+
+document.getElementById("busca-imovel").addEventListener("input", (ev) => {
+  const termo = ev.target.value.trim().toLowerCase();
+  if (!termo) {
+    renderizarTabela(imoveisCache);
+    return;
+  }
+  const filtrados = imoveisCache.filter(im =>
+    (im.codigo || "").toLowerCase().includes(termo) ||
+    (im.titulo || "").toLowerCase().includes(termo)
+  );
+  renderizarTabela(filtrados);
+});
 
 checarSessao();
 </script>
