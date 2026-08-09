@@ -12,20 +12,42 @@ function urlFoto(caminho) {
   return data.publicUrl;
 }
 
+function rotuloFinalidade(finalidade) {
+  if (finalidade === "Alugar") return { texto: "Aluguel", classe: "aluguel" };
+  if (finalidade === "Temporada") return { texto: "Temporada", classe: "temporada" };
+  return { texto: "Venda", classe: "venda" };
+}
+
 function cardHtml(imovel, destaque) {
-  const foto = urlFoto(imovel.fotos && imovel.fotos[0]);
+  const fotos = (imovel.fotos && imovel.fotos.length ? imovel.fotos : [null]).map(urlFoto);
   const specs = [];
   if (imovel.area_m2) specs.push(`${imovel.area_m2} m²`);
   if (imovel.quartos) specs.push(`${imovel.quartos} qts`);
   if (imovel.banheiros) specs.push(`${imovel.banheiros} ban.`);
   if (imovel.vagas) specs.push(`${imovel.vagas} vagas`);
 
+  const fin = rotuloFinalidade(imovel.finalidade);
+
+  const imgsHtml = fotos.map((f, i) =>
+    `<img src="${f}" class="${i === 0 ? "ativa" : ""}" alt="${imovel.titulo}" loading="lazy">`
+  ).join("");
+
+  const setasHtml = fotos.length > 1 ? `
+    <button type="button" class="carousel-btn prev" aria-label="Foto anterior">&#8249;</button>
+    <button type="button" class="carousel-btn next" aria-label="Próxima foto">&#8250;</button>
+    <div class="carousel-dots">${fotos.map((_, i) => `<span class="dot ${i === 0 ? "ativa" : ""}"></span>`).join("")}</div>
+  ` : "";
+
   return `
-    <a class="card" href="imovel.html?id=${imovel.id}">
+    <div class="card" data-href="imovel.html?id=${imovel.id}">
       <div class="card-photo">
-        ${destaque ? '<span class="tag-destaque">Destaque</span>' : ""}
+        <div class="card-tags">
+          ${destaque ? '<span class="tag-destaque">Destaque</span>' : ""}
+          <span class="tag-finalidade ${fin.classe}">${fin.texto}</span>
+        </div>
         <span class="tag-fav">♡</span>
-        <img src="${foto}" alt="${imovel.titulo}" loading="lazy">
+        <div class="carousel-imgs">${imgsHtml}</div>
+        ${setasHtml}
       </div>
       <div class="card-body">
         <div class="card-price">${fmtPreco(imovel.preco)}</div>
@@ -34,8 +56,33 @@ function cardHtml(imovel, destaque) {
         <div class="card-place">${[imovel.bairro, imovel.cidade].filter(Boolean).join(", ")}</div>
         ${specs.length ? `<div class="card-specs">${specs.map(s => `<span>${s}</span>`).join("")}</div>` : ""}
       </div>
-    </a>`;
+    </div>`;
 }
+
+// Delegação de eventos: funciona mesmo quando os cards são recriados dinamicamente.
+// Precisa ser incluído uma vez em qualquer página que use cardHtml().
+document.addEventListener("click", (ev) => {
+  const btnCarrossel = ev.target.closest(".carousel-btn");
+  if (btnCarrossel) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const cardPhoto = btnCarrossel.closest(".card-photo");
+    const imgs = [...cardPhoto.querySelectorAll(".carousel-imgs img")];
+    const dots = [...cardPhoto.querySelectorAll(".carousel-dots .dot")];
+    let idx = imgs.findIndex(img => img.classList.contains("ativa"));
+    idx = btnCarrossel.classList.contains("next")
+      ? (idx + 1) % imgs.length
+      : (idx - 1 + imgs.length) % imgs.length;
+    imgs.forEach((img, i) => img.classList.toggle("ativa", i === idx));
+    dots.forEach((d, i) => d.classList.toggle("ativa", i === idx));
+    return;
+  }
+
+  const card = ev.target.closest(".card[data-href]");
+  if (card) {
+    window.location.href = card.dataset.href;
+  }
+});
 
 // Busca imóveis disponíveis aplicando os filtros passados (todos opcionais)
 async function buscarImoveis({ finalidade, tipo, cidade, bairro, quartosMin, precoMin, precoMax, ordenarPorViews, limite } = {}) {
