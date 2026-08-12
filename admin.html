@@ -42,6 +42,36 @@
   .msg.ok{color:var(--green);}
   .msg.erro{color:var(--red);}
 
+  /* Componente Dropzone (Drag & Drop de Fotos) */
+  .dropzone {
+    border: 2px dashed var(--line);
+    border-radius: 8px;
+    padding: 24px 16px;
+    text-align: center;
+    background: #fafbfa;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .dropzone:hover, .dropzone.dragover {
+    border-color: var(--green);
+    background: #eef4f0;
+  }
+  .dropzone-icon {
+    font-size: 28px;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .dropzone p {
+    font-size: 13.5px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .dropzone-info {
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+
   /* Painel de Filtros e Busca */
   .filtros-box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:20px;}
   .filtros-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:12px;align-items:end;}
@@ -116,18 +146,27 @@
         <div class="form-grid">
           <div><label>Banheiros</label><input name="banheiros" type="number" placeholder="2"></div>
           <div><label>Vagas</label><input name="vagas" type="number" placeholder="2"></div>
-          <!-- CAMPO NOVO: Proprietário -->
           <div><label>Proprietário (Interno)</label><input name="proprietario" placeholder="Nome do proprietário"></div>
         </div>
         <div class="form-grid full">
           <div><label>Descrição</label><textarea name="descricao" placeholder="Detalhes do imóvel..."></textarea></div>
         </div>
+        
+        <!-- DROPZONE (ARRASTAR & SOLTAR FOTOS) -->
         <div class="form-grid full">
           <div>
-            <label>Fotos novas (pode selecionar várias — serão adicionadas às já existentes)</label>
-            <input name="fotos" id="f-fotos" type="file" accept="image/*" multiple>
+            <label>Fotos novas (pode selecionar várias ou arrastar para cá)</label>
+            <div id="dropzone" class="dropzone" onclick="document.getElementById('f-fotos').click()">
+              <div class="dropzone-content">
+                <span class="dropzone-icon">📁</span>
+                <p><strong>Clique para selecionar</strong> ou arraste as fotos até aqui</p>
+                <span id="fotos-qtd" class="dropzone-info">Nenhuma foto selecionada</span>
+              </div>
+              <input name="fotos" id="f-fotos" type="file" accept="image/*" multiple style="display:none;">
+            </div>
           </div>
         </div>
+
         <div class="check-row">
           <input type="checkbox" id="destaque_manual" name="destaque_manual">
           <label style="margin:0;" for="destaque_manual">Forçar destaque na home (independente de visualizações)</label>
@@ -196,6 +235,49 @@ let editandoId = null;
 let imoveisCache = [];
 let imoveisFiltrados = [];
 
+// ELEMENTOS DA DROPZONE
+const dropzone = document.getElementById("dropzone");
+const fileInput = document.getElementById("f-fotos");
+const fotosQtdText = document.getElementById("fotos-qtd");
+
+function atualizarTextoFotos() {
+  const count = fileInput.files ? fileInput.files.length : 0;
+  if (count === 0) {
+    fotosQtdText.textContent = "Nenhuma foto selecionada";
+  } else if (count === 1) {
+    fotosQtdText.textContent = "1 foto selecionada";
+  } else {
+    fotosQtdText.textContent = `${count} fotos selecionadas`;
+  }
+}
+
+fileInput.addEventListener("change", atualizarTextoFotos);
+
+['dragenter', 'dragover'].forEach(eventName => {
+  dropzone.addEventListener(eventName, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropzone.classList.add('dragover');
+  }, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+  dropzone.addEventListener(eventName, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropzone.classList.remove('dragover');
+  }, false);
+});
+
+dropzone.addEventListener("drop", (e) => {
+  const dt = e.dataTransfer;
+  const files = dt.files;
+  if (files && files.length > 0) {
+    fileInput.files = files;
+    atualizarTextoFotos();
+  }
+});
+
 async function checarSessao() {
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
@@ -256,7 +338,7 @@ async function salvarImovel(ev) {
   btn.textContent = "Salvando...";
 
   try {
-    const arquivos = document.getElementById("f-fotos").files;
+    const arquivos = fileInput.files;
     const novasFotos = arquivos.length ? await uploadFotos(arquivos) : [];
 
     const payload = {
@@ -271,7 +353,7 @@ async function salvarImovel(ev) {
       quartos: fd.get("quartos") ? Number(fd.get("quartos")) : null,
       banheiros: fd.get("banheiros") ? Number(fd.get("banheiros")) : null,
       vagas: fd.get("vagas") ? Number(fd.get("vagas")) : null,
-      proprietario: fd.get("proprietario") || null, // Novo campo
+      proprietario: fd.get("proprietario") || null,
       descricao: fd.get("descricao") || null,
       destaque_manual: document.getElementById("destaque_manual").checked,
     };
@@ -322,6 +404,7 @@ function editarImovel(id) {
   document.getElementById("destaque_manual").checked = !!im.destaque_manual;
   document.getElementById("titulo-form").textContent = "Editando: " + im.titulo;
   document.getElementById("btn-cancelar-edicao").style.display = "inline-block";
+  atualizarTextoFotos();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -330,6 +413,7 @@ function cancelarEdicao() {
   document.getElementById("form-imovel").reset();
   document.getElementById("titulo-form").textContent = "Adicionar novo imóvel";
   document.getElementById("btn-cancelar-edicao").style.display = "none";
+  atualizarTextoFotos();
 }
 
 async function alternarDisponibilidade(id, disponivelAtual) {
@@ -370,22 +454,18 @@ function aplicarFiltros() {
   const dataAte = document.getElementById("filtro-data-ate").value;
 
   imoveisFiltrados = imoveisCache.filter(im => {
-    // Busca textual (Código, Título ou Proprietário)
     const emCodigo = (im.codigo || "").toLowerCase().includes(termo);
     const emTitulo = (im.titulo || "").toLowerCase().includes(termo);
     const emProprietario = (im.proprietario || "").toLowerCase().includes(termo);
     if (termo && !emCodigo && !emTitulo && !emProprietario) return false;
 
-    // Tipo
     if (tipo && im.tipo !== tipo) return false;
 
-    // Status
     if (status === "disp" && !im.disponivel) return false;
     if (status === "vend" && im.disponivel) return false;
 
-    // Data de postagem
     if (im.criado_em) {
-      const dataCriacao = im.criado_em.substring(0, 10); // 'YYYY-MM-DD'
+      const dataCriacao = im.criado_em.substring(0, 10);
       if (dataDe && dataCriacao < dataDe) return false;
       if (dataAte && dataCriacao > dataAte) return false;
     }
@@ -407,7 +487,7 @@ function renderizarTabela(lista) {
         <span class="proprietario-tag">👤 ${im.proprietario || "Não informado"}</span>
       </td>
       <td>${im.titulo}</td>
-      <td>${im.tipo || "—"} / ${im.finalidade || "—"}</td>
+      <td><strong>${im.tipo || "—"}</strong> / ${im.finalidade || "—"}</td>
       <td>${formatarData(im.criado_em)}</td>
       <td>${[im.bairro, im.cidade].filter(Boolean).join(", ") || "—"}</td>
       <td>${fmtPreco(im.preco)}</td>
