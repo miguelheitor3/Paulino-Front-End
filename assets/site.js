@@ -59,9 +59,9 @@ function cardHtml(imovel, destaque) {
     </div>`;
 }
 
-// Delegação de eventos: funciona mesmo quando os cards são recriados dinamicamente.
+// Delegação de eventos otimizada para capturar cliques na foto e no card
 document.addEventListener("click", (ev) => {
-  // Clique nas setas do carrossel
+  // 1. Clique nas setas do carrossel (troca foto sem abrir o imóvel)
   const btnCarrossel = ev.target.closest(".carousel-btn");
   if (btnCarrossel) {
     ev.preventDefault();
@@ -73,27 +73,46 @@ document.addEventListener("click", (ev) => {
     idx = btnCarrossel.classList.contains("next")
       ? (idx + 1) % imgs.length
       : (idx - 1 + imgs.length) % imgs.length;
+
     imgs.forEach((img, i) => img.classList.toggle("ativa", i === idx));
     dots.forEach((d, i) => d.classList.toggle("ativa", i === idx));
     return;
   }
 
-  // Clique no botão/ícone de favorito (evita abrir o imóvel)
+  // 2. Clique nas bolinhas (dots) do carrossel (troca foto sem abrir o imóvel)
+  const dotCarrossel = ev.target.closest(".carousel-dots .dot");
+  if (dotCarrossel) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const cardPhoto = dotCarrossel.closest(".card-photo");
+    const dots = [...cardPhoto.querySelectorAll(".carousel-dots .dot")];
+    const imgs = [...cardPhoto.querySelectorAll(".carousel-imgs img")];
+    const idx = dots.indexOf(dotCarrossel);
+
+    if (idx !== -1) {
+      imgs.forEach((img, i) => img.classList.toggle("ativa", i === idx));
+      dots.forEach((d, i) => d.classList.toggle("ativa", i === idx));
+    }
+    return;
+  }
+
+  // 3. Clique no botão de favorito (evita abrir o imóvel)
   const tagFav = ev.target.closest(".tag-fav");
   if (tagFav) {
     ev.preventDefault();
     ev.stopPropagation();
+    tagFav.classList.toggle("ativo");
     return;
   }
 
-  // Clique em qualquer outro lugar do card (redireciona para o imóvel)
+  // 4. Clique em qualquer outro lugar (incluindo imagens, títulos e área da foto)
   const card = ev.target.closest(".card[data-href]");
-  if (card) {
+  if (card && card.dataset.href) {
     window.location.href = card.dataset.href;
   }
 });
 
-// Busca imóveis disponíveis aplicando os filtros passados (todos opcionais)
+// Busca imóveis disponíveis aplicando os filtros passados
 async function buscarImoveis({ finalidade, tipo, cidade, bairro, quartosMin, precoMin, precoMax, ordenarPorViews, limite } = {}) {
   let query = sb.from("imoveis").select("*").eq("disponivel", true);
 
@@ -120,7 +139,7 @@ async function buscarImoveis({ finalidade, tipo, cidade, bairro, quartosMin, pre
   return data;
 }
 
-// Preenche um <select> com valores distintos de uma coluna, mantendo a primeira opção ("Todas"/"Todos")
+// Preenche um <select> com valores distintos de uma coluna
 async function preencherSelectDistintos(selectEl, coluna) {
   const { data, error } = await sb.from("imoveis").select(coluna).eq("disponivel", true);
   if (error || !data) return;
