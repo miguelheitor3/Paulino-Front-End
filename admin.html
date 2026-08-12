@@ -180,7 +180,7 @@
     <table>
       <thead>
         <tr>
-          <th>Foto</th><th>Código / Proprietário</th><th>Título</th><th>Tipo</th><th>Data Postagem</th><th>Local</th><th>Preço</th><th>Views</th><th>Status</th><th>Ações</th>
+          <th>Foto</th><th>Código / Proprietário</th><th>Título</th><th>Tipo / Finalidade</th><th>Data Postagem</th><th>Local</th><th>Preço</th><th>Views</th><th>Status</th><th>Ações</th>
         </tr>
       </thead>
       <tbody id="tabela-imoveis"></tbody>
@@ -407,7 +407,7 @@ function renderizarTabela(lista) {
         <span class="proprietario-tag">👤 ${im.proprietario || "Não informado"}</span>
       </td>
       <td>${im.titulo}</td>
-      <td>${im.tipo || "—"}</td>
+      <td>${im.tipo || "—"} / ${im.finalidade || "—"}</td>
       <td>${formatarData(im.criado_em)}</td>
       <td>${[im.bairro, im.cidade].filter(Boolean).join(", ") || "—"}</td>
       <td>${fmtPreco(im.preco)}</td>
