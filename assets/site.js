@@ -33,19 +33,19 @@ function cardHtml(imovel, destaque) {
   ).join("");
 
   const setasHtml = fotos.length > 1 ? `
-    <button type="button" class="carousel-btn prev" aria-label="Foto anterior" onclick="event.preventDefault(); event.stopPropagation();">&#8249;</button>
-    <button type="button" class="carousel-btn next" aria-label="Próxima foto" onclick="event.preventDefault(); event.stopPropagation();">&#8250;</button>
+    <button type="button" class="carousel-btn prev" aria-label="Foto anterior">&#8249;</button>
+    <button type="button" class="carousel-btn next" aria-label="Próxima foto">&#8250;</button>
     <div class="carousel-dots">${fotos.map((_, i) => `<span class="dot ${i === 0 ? "ativa" : ""}"></span>`).join("")}</div>
   ` : "";
 
   return `
-    <a href="imovel.html?id=${imovel.id}" class="card" style="text-decoration: none; color: inherit; display: block;">
+    <div class="card" data-href="imovel.html?id=${imovel.id}" style="cursor: pointer;">
       <div class="card-photo">
         <div class="card-tags">
           ${destaque ? '<span class="tag-destaque">Destaque</span>' : ""}
           <span class="tag-finalidade ${fin.classe}">${fin.texto}</span>
         </div>
-        <span class="tag-fav" onclick="event.preventDefault(); event.stopPropagation();">♡</span>
+        <span class="tag-fav">♡</span>
         <div class="carousel-imgs">${imgsHtml}</div>
         ${setasHtml}
       </div>
@@ -56,12 +56,12 @@ function cardHtml(imovel, destaque) {
         <div class="card-place">${[imovel.bairro, imovel.cidade].filter(Boolean).join(", ")}</div>
         ${specs.length ? `<div class="card-specs">${specs.map(s => `<span>${s}</span>`).join("")}</div>` : ""}
       </div>
-    </a>`;
+    </div>`;
 }
 
 // Delegação de eventos: funciona mesmo quando os cards são recriados dinamicamente.
-// Precisa ser incluído uma vez em qualquer página que use cardHtml().
 document.addEventListener("click", (ev) => {
+  // Clique nas setas do carrossel
   const btnCarrossel = ev.target.closest(".carousel-btn");
   if (btnCarrossel) {
     ev.preventDefault();
@@ -78,6 +78,15 @@ document.addEventListener("click", (ev) => {
     return;
   }
 
+  // Clique no botão/ícone de favorito (evita abrir o imóvel)
+  const tagFav = ev.target.closest(".tag-fav");
+  if (tagFav) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    return;
+  }
+
+  // Clique em qualquer outro lugar do card (redireciona para o imóvel)
   const card = ev.target.closest(".card[data-href]");
   if (card) {
     window.location.href = card.dataset.href;
