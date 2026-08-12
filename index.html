@@ -479,34 +479,34 @@
   }
 
   async function carregarFotoCapa() {
-    const heroImg = document.getElementById("hero-foto");
-    const heroBadge = document.getElementById("hero-badge");
-    const heroBadgeTexto = document.getElementById("hero-badge-texto");
-    const heroLink = document.getElementById("hero-photo-link");
+      const heroImg = document.getElementById("hero-foto");
+      const heroBadge = document.getElementById("hero-badge");
+      const heroBadgeTexto = document.getElementById("hero-badge-texto");
+      const heroLink = document.getElementById("hero-photo-link");
   
-    // Busca o imóvel disponível mais recente que possua pelo menos uma foto
-    const { data } = await sb
-      .from("imoveis")
-      .select("*")
-      .eq("disponivel", true)
-      .order("criado_em", { ascending: false })
-      .limit(10);
+      // Busca o imóvel disponível mais recente que possua pelo menos uma foto
+      const { data } = await sb
+        .from("imoveis")
+        .select("*")
+        .eq("disponivel", true)
+        .order("criado_em", { ascending: false })
+        .limit(10);
   
-    const maisRecente = (data || []).find(im => im.fotos && im.fotos.length > 0);
+      const maisRecente = (data || []).find(im => im.fotos && im.fotos.length > 0);
   
-    if (!maisRecente || !maisRecente.fotos || !maisRecente.fotos[0]) {
-      heroImg.closest(".hero-photo").style.display = "none";
-      return;
+      if (!maisRecente || !maisRecente.fotos || !maisRecente.fotos[0]) {
+        heroImg.closest(".hero-photo").style.display = "none";
+        return;
+      }
+  
+      // 1. Torna a imagem e o badge clicáveis direcionando para a página do imóvel
+      heroLink.href = `imovel.html?id=${maisRecente.id}`;
+      heroImg.src = urlFoto(maisRecente.fotos[0]);
+  
+      // 2. Define o selo fixo sem expirar após 24h
+      heroBadgeTexto.textContent = "Último imóvel adicionado";
+      heroBadge.style.display = "flex";
     }
-  
-    // 1. Torna a imagem e o badge clicáveis direcionando para a página do imóvel
-    heroLink.href = `imovel.html?id=${maisRecente.id}`;
-    heroImg.src = urlFoto(maisRecente.fotos[0]);
-  
-    // 2. Define o selo fixo elegante sem expirar após 24h
-    heroBadgeTexto.textContent = "Último imóvel adicionado";
-    heroBadge.style.display = "flex";
-  }
 
     heroImg.src = urlFoto(maisRecente.fotos[0]);
 
