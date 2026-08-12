@@ -54,28 +54,21 @@
       aspect-ratio: 4/3.2;
       object-fit: cover;
       border-radius: 16px;
-      /* Sombra refinada e bem marcante em camadas (drop-shadow sofisticado) */
       box-shadow: 
         0 20px 40px -10px rgba(12, 59, 44, 0.22),
         0 10px 20px -5px rgba(0, 0, 0, 0.1);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
     
-    /* Opcional: Um leve efeito visual de elevação ao passar o mouse */
-    .hero-photo img:hover {
-      transform: translateY(-4px);
-      box-shadow: 
-        0 28px 50px -10px rgba(12, 59, 44, 0.28),
-        0 12px 24px -5px rgba(0, 0, 0, 0.12);
-    }
   .hero-badge{position:absolute;bottom:20px;left:20px;background:#fff;padding:12px 18px;border-radius:10px;box-shadow:0 12px 30px rgba(12,59,44,.16);display:flex;align-items:center;gap:10px;}
   .hero-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--red);}
   .hero-badge span{font-size:12.5px;font-weight:600;}
 
-  /* corrigir bug clicar card */
+  /* Efeitos e interações nos cards e Hero */
   .card-photo { position: relative; cursor: pointer; }
   .card-tags { pointer-events: none; }
   .carousel-btn, .tag-fav, .carousel-dots { pointer-events: auto; z-index: 10; }
+  
   #hero-photo-link {
     position: relative;
     display: block;
@@ -88,7 +81,7 @@
       0 12px 24px -5px rgba(0, 0, 0, 0.12);
   }
   
-  /* SEARCH CARD (overlaps hero) */
+  /* SEARCH CARD */
   .search-card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 48px rgba(12,24,18,.08);margin-top:28px;padding:8px;display:grid;grid-template-columns:repeat(5,minmax(100px,1fr)) auto;align-items:stretch;position:relative;}
   .search-card .field{position:relative;border-right:1px solid var(--line);min-width:0;}
   .search-card .field:last-of-type{border-right:none;}
@@ -145,7 +138,7 @@
   .carousel-dots .dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.65);transition:width .15s ease,background .15s ease;}
   .carousel-dots .dot.ativa{background:#fff;width:15px;border-radius:3px;}
 
-  /* Tags: destaque + finalidade (venda/aluguel/temporada), empilhadas no canto superior esquerdo */
+  /* Tags */
   .card-tags{position:absolute;top:14px;left:14px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;z-index:6;}
   .tag-destaque{background:var(--red);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:5px 11px;border-radius:6px;}
   .tag-finalidade{color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:5px 11px;border-radius:6px;}
@@ -433,7 +426,6 @@
   let filtroPrecoMin = "";
   let filtroPrecoMax = "";
 
-  // Guarda o valor selecionado de cada dropdown (finalidade, tipo, cidade, bairro, quartos)
   const valoresDropdown = {
     finalidade: "Qualquer",
     tipo: "Qualquer",
@@ -479,48 +471,36 @@
   }
 
   async function carregarFotoCapa() {
-      const heroImg = document.getElementById("hero-foto");
-      const heroBadge = document.getElementById("hero-badge");
-      const heroBadgeTexto = document.getElementById("hero-badge-texto");
-      const heroLink = document.getElementById("hero-photo-link");
-  
-      // Busca o imóvel disponível mais recente que possua pelo menos uma foto
-      const { data } = await sb
-        .from("imoveis")
-        .select("*")
-        .eq("disponivel", true)
-        .order("criado_em", { ascending: false })
-        .limit(10);
-  
-      const maisRecente = (data || []).find(im => im.fotos && im.fotos.length > 0);
-  
-      if (!maisRecente || !maisRecente.fotos || !maisRecente.fotos[0]) {
-        heroImg.closest(".hero-photo").style.display = "none";
-        return;
-      }
-  
-      // 1. Torna a imagem e o badge clicáveis direcionando para a página do imóvel
-      heroLink.href = `imovel.html?id=${maisRecente.id}`;
-      heroImg.src = urlFoto(maisRecente.fotos[0]);
-  
-      // 2. Define o selo fixo sem expirar após 24h
-      heroBadgeTexto.textContent = "Último imóvel adicionado";
-      heroBadge.style.display = "flex";
+    const heroImg = document.getElementById("hero-foto");
+    const heroBadge = document.getElementById("hero-badge");
+    const heroBadgeTexto = document.getElementById("hero-badge-texto");
+    const heroLink = document.getElementById("hero-photo-link");
+
+    // Busca o imóvel disponível mais recente que possua pelo menos uma foto
+    const { data } = await sb
+      .from("imoveis")
+      .select("*")
+      .eq("disponivel", true)
+      .order("criado_em", { ascending: false })
+      .limit(10);
+
+    const maisRecente = (data || []).find(im => im.fotos && im.fotos.length > 0);
+
+    if (!maisRecente || !maisRecente.fotos || !maisRecente.fotos[0]) {
+      heroImg.closest(".hero-photo").style.display = "none";
+      return;
     }
 
+    // 1. Torna a imagem e o badge clicáveis direcionando para a página do imóvel
+    heroLink.href = `imovel.html?id=${maisRecente.id}`;
     heroImg.src = urlFoto(maisRecente.fotos[0]);
 
-    // só mostra o selo "adicionado hoje" se ele realmente foi criado nas últimas 24h
-    const criadoEm = new Date(maisRecente.criado_em);
-    const horasAtras = (Date.now() - criadoEm.getTime()) / 1000 / 60 / 60;
-    if (horasAtras <= 24) {
-      heroBadgeTexto.textContent = "Novo imóvel adicionado hoje";
-      heroBadge.style.display = "flex";
-    }
+    // 2. Define o selo fixo sem expirar após 24h
+    heroBadgeTexto.textContent = "Último imóvel adicionado";
+    heroBadge.style.display = "flex";
   }
 
-  /* ---------------- Dropdown customizado dos filtros ---------------- */
-
+  /* Dropdown customizado dos filtros */
   function fecharTodosDropdowns(exceto) {
     document.querySelectorAll(".field.dropdown.aberto").forEach(el => {
       if (el !== exceto) el.classList.remove("aberto");
@@ -539,7 +519,6 @@
     campoEl.classList.remove("aberto");
   }
 
-  // Reconstrói as opções de um dropdown (usado para Cidade e Bairro, que vêm do banco)
   function popularDropdown(menuId, valores, valorPadrao) {
     const menu = document.getElementById(menuId);
     const campoEl = menu.closest(".field.dropdown");
