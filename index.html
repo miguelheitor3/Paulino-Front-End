@@ -76,6 +76,17 @@
   .card-photo { position: relative; cursor: pointer; }
   .card-tags { pointer-events: none; }
   .carousel-btn, .tag-fav, .carousel-dots { pointer-events: auto; z-index: 10; }
+  #hero-photo-link {
+    position: relative;
+    display: block;
+  }
+  
+  #hero-photo-link:hover img {
+    transform: translateY(-4px);
+    box-shadow: 
+      0 28px 50px -10px rgba(12, 59, 44, 0.28),
+      0 12px 24px -5px rgba(0, 0, 0, 0.12);
+  }
   
   /* SEARCH CARD (overlaps hero) */
   .search-card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 48px rgba(12,24,18,.08);margin-top:28px;padding:8px;display:grid;grid-template-columns:repeat(5,minmax(100px,1fr)) auto;align-items:stretch;position:relative;}
@@ -229,8 +240,13 @@
         </div>
       </div>
       <div class="hero-photo">
-        <img id="hero-foto" src="" alt="Imóvel à venda" style="background:var(--green-tint);aspect-ratio:4/3.2;">
-        <div class="hero-badge" id="hero-badge" style="display:none;"><span class="dot"></span><span id="hero-badge-texto"></span></div>
+        <a id="hero-photo-link" href="#" style="display: block; text-decoration: none;">
+          <img id="hero-foto" src="" alt="Imóvel em destaque" style="background:var(--green-tint);aspect-ratio:4/3.2;cursor:pointer;">
+          <div class="hero-badge" id="hero-badge" style="display:none; cursor:pointer;">
+            <span class="dot"></span>
+            <span id="hero-badge-texto">Último imóvel adicionado</span>
+          </div>
+        </a>
       </div>
     </div>
 
@@ -466,21 +482,31 @@
     const heroImg = document.getElementById("hero-foto");
     const heroBadge = document.getElementById("hero-badge");
     const heroBadgeTexto = document.getElementById("hero-badge-texto");
-
-    // pega os imóveis disponíveis mais recentes e escolhe o primeiro que já tenha foto
+    const heroLink = document.getElementById("hero-photo-link");
+  
+    // Busca o imóvel disponível mais recente que possua pelo menos uma foto
     const { data } = await sb
       .from("imoveis")
       .select("*")
       .eq("disponivel", true)
       .order("criado_em", { ascending: false })
       .limit(10);
-
+  
     const maisRecente = (data || []).find(im => im.fotos && im.fotos.length > 0);
+  
     if (!maisRecente || !maisRecente.fotos || !maisRecente.fotos[0]) {
-      // nenhum imóvel com foto ainda: esconde a foto de capa em vez de mostrar algo falso
       heroImg.closest(".hero-photo").style.display = "none";
       return;
     }
+  
+    // 1. Torna a imagem e o badge clicáveis direcionando para a página do imóvel
+    heroLink.href = `imovel.html?id=${maisRecente.id}`;
+    heroImg.src = urlFoto(maisRecente.fotos[0]);
+  
+    // 2. Define o selo fixo elegante sem expirar após 24h
+    heroBadgeTexto.textContent = "Último imóvel adicionado";
+    heroBadge.style.display = "flex";
+  }
 
     heroImg.src = urlFoto(maisRecente.fotos[0]);
 
