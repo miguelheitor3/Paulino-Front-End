@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Painel Admin — Paulino Imóveis</title>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Biblioteca para gerar arquivos Excel (XLSX) -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   :root{
     --green:#0C3B2C; --green-dark:#082B20; --red:#C81E2C;
@@ -12,7 +14,7 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Inter',sans-serif;color:var(--ink);background:var(--offwhite);}
-  .wrap{max-width:1080px;margin:0 auto;padding:32px 24px 80px;}
+  .wrap{max-width:1180px;margin:0 auto;padding:32px 24px 80px;}
   h1{font-family:'Archivo',sans-serif;font-weight:800;font-size:24px;margin-bottom:24px;}
   h2{font-family:'Archivo',sans-serif;font-weight:700;font-size:18px;margin-bottom:14px;}
 
@@ -40,6 +42,10 @@
   .msg.ok{color:var(--green);}
   .msg.erro{color:var(--red);}
 
+  /* Painel de Filtros e Busca */
+  .filtros-box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:20px;}
+  .filtros-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:12px;align-items:end;}
+
   table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
   th,td{padding:12px 14px;text-align:left;font-size:13.5px;border-bottom:1px solid var(--line);}
   th{background:#fafbfa;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);}
@@ -50,8 +56,8 @@
   .status.vend{background:#FBE8E9;color:var(--red);}
   .acoes{display:flex;gap:6px;flex-wrap:wrap;}
   .tabela-topo{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:16px;}
-  .input-busca{max-width:280px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13.5px;}
   .codigo-cell{font-family:'Archivo',sans-serif;font-weight:700;font-size:12.5px;color:var(--green);background:var(--offwhite);padding:3px 8px;border-radius:6px;display:inline-block;}
+  .proprietario-tag{display:block;font-size:11px;color:var(--ink-soft);margin-top:2px;}
 </style>
 </head>
 <body>
@@ -110,7 +116,8 @@
         <div class="form-grid">
           <div><label>Banheiros</label><input name="banheiros" type="number" placeholder="2"></div>
           <div><label>Vagas</label><input name="vagas" type="number" placeholder="2"></div>
-          <div></div>
+          <!-- CAMPO NOVO: Proprietário -->
+          <div><label>Proprietário (Interno)</label><input name="proprietario" placeholder="Nome do proprietário"></div>
         </div>
         <div class="form-grid full">
           <div><label>Descrição</label><textarea name="descricao" placeholder="Detalhes do imóvel..."></textarea></div>
@@ -130,14 +137,50 @@
       </form>
     </div>
 
+    <!-- PAINEL DE FILTROS E PESQUISA -->
     <div class="tabela-topo">
       <h2 style="margin-bottom:0;">Imóveis cadastrados</h2>
-      <input type="text" id="busca-imovel" placeholder="Buscar por código ou título..." class="input-busca">
+      <button class="btn btn-outline btn-sm" onclick="exportarExcel()">📊 Exportar XLSX</button>
     </div>
+
+    <div class="filtros-box">
+      <div class="filtros-grid">
+        <div>
+          <label>Buscar (Código, Título ou Proprietário)</label>
+          <input type="text" id="filtro-termo" placeholder="Digite para buscar...">
+        </div>
+        <div>
+          <label>Tipo</label>
+          <select id="filtro-tipo">
+            <option value="">Todos os tipos</option>
+            <option value="Casa">Casa</option>
+            <option value="Terreno">Terreno</option>
+            <option value="Apartamento">Apartamento</option>
+          </select>
+        </div>
+        <div>
+          <label>Status</label>
+          <select id="filtro-status">
+            <option value="">Todos</option>
+            <option value="disp">Disponível</option>
+            <option value="vend">Vendido/Inativo</option>
+          </select>
+        </div>
+        <div>
+          <label>Postado De</label>
+          <input type="date" id="filtro-data-de">
+        </div>
+        <div>
+          <label>Postado Até</label>
+          <input type="date" id="filtro-data-ate">
+        </div>
+      </div>
+    </div>
+
     <table>
       <thead>
         <tr>
-          <th>Foto</th><th>Código</th><th>Título</th><th>Tipo</th><th>Local</th><th>Preço</th><th>Views</th><th>Status</th><th>Ações</th>
+          <th>Foto</th><th>Código / Proprietário</th><th>Título</th><th>Tipo</th><th>Data Postagem</th><th>Local</th><th>Preço</th><th>Views</th><th>Status</th><th>Ações</th>
         </tr>
       </thead>
       <tbody id="tabela-imoveis"></tbody>
@@ -151,6 +194,7 @@
 <script>
 let editandoId = null;
 let imoveisCache = [];
+let imoveisFiltrados = [];
 
 async function checarSessao() {
   const { data: { session } } = await sb.auth.getSession();
@@ -227,6 +271,7 @@ async function salvarImovel(ev) {
       quartos: fd.get("quartos") ? Number(fd.get("quartos")) : null,
       banheiros: fd.get("banheiros") ? Number(fd.get("banheiros")) : null,
       vagas: fd.get("vagas") ? Number(fd.get("vagas")) : null,
+      proprietario: fd.get("proprietario") || null, // Novo campo
       descricao: fd.get("descricao") || null,
       destaque_manual: document.getElementById("destaque_manual").checked,
     };
@@ -272,6 +317,7 @@ function editarImovel(id) {
   form.quartos.value = im.quartos ?? "";
   form.banheiros.value = im.banheiros ?? "";
   form.vagas.value = im.vagas ?? "";
+  form.proprietario.value = im.proprietario || "";
   form.descricao.value = im.descricao || "";
   document.getElementById("destaque_manual").checked = !!im.destaque_manual;
   document.getElementById("titulo-form").textContent = "Editando: " + im.titulo;
@@ -307,7 +353,47 @@ async function carregarTabela() {
   const { data, error } = await sb.from("imoveis").select("*").order("criado_em", { ascending: false });
   if (error) { console.error(error); return; }
   imoveisCache = data;
-  renderizarTabela(imoveisCache);
+  aplicarFiltros();
+}
+
+function formatarData(isoStr) {
+  if (!isoStr) return "—";
+  const d = new Date(isoStr);
+  return d.toLocaleDateString("pt-BR");
+}
+
+function aplicarFiltros() {
+  const termo = document.getElementById("filtro-termo").value.trim().toLowerCase();
+  const tipo = document.getElementById("filtro-tipo").value;
+  const status = document.getElementById("filtro-status").value;
+  const dataDe = document.getElementById("filtro-data-de").value;
+  const dataAte = document.getElementById("filtro-data-ate").value;
+
+  imoveisFiltrados = imoveisCache.filter(im => {
+    // Busca textual (Código, Título ou Proprietário)
+    const emCodigo = (im.codigo || "").toLowerCase().includes(termo);
+    const emTitulo = (im.titulo || "").toLowerCase().includes(termo);
+    const emProprietario = (im.proprietario || "").toLowerCase().includes(termo);
+    if (termo && !emCodigo && !emTitulo && !emProprietario) return false;
+
+    // Tipo
+    if (tipo && im.tipo !== tipo) return false;
+
+    // Status
+    if (status === "disp" && !im.disponivel) return false;
+    if (status === "vend" && im.disponivel) return false;
+
+    // Data de postagem
+    if (im.criado_em) {
+      const dataCriacao = im.criado_em.substring(0, 10); // 'YYYY-MM-DD'
+      if (dataDe && dataCriacao < dataDe) return false;
+      if (dataAte && dataCriacao > dataAte) return false;
+    }
+
+    return true;
+  });
+
+  renderizarTabela(imoveisFiltrados);
 }
 
 function renderizarTabela(lista) {
@@ -316,12 +402,16 @@ function renderizarTabela(lista) {
   tbody.innerHTML = lista.map(im => `
     <tr>
       <td><img class="thumb" src="${im.fotos && im.fotos[0] ? urlFoto(im.fotos[0]) : 'https://via.placeholder.com/56x42?text=—'}"></td>
-      <td><span class="codigo-cell">${im.codigo || "—"}</span></td>
+      <td>
+        <span class="codigo-cell">${im.codigo || "—"}</span>
+        <span class="proprietario-tag">👤 ${im.proprietario || "Não informado"}</span>
+      </td>
       <td>${im.titulo}</td>
       <td>${im.tipo || "—"}</td>
+      <td>${formatarData(im.criado_em)}</td>
       <td>${[im.bairro, im.cidade].filter(Boolean).join(", ") || "—"}</td>
       <td>${fmtPreco(im.preco)}</td>
-      <td>${im.visualizacoes}</td>
+      <td>${im.visualizacoes || 0}</td>
       <td><span class="status ${im.disponivel ? "disp" : "vend"}">${im.disponivel ? "Disponível" : "Vendido/Inativo"}</span></td>
       <td class="acoes">
         <button class="btn btn-outline btn-sm" onclick="editarImovel('${im.id}')">Editar</button>
@@ -331,20 +421,44 @@ function renderizarTabela(lista) {
         <button class="btn btn-red btn-sm" onclick="excluirImovel('${im.id}')">Excluir</button>
       </td>
     </tr>
-  `).join("") || '<tr><td colspan="9" style="color:#5C665F;">Nenhum imóvel encontrado.</td></tr>';
+  `).join("") || '<tr><td colspan="10" style="color:#5C665F; padding:20px; text-align:center;">Nenhum imóvel encontrado com esses filtros.</td></tr>';
 }
 
-document.getElementById("busca-imovel").addEventListener("input", (ev) => {
-  const termo = ev.target.value.trim().toLowerCase();
-  if (!termo) {
-    renderizarTabela(imoveisCache);
+function exportarExcel() {
+  if (!imoveisFiltrados.length) {
+    alert("Nenhum imóvel para exportar.");
     return;
   }
-  const filtrados = imoveisCache.filter(im =>
-    (im.codigo || "").toLowerCase().includes(termo) ||
-    (im.titulo || "").toLowerCase().includes(termo)
-  );
-  renderizarTabela(filtrados);
+
+  const dadosExportar = imoveisFiltrados.map(im => ({
+    "Código": im.codigo || "—",
+    "Título": im.titulo || "—",
+    "Proprietário": im.proprietario || "—",
+    "Tipo": im.tipo || "—",
+    "Finalidade": im.finalidade || "—",
+    "Preço (R$)": im.preco || 0,
+    "Cidade": im.cidade || "—",
+    "Bairro": im.bairro || "—",
+    "Área (m²)": im.area_m2 || "—",
+    "Quartos": im.quartos || 0,
+    "Banheiros": im.banheiros || 0,
+    "Vagas": im.vagas || 0,
+    "Status": im.disponivel ? "Disponível" : "Vendido/Inativo",
+    "Visualizações": im.visualizacoes || 0,
+    "Data de Postagem": formatarData(im.criado_em)
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(dadosExportar);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Imóveis Filtrados");
+  
+  XLSX.writeFile(workbook, `Relatorio_Imoveis_${new Date().toISOString().slice(0, 10)}.xlsx`);
+}
+
+// Event Listeners para acionar a filtragem
+["filtro-termo", "filtro-tipo", "filtro-status", "filtro-data-de", "filtro-data-ate"].forEach(id => {
+  document.getElementById(id).addEventListener("input", aplicarFiltros);
+  document.getElementById(id).addEventListener("change", aplicarFiltros);
 });
 
 checarSessao();
