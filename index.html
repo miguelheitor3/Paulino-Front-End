@@ -72,6 +72,11 @@
   .hero-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--red);}
   .hero-badge span{font-size:12.5px;font-weight:600;}
 
+  /* corrigir bug clicar card */
+  .card-photo { position: relative; cursor: pointer; }
+  .card-tags { pointer-events: none; }
+  .carousel-btn, .tag-fav, .carousel-dots { pointer-events: auto; z-index: 10; }
+  
   /* SEARCH CARD (overlaps hero) */
   .search-card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 48px rgba(12,24,18,.08);margin-top:28px;padding:8px;display:grid;grid-template-columns:repeat(5,minmax(100px,1fr)) auto;align-items:stretch;position:relative;}
   .search-card .field{position:relative;border-right:1px solid var(--line);min-width:0;}
