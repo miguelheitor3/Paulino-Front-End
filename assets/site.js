@@ -1,9 +1,31 @@
 // Cliente Supabase compartilhado
 const sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
+// Formatação Monetária R$
 function fmtPreco(v) {
-  if (v == null) return "Sob consulta";
+  if (v == null || v === "") return "Sob consulta";
   return Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+}
+
+// Formatação visual para inputs de preço à medida que digita
+function aplicarMascaraMoeda(input) {
+  input.addEventListener("input", (e) => {
+    let value = e.target.value.replace(/\D/g, "");
+    if (!value) {
+      e.target.value = "";
+      return;
+    }
+    value = (parseInt(value, 10) / 100).toFixed(2) + "";
+    value = value.replace(".", ",");
+    value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+    e.target.value = "R$ " + value;
+  });
+}
+
+function parseMoedaParaNumero(str) {
+  if (!str) return null;
+  const limpo = str.replace(/[^\d,]/g, "").replace(",", ".");
+  return parseFloat(limpo) || null;
 }
 
 function urlFoto(caminho) {
@@ -21,10 +43,10 @@ function rotuloFinalidade(finalidade) {
 function cardHtml(imovel, destaque) {
   const fotos = (imovel.fotos && imovel.fotos.length ? imovel.fotos : [null]).map(urlFoto);
   const specs = [];
-  if (imovel.area_m2) specs.push(`${imovel.area_m2} m²`);
+  if (imovel.area_construida_m2) specs.push(`Const.: ${imovel.area_construida_m2} m²`);
+  if (imovel.area_terreno_m2) specs.push(`Terr.: ${imovel.area_terreno_m2} m²`);
   if (imovel.quartos) specs.push(`${imovel.quartos} qts`);
   if (imovel.banheiros) specs.push(`${imovel.banheiros} ban.`);
-  if (imovel.vagas) specs.push(`${imovel.vagas} vagas`);
 
   const fin = rotuloFinalidade(imovel.finalidade);
 
@@ -59,9 +81,8 @@ function cardHtml(imovel, destaque) {
     </div>`;
 }
 
-// Delegação de eventos otimizada para capturar cliques na foto e no card
+// Eventos dos cards (carrossel / clique)
 document.addEventListener("click", (ev) => {
-  // 1. Clique nas setas do carrossel (troca foto sem abrir o imóvel)
   const btnCarrossel = ev.target.closest(".carousel-btn");
   if (btnCarrossel) {
     ev.preventDefault();
@@ -70,16 +91,12 @@ document.addEventListener("click", (ev) => {
     const imgs = [...cardPhoto.querySelectorAll(".carousel-imgs img")];
     const dots = [...cardPhoto.querySelectorAll(".carousel-dots .dot")];
     let idx = imgs.findIndex(img => img.classList.contains("ativa"));
-    idx = btnCarrossel.classList.contains("next")
-      ? (idx + 1) % imgs.length
-      : (idx - 1 + imgs.length) % imgs.length;
-
+    idx = btnCarrossel.classList.contains("next") ? (idx + 1) % imgs.length : (idx - 1 + imgs.length) % imgs.length;
     imgs.forEach((img, i) => img.classList.toggle("ativa", i === idx));
     dots.forEach((d, i) => d.classList.toggle("ativa", i === idx));
     return;
   }
 
-  // 2. Clique nas bolinhas (dots) do carrossel (troca foto sem abrir o imóvel)
   const dotCarrossel = ev.target.closest(".carousel-dots .dot");
   if (dotCarrossel) {
     ev.preventDefault();
@@ -88,7 +105,6 @@ document.addEventListener("click", (ev) => {
     const dots = [...cardPhoto.querySelectorAll(".carousel-dots .dot")];
     const imgs = [...cardPhoto.querySelectorAll(".carousel-imgs img")];
     const idx = dots.indexOf(dotCarrossel);
-
     if (idx !== -1) {
       imgs.forEach((img, i) => img.classList.toggle("ativa", i === idx));
       dots.forEach((d, i) => d.classList.toggle("ativa", i === idx));
@@ -96,7 +112,6 @@ document.addEventListener("click", (ev) => {
     return;
   }
 
-  // 3. Clique no botão de favorito (evita abrir o imóvel)
   const tagFav = ev.target.closest(".tag-fav");
   if (tagFav) {
     ev.preventDefault();
@@ -105,22 +120,19 @@ document.addEventListener("click", (ev) => {
     return;
   }
 
-  // 4. Clique em qualquer outro lugar (incluindo imagens, títulos e área da foto)
   const card = ev.target.closest(".card[data-href]");
   if (card && card.dataset.href) {
     window.location.href = card.dataset.href;
   }
 });
 
-// Busca imóveis disponíveis aplicando os filtros passados
-async function buscarImoveis({ finalidade, tipo, cidade, bairro, quartosMin, precoMin, precoMax, ordenarPorViews, limite } = {}) {
+async function buscarImoveis({ finalidade, tipo, cidade, bairro, precoMin, precoMax, ordenarPorViews, limite } = {}) {
   let query = sb.from("imoveis").select("*").eq("disponivel", true);
 
   if (finalidade && finalidade !== "Qualquer") query = query.eq("finalidade", finalidade);
   if (tipo && tipo !== "Qualquer") query = query.eq("tipo", tipo);
-  if (cidade && cidade !== "Todas") query = query.eq("cidade", cidade);
-  if (bairro && bairro !== "Todos") query = query.eq("bairro", bairro);
-  if (quartosMin) query = query.gte("quartos", quartosMin);
+  if (cidade && cidade !== "Todas") query = query.ilike("cidade", `%${cidade}%`);
+  if (bairro && bairro !== "Todos") query = query.ilike("bairro", `%${bairro}%`);
   if (precoMin != null) query = query.gte("preco", precoMin);
   if (precoMax != null) query = query.lte("preco", precoMax);
 
@@ -137,20 +149,4 @@ async function buscarImoveis({ finalidade, tipo, cidade, bairro, quartosMin, pre
     return [];
   }
   return data;
-}
-
-// Preenche um <select> com valores distintos de uma coluna
-async function preencherSelectDistintos(selectEl, coluna) {
-  const { data, error } = await sb.from("imoveis").select(coluna).eq("disponivel", true);
-  if (error || !data) return;
-  const valores = [...new Set(data.map(r => r[coluna]).filter(Boolean))].sort();
-  const primeira = selectEl.options[0];
-  selectEl.innerHTML = "";
-  selectEl.appendChild(primeira);
-  valores.forEach(v => {
-    const opt = document.createElement("option");
-    opt.value = v;
-    opt.textContent = v;
-    selectEl.appendChild(opt);
-  });
 }
