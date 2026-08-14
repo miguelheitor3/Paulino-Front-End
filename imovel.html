@@ -3,328 +3,2222 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
 <title>Imóvel — Paulino Imóveis</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
 <style>
+
   :root{
-    --green:#0C3B2C; --green-dark:#082B20; --green-tint:#E8EFEA;
-    --red:#C81E2C; --white:#FFFFFF; --offwhite:#F6F7F5;
-    --ink:#121815; --ink-soft:#5C665F; --line:#E3E7E2;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--white);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
-  a{color:inherit;text-decoration:none;}
-  img{display:block;max-width:100%;}
-  .wrap{max-width:1240px;margin:0 auto;padding:0 32px;}
-
-  /* HEADER */
-  header{background:var(--green-dark);border-bottom:1px solid rgba(255,255,255,.08);}
-  .header-inner{display:flex;align-items:center;justify-content:space-between;padding:20px 0;}
-  .logo{display:flex;align-items:center;gap:10px;}
-  .logo-img{height:52px;width:auto;display:block;}
-  .logo-sub{font-size:10px;color:var(--ink-soft);letter-spacing:.04em;margin-top:2px;}
-  nav{display:flex;gap:32px;}
-  nav a{font-size:14px;font-weight:500;color:rgba(255,255,255,.9);}
-  .header-right{display:flex;align-items:center;gap:20px;}
-  .header-phone{font-size:13.5px;color:rgba(255,255,255,.75);}
-  .btn-green{background:var(--red);color:#fff;font-size:13.5px;font-weight:600;padding:12px 22px;border-radius:6px;transition:background .15s ease;}
-  .btn-green:hover{background:#a81723;}
-
-  /* BREADCRUMB */
-  .breadcrumb{padding:22px 0 0;font-size:13px;color:var(--ink-soft);}
-  .breadcrumb a{color:var(--green);font-weight:600;}
-
-  /* LAYOUT PRINCIPAL */
-  .detalhe{padding:20px 0 88px;}
-  .detalhe-grid{display:grid;grid-template-columns:1fr 360px;gap:44px;align-items:start;}
-
-  /* GALERIA - Forçando trava do aspect ratio */
-  .foto-principal{position:relative;width:100%;aspect-ratio:16/10;border-radius:14px;overflow:hidden;background:#eee;}
-  .foto-principal img{width:100%;height:100%;object-fit:cover;display:block;}
-  .foto-nav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.94);border:0;font-size:20px;cursor:pointer;color:var(--ink);box-shadow:0 4px 14px rgba(12,24,18,.14);z-index:2;}
-  .foto-nav:hover{background:#fff;}
-  .foto-nav.prev{left:16px;}
-  .foto-nav.next{right:16px;}
-  .foto-contador{position:absolute;bottom:16px;right:16px;background:rgba(18,24,21,.68);color:#fff;font-size:12px;font-weight:600;padding:5px 11px;border-radius:100px;z-index:2;}
-  .tags-galeria{position:absolute;top:16px;left:16px;display:flex;gap:8px;z-index:3;}
-  .tag-pill{color:#fff;font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:6px 12px;border-radius:6px;}
-  .tag-pill.venda{background:var(--green);}
-  .tag-pill.aluguel{background:#2563EB;}
-  .tag-pill.temporada{background:#7C3AED;}
-  .tag-pill.destaque{background:var(--red);}
-  .miniaturas{display:flex;gap:8px;margin-top:10px;overflow-x:auto;padding-bottom:4px;min-height:64px;}
-  .miniaturas img{width:84px;height:60px;object-fit:cover;border-radius:8px;cursor:pointer;flex-shrink:0;opacity:.5;border:2px solid transparent;transition:opacity .15s ease,border-color .15s ease;}
-  .miniaturas img.ativa{opacity:1;border-color:var(--green);}
-
-  /* CONTEÚDO (título, specs, descrição) */
-  .titulo-bloco{margin-top:28px;}
-  .codigo-badge{display:inline-block;font-size:11px;font-weight:700;color:var(--ink-soft);background:var(--offwhite);padding:4px 10px;border-radius:6px;margin-bottom:10px;letter-spacing:.02em;}
-  h1{font-family:'Archivo',sans-serif;font-weight:800;font-size:26px;line-height:1.25;margin-bottom:8px;}
-  .local{color:var(--ink-soft);font-size:14.5px;margin-bottom:20px;}
-
-  .specs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:32px;}
-  .spec-item{background:#fff;padding:16px;text-align:center;}
-  .spec-item .valor{font-family:'Archivo',sans-serif;font-weight:800;font-size:18px;color:var(--green);}
-  .spec-item .rotulo{font-size:11px;color:var(--ink-soft);margin-top:3px;text-transform:uppercase;letter-spacing:.03em;}
-
-  .desc-titulo{font-family:'Archivo',sans-serif;font-weight:700;font-size:17px;margin-bottom:12px;}
-  .desc{font-size:15px;line-height:1.75;color:var(--ink-soft);white-space:pre-wrap;}
-
-  /* CARD LATERAL */
-  .card-preco{position:sticky;top:24px;border:1px solid var(--line);border-radius:14px;padding:26px;background:#fff;box-shadow:0 18px 44px rgba(12,24,18,.08);}
-  .card-preco .preco{font-family:'Archivo',sans-serif;font-weight:800;font-size:28px;color:var(--ink);margin-bottom:4px;}
-  .card-preco .preco-sub{font-size:12.5px;color:var(--ink-soft);margin-bottom:22px;}
-  .btn-whats{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--green);color:#fff;font-weight:600;font-size:14.5px;padding:15px;border-radius:9px;margin-bottom:10px;transition:background .15s ease;}
-  .btn-whats:hover{background:var(--green-dark);}
-  .btn-tel{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--offwhite);color:var(--ink);font-weight:600;font-size:14.5px;padding:15px;border-radius:9px;margin-bottom:22px;}
-  .card-preco hr{border:0;border-top:1px solid var(--line);margin-bottom:18px;}
-  .agente{display:flex;align-items:center;gap:12px;}
-  .agente-avatar{width:44px;height:44px;border-radius:50%;background:var(--green-tint);display:flex;align-items:center;justify-content:center;font-family:'Archivo',sans-serif;font-weight:800;color:var(--green);flex-shrink:0;}
-  .agente-nome{font-size:13.5px;font-weight:600;}
-  .agente-cargo{font-size:12px;color:var(--ink-soft);margin-top:1px;}
-
-  .voltar{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;color:var(--green);font-weight:600;margin:24px 0 4px;}
-
-  /* SKELETON / LOADING ANIMATION */
-  .skeleton {
-    background: linear-gradient(90deg, #eee 25%, #f6f6f6 50%, #eee 75%);
-    background-size: 200% 100%;
-    animation: skeleton-pulse 1.5s infinite;
-  }
-  @keyframes skeleton-pulse {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    --green:#0C3B2C;
+    --green-dark:#082B20;
+    --green-tint:#E8EFEA;
+    --red:#C81E2C;
+    --white:#FFFFFF;
+    --offwhite:#F6F7F5;
+    --ink:#121815;
+    --ink-soft:#5C665F;
+    --line:#E3E7E2;
   }
 
-  .estado{padding:80px 0;text-align:center;color:var(--ink-soft);font-size:14.5px;}
+  /* =========================================================
+     RESET
+  ========================================================= */
 
-  /* FOOTER */
-  footer{background:var(--green-dark);color:rgba(255,255,255,.7);padding:56px 0 28px;margin-top:40px;}
-  .footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;margin-bottom:44px;}
-  .footer-col h4{color:#fff;font-size:13px;font-weight:600;margin-bottom:16px;letter-spacing:.02em;}
-  .footer-col a{display:block;font-size:13px;margin-bottom:10px;color:rgba(255,255,255,.65);}
-  .footer-logo{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
-  .footer-logo-chip{background:#fff;border-radius:10px;padding:8px 16px;display:inline-flex;align-items:center;}
-  .footer-logo-chip .logo-img{height:38px;}
-  .footer-desc{font-size:13px;color:rgba(255,255,255,.55);max-width:280px;line-height:1.6;}
-  .footer-bottom{border-top:1px solid rgba(255,255,255,.14);padding-top:22px;display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.45);flex-wrap:wrap;gap:10px;}
-
-  @media (max-width:960px){
-    .detalhe-grid{grid-template-columns:1fr;}
-    .card-preco{position:static;}
-    nav{display:none;}
-    .footer-grid{grid-template-columns:1fr 1fr;}
-  }
-  @media (max-width:560px){
-    .footer-grid{grid-template-columns:1fr;}
-  }
-</style>
-</head>
-<body>
-
-<header>
-  <div class="wrap header-inner">
-    <a class="logo" href="index.html">
-      <img src="assets/logo.png" alt="Paulino Imóveis" class="logo-img" width="160" height="52">
-      <div class="logo-sub">CRECI 37888<br>Três Pontas–MG</div>
-    </a>
-    <nav>
-      <a href="index.html#resultados">Comprar</a>
-      <a href="index.html#resultados">Alugar</a>
-      <a href="index.html#resultados">Terrenos</a>
-      <a href="#">Negociar imóvel</a>
-      <a href="anunciar.html">Anunciar imóvel</a>
-      <a href="https://wa.me/5535998848963?text=Ol%C3%A1!%20Quero%20falar%20sobre%20financiamento%20de%20um%20im%C3%B3vel." target="_blank" rel="noopener">Financiamento</a>
-    </nav>
-    <div class="header-right">
-      <span class="header-phone">(35) 3266-1985</span>
-      <a class="btn-green" href="https://wa.me/5535998848963" target="_blank" rel="noopener">Falar no WhatsApp</a>
-    </div>
-  </div>
-</header>
-
-<div class="wrap">
-  <a class="voltar" href="index.html">← Voltar para o catálogo</a>
-</div>
-
-<!-- CONTAINER PRINCIPAL: Já possui a estrutura Skeleton reservada para evitar o salto de layout -->
-<div class="wrap" id="conteudo">
-  <div class="detalhe">
-    <div class="detalhe-grid">
-      <div>
-        <div class="foto-principal skeleton"></div>
-        <div class="titulo-bloco" style="margin-top:28px;">
-          <div class="skeleton" style="height:20px; width:80px; border-radius:6px; margin-bottom:10px;"></div>
-          <div class="skeleton" style="height:32px; width:70%; border-radius:6px; margin-bottom:8px;"></div>
-          <div class="skeleton" style="height:18px; width:40%; border-radius:6px; margin-bottom:20px;"></div>
-        </div>
-      </div>
-      <div>
-        <div class="card-preco skeleton" style="height:280px;"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<footer>
-  <div class="wrap">
-    <div class="footer-grid">
-      <div>
-        <div class="footer-logo">
-          <div class="footer-logo-chip">
-            <img src="assets/logo.png" alt="Paulino Imóveis" class="logo-img" width="120" height="38">
-          </div>
-        </div>
-        <p class="footer-desc">Imobiliária em Três Pontas–MG. Casas, terrenos e imóveis comerciais com atendimento direto e sem burocracia.</p>
-      </div>
-      <div class="footer-col">
-        <h4>Imóveis</h4>
-        <a href="index.html#resultados">Casas à venda</a>
-        <a href="index.html#resultados">Terrenos à venda</a>
-        <a href="index.html#resultados">Imóveis para alugar</a>
-        <a href="anunciar.html">Anunciar imóvel</a>
-      </div>
-      <div class="footer-col">
-        <h4>Atendimento</h4>
-        <a href="https://wa.me/5535999158800" target="_blank" rel="noopener">Vendas: (35) 99915-8800</a>
-        <a href="https://wa.me/5535998840518" target="_blank" rel="noopener">Vendas: (35) 99884-0518</a>
-        <a href="https://wa.me/5535998848963" target="_blank" rel="noopener">Aluguel: (35) 99884-8963</a>
-        <a href="tel:3532661985">Fixo: (35) 3266-1985</a>
-      </div>
-      <div class="footer-col">
-        <h4>Contato</h4>
-        <a href="mailto:imobiliariapaulino@gmail.com">imobiliariapaulino@gmail.com</a>
-        <a href="#">Rua Bento de Brito, 170 — Centro</a>
-        <a href="https://wa.me/5535998848963" target="_blank" rel="noopener">Falar no WhatsApp</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2026 Paulino Imóveis — CRECI 37888</span>
-      <span>Três Pontas, Minas Gerais</span>
-    </div>
-  </div>
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="assets/config.js"></script>
-<script src="assets/site.js"></script>
-<script>
-const params = new URLSearchParams(location.search);
-const id = params.get("id");
-
-async function carregar() {
-  const el = document.getElementById("conteudo");
-  if (!id) {
-    el.innerHTML = '<div class="estado">Imóvel não encontrado.</div>';
-    return;
+  *{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
   }
 
-  const { data: imovel, error } = await sb.from("imoveis").select("*").eq("id", id).eq("disponivel", true).single();
-  if (error || !imovel) {
-    el.innerHTML = '<div class="estado">Este imóvel não está mais disponível. <a href="index.html" style="color:var(--green);font-weight:600;">Ver catálogo</a></div>';
-    return;
+  html{
+    width:100%;
+    overflow-x:hidden;
   }
 
-  // registra a visualização (não trava a página se falhar)
-  sb.rpc("incrementar_visualizacao", { imovel_id: id }).then(() => {});
+  body{
+    width:100%;
+    min-height:100%;
+    background:var(--white);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
 
-  document.title = `${imovel.titulo} — Paulino Imóveis`;
+  a{
+    color:inherit;
+    text-decoration:none;
+  }
 
-  const fotos = (imovel.fotos && imovel.fotos.length ? imovel.fotos : [null]).map(urlFoto);
-  const fin = rotuloFinalidade(imovel.finalidade);
+  img{
+    display:block;
+    max-width:100%;
+  }
 
-  const specsList = [];
-  if (imovel.area_construida_m2) specsList.push({ valor: `${imovel.area_construida_m2} m²`, rotulo: "Área construída" });
-  if (imovel.area_terreno_m2) specsList.push({ valor: `${imovel.area_terreno_m2} m²`, rotulo: "Área do terreno" });
-  if (imovel.quartos) specsList.push({ valor: imovel.quartos, rotulo: imovel.quartos === 1 ? "Quarto" : "Quartos" });
-  if (imovel.banheiros) specsList.push({ valor: imovel.banheiros, rotulo: imovel.banheiros === 1 ? "Banheiro" : "Banheiros" });
-  if (imovel.vagas) specsList.push({ valor: imovel.vagas, rotulo: imovel.vagas === 1 ? "Vaga" : "Vagas" });
+  button{
+    font-family:inherit;
+  }
 
-  const numeroWhats = imovel.finalidade === "Alugar" || imovel.finalidade === "Temporada" ? "5535998848963" : "5535999158800";
-  const linkWhats = `https://wa.me/${numeroWhats}?text=${encodeURIComponent(
-    `Olá! Tenho interesse no imóvel ${imovel.codigo ? "(" + imovel.codigo + ") " : ""}${imovel.titulo}.`
-  )}`;
+  .wrap{
+    width:100%;
+    max-width:1240px;
+    margin:0 auto;
+    padding-left:32px;
+    padding-right:32px;
+  }
 
-  el.innerHTML = `
-    <div class="detalhe">
-      <div class="detalhe-grid">
-        <div>
-          <div class="foto-principal">
-            <div class="tags-galeria">
-              ${imovel.destaque_manual ? '<span class="tag-pill destaque">Destaque</span>' : ""}
-              <span class="tag-pill ${fin.classe}">${fin.texto}</span>
-            </div>
-            ${fotos.length > 1 ? `
-              <button type="button" class="foto-nav prev" aria-label="Foto anterior">&#8249;</button>
-              <button type="button" class="foto-nav next" aria-label="Próxima foto">&#8250;</button>
-              <span class="foto-contador" id="foto-contador">1 / ${fotos.length}</span>
-            ` : ""}
-            <img id="foto-principal-img" src="${fotos[0] || ""}" alt="${imovel.titulo}" width="800" height="500">
-          </div>
-          ${fotos.length > 1 ? `
-            <div class="miniaturas" id="miniaturas">
-              ${fotos.map((f, i) => `<img src="${f}" data-idx="${i}" class="${i === 0 ? "ativa" : ""}" width="84" height="60">`).join("")}
-            </div>
-          ` : ""}
 
-          <div class="titulo-bloco">
-            ${imovel.codigo ? `<span class="codigo-badge">Código ${imovel.codigo}</span>` : ""}
-            <h1>${imovel.titulo}</h1>
-            <div class="local">${[imovel.rua, imovel.bairro, imovel.cidade].filter(Boolean).join(", ")}</div>
-          </div>
+  /* =========================================================
+     HEADER
+  ========================================================= */
 
-          ${specsList.length ? `
-            <div class="specs-grid">
-              ${specsList.map(s => `<div class="spec-item"><div class="valor">${s.valor}</div><div class="rotulo">${s.rotulo}</div></div>`).join("")}
-            </div>
-          ` : ""}
+  header{
+    background:var(--green-dark);
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
 
-          <div class="desc-titulo">Sobre o imóvel</div>
-          <div class="desc">${imovel.descricao || "Sem descrição cadastrada. Entre em contato para mais detalhes."}</div>
-        </div>
+  .header-inner{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+    padding-top:20px;
+    padding-bottom:20px;
+  }
 
-        <div>
-          <div class="card-preco">
-            <div class="preco">${fmtPreco(imovel.preco)}</div>
-            <div class="preco-sub">${fin.texto === "Aluguel" ? "valor mensal" : "valor à vista"}</div>
-            <a class="btn-whats" href="${linkWhats}" target="_blank" rel="noopener">
-              Falar no WhatsApp
-            </a>
-            <a class="btn-tel" href="tel:3532661985">Ligar (35) 3266-1985</a>
-            <hr>
-            <div class="agente">
-              <div class="agente-avatar">PI</div>
-              <div>
-                <div class="agente-nome">Paulino Imóveis</div>
-                <div class="agente-cargo">CRECI 37888 · Três Pontas–MG</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
+  .logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-shrink:0;
+  }
 
-  if (fotos.length > 1) {
-    let idx = 0;
-    const imgPrincipal = document.getElementById("foto-principal-img");
-    const contador = document.getElementById("foto-contador");
-    const miniaturas = [...document.querySelectorAll("#miniaturas img")];
+  .logo-img{
+    height:52px;
+    width:auto;
+    display:block;
+  }
 
-    function mostrarFoto(novoIdx) {
-      idx = (novoIdx + fotos.length) % fotos.length;
-      imgPrincipal.src = fotos[idx];
-      contador.textContent = `${idx + 1} / ${fotos.length}`;
-      miniaturas.forEach((m, i) => m.classList.toggle("ativa", i === idx));
+  .logo-sub{
+    font-size:10px;
+    color:rgba(255,255,255,.55);
+    letter-spacing:.04em;
+    line-height:1.4;
+    margin-top:2px;
+  }
+
+  nav{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:28px;
+    flex:1;
+  }
+
+  nav a{
+    font-size:14px;
+    font-weight:500;
+    color:rgba(255,255,255,.9);
+    white-space:nowrap;
+    transition:opacity .15s ease;
+  }
+
+  nav a:hover{
+    opacity:.7;
+  }
+
+  .header-right{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    flex-shrink:0;
+  }
+
+  .header-phone{
+    font-size:13.5px;
+    color:rgba(255,255,255,.75);
+    white-space:nowrap;
+  }
+
+  .btn-green{
+    background:var(--red);
+    color:#fff;
+    font-size:13.5px;
+    font-weight:600;
+    padding:12px 22px;
+    border-radius:6px;
+    transition:background .15s ease;
+    white-space:nowrap;
+  }
+
+  .btn-green:hover{
+    background:#a81723;
+  }
+
+
+  /* =========================================================
+     VOLTAR
+  ========================================================= */
+
+  .voltar{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:13.5px;
+    color:var(--green);
+    font-weight:600;
+    margin-top:24px;
+    margin-bottom:4px;
+  }
+
+  .voltar:hover{
+    text-decoration:underline;
+  }
+
+
+  /* =========================================================
+     LAYOUT PRINCIPAL
+  ========================================================= */
+
+  .detalhe{
+    padding-top:20px;
+    padding-bottom:88px;
+  }
+
+  .detalhe-grid{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 360px;
+    gap:44px;
+    align-items:start;
+  }
+
+  /*
+    IMPORTANTE:
+
+    min-width:0 impede que conteúdo interno,
+    principalmente imagens ou textos muito grandes,
+    force a coluna do CSS Grid a aumentar.
+  */
+
+  .detalhe-grid > div{
+    min-width:0;
+  }
+
+
+  /* =========================================================
+     GALERIA
+  ========================================================= */
+
+  /*
+    A caixa da galeria possui altura explícita.
+
+    Isso é mais seguro do que depender somente de aspect-ratio.
+  */
+
+  .foto-principal{
+    position:relative;
+    width:100%;
+    height:auto;
+    aspect-ratio:16 / 10;
+
+    min-height:0;
+
+    border-radius:14px;
+    overflow:hidden;
+
+    background:#eee;
+
+    isolation:isolate;
+  }
+
+  /*
+    A imagem NÃO participa do fluxo normal da página.
+
+    Isso é o ponto mais importante da correção.
+  */
+
+  .foto-principal > #foto-principal-img{
+    position:absolute;
+
+    inset:0;
+
+    width:100% !important;
+    height:100% !important;
+
+    max-width:none !important;
+    max-height:none !important;
+
+    min-width:0;
+    min-height:0;
+
+    object-fit:cover;
+    object-position:center;
+
+    display:block;
+
+    z-index:1;
+  }
+
+
+  /* =========================================================
+     CONTROLES DA GALERIA
+  ========================================================= */
+
+  .foto-nav{
+    position:absolute;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    width:40px;
+    height:40px;
+
+    border-radius:50%;
+
+    background:rgba(255,255,255,.94);
+
+    border:0;
+
+    font-size:20px;
+    line-height:1;
+
+    cursor:pointer;
+
+    color:var(--ink);
+
+    box-shadow:0 4px 14px rgba(12,24,18,.14);
+
+    z-index:5;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    transition:
+      background .15s ease,
+      transform .15s ease;
+  }
+
+  .foto-nav:hover{
+    background:#fff;
+  }
+
+  .foto-nav.prev{
+    left:16px;
+  }
+
+  .foto-nav.next{
+    right:16px;
+  }
+
+
+  .foto-contador{
+    position:absolute;
+
+    bottom:16px;
+    right:16px;
+
+    background:rgba(18,24,21,.68);
+
+    color:#fff;
+
+    font-size:12px;
+    font-weight:600;
+
+    padding:5px 11px;
+
+    border-radius:100px;
+
+    z-index:5;
+  }
+
+
+  /* =========================================================
+     TAGS
+  ========================================================= */
+
+  .tags-galeria{
+    position:absolute;
+
+    top:16px;
+    left:16px;
+
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+
+    z-index:5;
+  }
+
+  .tag-pill{
+    color:#fff;
+
+    font-size:11px;
+    font-weight:700;
+
+    letter-spacing:.03em;
+    text-transform:uppercase;
+
+    padding:6px 12px;
+
+    border-radius:6px;
+
+    white-space:nowrap;
+  }
+
+  .tag-pill.venda{
+    background:var(--green);
+  }
+
+  .tag-pill.aluguel{
+    background:#2563EB;
+  }
+
+  .tag-pill.temporada{
+    background:#7C3AED;
+  }
+
+  .tag-pill.destaque{
+    background:var(--red);
+  }
+
+
+  /* =========================================================
+     MINIATURAS
+  ========================================================= */
+
+  .miniaturas{
+    display:flex;
+
+    gap:8px;
+
+    margin-top:10px;
+
+    overflow-x:auto;
+
+    overflow-y:hidden;
+
+    padding-bottom:4px;
+
+    min-height:64px;
+
+    max-width:100%;
+
+    scrollbar-width:thin;
+  }
+
+  .miniaturas img{
+    width:84px !important;
+    height:60px !important;
+
+    min-width:84px;
+    max-width:84px;
+
+    min-height:60px;
+    max-height:60px;
+
+    object-fit:cover;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    flex:0 0 84px;
+
+    opacity:.5;
+
+    border:2px solid transparent;
+
+    transition:
+      opacity .15s ease,
+      border-color .15s ease;
+  }
+
+  .miniaturas img.ativa{
+    opacity:1;
+    border-color:var(--green);
+  }
+
+
+  /* =========================================================
+     TÍTULO / INFORMAÇÕES
+  ========================================================= */
+
+  .titulo-bloco{
+    margin-top:28px;
+  }
+
+  .codigo-badge{
+    display:inline-block;
+
+    font-size:11px;
+    font-weight:700;
+
+    color:var(--ink-soft);
+
+    background:var(--offwhite);
+
+    padding:4px 10px;
+
+    border-radius:6px;
+
+    margin-bottom:10px;
+
+    letter-spacing:.02em;
+  }
+
+  h1{
+    font-family:'Archivo',sans-serif;
+
+    font-weight:800;
+
+    font-size:26px;
+
+    line-height:1.25;
+
+    margin-bottom:8px;
+
+    overflow-wrap:anywhere;
+  }
+
+  .local{
+    color:var(--ink-soft);
+
+    font-size:14.5px;
+
+    margin-bottom:20px;
+
+    overflow-wrap:anywhere;
+  }
+
+
+  /* =========================================================
+     SPECS
+  ========================================================= */
+
+  .specs-grid{
+    display:grid;
+
+    grid-template-columns:
+      repeat(auto-fit,minmax(110px,1fr));
+
+    gap:1px;
+
+    background:var(--line);
+
+    border:1px solid var(--line);
+
+    border-radius:12px;
+
+    overflow:hidden;
+
+    margin-bottom:32px;
+  }
+
+  .spec-item{
+    background:#fff;
+
+    padding:16px;
+
+    text-align:center;
+  }
+
+  .spec-item .valor{
+    font-family:'Archivo',sans-serif;
+
+    font-weight:800;
+
+    font-size:18px;
+
+    color:var(--green);
+  }
+
+  .spec-item .rotulo{
+    font-size:11px;
+
+    color:var(--ink-soft);
+
+    margin-top:3px;
+
+    text-transform:uppercase;
+
+    letter-spacing:.03em;
+  }
+
+
+  /* =========================================================
+     DESCRIÇÃO
+  ========================================================= */
+
+  .desc-titulo{
+    font-family:'Archivo',sans-serif;
+
+    font-weight:700;
+
+    font-size:17px;
+
+    margin-bottom:12px;
+  }
+
+  .desc{
+    font-size:15px;
+
+    line-height:1.75;
+
+    color:var(--ink-soft);
+
+    white-space:pre-wrap;
+
+    overflow-wrap:anywhere;
+  }
+
+
+  /* =========================================================
+     CARD LATERAL
+  ========================================================= */
+
+  .card-preco{
+    position:sticky;
+
+    top:24px;
+
+    border:1px solid var(--line);
+
+    border-radius:14px;
+
+    padding:26px;
+
+    background:#fff;
+
+    box-shadow:
+      0 18px 44px rgba(12,24,18,.08);
+  }
+
+  .card-preco .preco{
+    font-family:'Archivo',sans-serif;
+
+    font-weight:800;
+
+    font-size:28px;
+
+    color:var(--ink);
+
+    margin-bottom:4px;
+
+    overflow-wrap:anywhere;
+  }
+
+  .card-preco .preco-sub{
+    font-size:12.5px;
+
+    color:var(--ink-soft);
+
+    margin-bottom:22px;
+  }
+
+  .btn-whats{
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    gap:8px;
+
+    width:100%;
+
+    background:var(--green);
+
+    color:#fff;
+
+    font-weight:600;
+
+    font-size:14.5px;
+
+    padding:15px;
+
+    border-radius:9px;
+
+    margin-bottom:10px;
+
+    transition:background .15s ease;
+  }
+
+  .btn-whats:hover{
+    background:var(--green-dark);
+  }
+
+  .btn-tel{
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    gap:8px;
+
+    width:100%;
+
+    background:var(--offwhite);
+
+    color:var(--ink);
+
+    font-weight:600;
+
+    font-size:14.5px;
+
+    padding:15px;
+
+    border-radius:9px;
+
+    margin-bottom:22px;
+  }
+
+  .card-preco hr{
+    border:0;
+
+    border-top:1px solid var(--line);
+
+    margin-bottom:18px;
+  }
+
+  .agente{
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+  }
+
+  .agente-avatar{
+    width:44px;
+    height:44px;
+
+    border-radius:50%;
+
+    background:var(--green-tint);
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    font-family:'Archivo',sans-serif;
+
+    font-weight:800;
+
+    color:var(--green);
+
+    flex-shrink:0;
+  }
+
+  .agente-nome{
+    font-size:13.5px;
+    font-weight:600;
+  }
+
+  .agente-cargo{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:1px;
+  }
+
+
+  /* =========================================================
+     SKELETON
+  ========================================================= */
+
+  .skeleton{
+    background:
+      linear-gradient(
+        90deg,
+        #eee 25%,
+        #f6f6f6 50%,
+        #eee 75%
+      );
+
+    background-size:200% 100%;
+
+    animation:skeleton-pulse 1.5s infinite;
+  }
+
+  @keyframes skeleton-pulse{
+
+    0%{
+      background-position:200% 0;
     }
 
-    document.querySelector(".foto-nav.prev").addEventListener("click", () => mostrarFoto(idx - 1));
-    document.querySelector(".foto-nav.next").addEventListener("click", () => mostrarFoto(idx + 1));
-    miniaturas.forEach(m => m.addEventListener("click", () => mostrarFoto(Number(m.dataset.idx))));
+    100%{
+      background-position:-200% 0;
+    }
+
   }
+
+
+  /* =========================================================
+     ESTADO
+  ========================================================= */
+
+  .estado{
+    padding:80px 0;
+
+    text-align:center;
+
+    color:var(--ink-soft);
+
+    font-size:14.5px;
+  }
+
+
+  /* =========================================================
+     FOOTER
+  ========================================================= */
+
+  footer{
+    background:var(--green-dark);
+
+    color:rgba(255,255,255,.7);
+
+    padding:56px 0 28px;
+
+    margin-top:40px;
+  }
+
+  .footer-grid{
+    display:grid;
+
+    grid-template-columns:
+      1.4fr 1fr 1fr 1fr;
+
+    gap:32px;
+
+    margin-bottom:44px;
+  }
+
+  .footer-col h4{
+    color:#fff;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    margin-bottom:16px;
+
+    letter-spacing:.02em;
+  }
+
+  .footer-col a{
+    display:block;
+
+    font-size:13px;
+
+    margin-bottom:10px;
+
+    color:rgba(255,255,255,.65);
+  }
+
+  .footer-logo{
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    margin-bottom:16px;
+  }
+
+  .footer-logo-chip{
+    background:#fff;
+
+    border-radius:10px;
+
+    padding:8px 16px;
+
+    display:inline-flex;
+
+    align-items:center;
+  }
+
+  .footer-logo-chip .logo-img{
+    height:38px;
+  }
+
+  .footer-desc{
+    font-size:13px;
+
+    color:rgba(255,255,255,.55);
+
+    max-width:280px;
+
+    line-height:1.6;
+  }
+
+  .footer-bottom{
+    border-top:1px solid rgba(255,255,255,.14);
+
+    padding-top:22px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    font-size:12px;
+
+    color:rgba(255,255,255,.45);
+
+    flex-wrap:wrap;
+
+    gap:10px;
+  }
+
+
+  /* =========================================================
+     TABLET
+  ========================================================= */
+
+  @media (max-width:960px){
+
+    .detalhe-grid{
+      grid-template-columns:1fr;
+      gap:32px;
+    }
+
+    .card-preco{
+      position:static;
+    }
+
+    nav{
+      display:none;
+    }
+
+    .header-right{
+      margin-left:auto;
+    }
+
+    .footer-grid{
+      grid-template-columns:1fr 1fr;
+    }
+
+  }
+
+
+  /* =========================================================
+     CELULAR
+  ========================================================= */
+
+  @media (max-width:560px){
+
+    .wrap{
+      padding-left:18px;
+      padding-right:18px;
+    }
+
+    .header-inner{
+      padding-top:14px;
+      padding-bottom:14px;
+    }
+
+    .logo-img{
+      height:42px;
+    }
+
+    .logo-sub{
+      display:none;
+    }
+
+    .header-phone{
+      display:none;
+    }
+
+    .btn-green{
+      padding:10px 14px;
+      font-size:12px;
+    }
+
+    .voltar{
+      margin-top:18px;
+    }
+
+    .detalhe{
+      padding-top:16px;
+      padding-bottom:60px;
+    }
+
+    /*
+      No celular mantemos a proporção,
+      mas com uma altura mínima controlada.
+    */
+
+    .foto-principal{
+      width:100%;
+      aspect-ratio:4 / 3;
+      border-radius:12px;
+    }
+
+    .foto-nav{
+      width:36px;
+      height:36px;
+    }
+
+    .foto-nav.prev{
+      left:10px;
+    }
+
+    .foto-nav.next{
+      right:10px;
+    }
+
+    .foto-contador{
+      right:10px;
+      bottom:10px;
+    }
+
+    .tags-galeria{
+      top:10px;
+      left:10px;
+    }
+
+    .tag-pill{
+      font-size:10px;
+      padding:5px 9px;
+    }
+
+    h1{
+      font-size:23px;
+    }
+
+    .specs-grid{
+      grid-template-columns:
+        repeat(2,minmax(0,1fr));
+    }
+
+    .footer-grid{
+      grid-template-columns:1fr;
+    }
+
+    footer{
+      padding-top:42px;
+    }
+
+  }
+
+
+  /* =========================================================
+     CELULAR MUITO PEQUENO
+  ========================================================= */
+
+  @media (max-width:380px){
+
+    .wrap{
+      padding-left:14px;
+      padding-right:14px;
+    }
+
+    .foto-principal{
+      aspect-ratio:1 / .82;
+    }
+
+    .btn-green{
+      padding-left:10px;
+      padding-right:10px;
+    }
+
+  }
+
+</style>
+</head>
+
+<body>
+
+
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
+<header>
+
+  <div class="wrap header-inner">
+
+    <a class="logo" href="index.html">
+
+      <img
+        src="assets/logo.png"
+        alt="Paulino Imóveis"
+        class="logo-img"
+        width="160"
+        height="52"
+      >
+
+      <div class="logo-sub">
+        CRECI 37888<br>
+        Três Pontas–MG
+      </div>
+
+    </a>
+
+
+    <nav>
+
+      <a href="index.html#resultados">
+        Comprar
+      </a>
+
+      <a href="index.html#resultados">
+        Alugar
+      </a>
+
+      <a href="index.html#resultados">
+        Terrenos
+      </a>
+
+      <a href="#">
+        Negociar imóvel
+      </a>
+
+      <a href="anunciar.html">
+        Anunciar imóvel
+      </a>
+
+      <a
+        href="https://wa.me/5535998848963?text=Ol%C3%A1!%20Quero%20falar%20sobre%20financiamento%20de%20um%20im%C3%B3vel."
+        target="_blank"
+        rel="noopener"
+      >
+        Financiamento
+      </a>
+
+    </nav>
+
+
+    <div class="header-right">
+
+      <span class="header-phone">
+        (35) 3266-1985
+      </span>
+
+      <a
+        class="btn-green"
+        href="https://wa.me/5535998848963"
+        target="_blank"
+        rel="noopener"
+      >
+        Falar no WhatsApp
+      </a>
+
+    </div>
+
+  </div>
+
+</header>
+
+
+<!-- =========================================================
+     VOLTAR
+========================================================= -->
+
+<div class="wrap">
+
+  <a class="voltar" href="index.html">
+    ← Voltar para o catálogo
+  </a>
+
+</div>
+
+
+<!-- =========================================================
+     CONTEÚDO
+========================================================= -->
+
+<div class="wrap" id="conteudo">
+
+  <!-- Skeleton inicial -->
+
+  <div class="detalhe">
+
+    <div class="detalhe-grid">
+
+      <div>
+
+        <div
+          class="foto-principal skeleton"
+          aria-hidden="true"
+        ></div>
+
+
+        <div
+          class="titulo-bloco"
+          style="margin-top:28px;"
+        >
+
+          <div
+            class="skeleton"
+            style="
+              height:20px;
+              width:80px;
+              border-radius:6px;
+              margin-bottom:10px;
+            "
+          ></div>
+
+
+          <div
+            class="skeleton"
+            style="
+              height:32px;
+              width:70%;
+              border-radius:6px;
+              margin-bottom:8px;
+            "
+          ></div>
+
+
+          <div
+            class="skeleton"
+            style="
+              height:18px;
+              width:40%;
+              border-radius:6px;
+              margin-bottom:20px;
+            "
+          ></div>
+
+        </div>
+
+      </div>
+
+
+      <div>
+
+        <div
+          class="card-preco skeleton"
+          style="height:280px;"
+        ></div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer>
+
+  <div class="wrap">
+
+    <div class="footer-grid">
+
+
+      <div>
+
+        <div class="footer-logo">
+
+          <div class="footer-logo-chip">
+
+            <img
+              src="assets/logo.png"
+              alt="Paulino Imóveis"
+              class="logo-img"
+              width="120"
+              height="38"
+            >
+
+          </div>
+
+        </div>
+
+
+        <p class="footer-desc">
+
+          Imobiliária em Três Pontas–MG.
+          Casas, terrenos e imóveis comerciais
+          com atendimento direto e sem burocracia.
+
+        </p>
+
+      </div>
+
+
+      <div class="footer-col">
+
+        <h4>Imóveis</h4>
+
+        <a href="index.html#resultados">
+          Casas à venda
+        </a>
+
+        <a href="index.html#resultados">
+          Terrenos à venda
+        </a>
+
+        <a href="index.html#resultados">
+          Imóveis para alugar
+        </a>
+
+        <a href="anunciar.html">
+          Anunciar imóvel
+        </a>
+
+      </div>
+
+
+      <div class="footer-col">
+
+        <h4>Atendimento</h4>
+
+        <a
+          href="https://wa.me/5535999158800"
+          target="_blank"
+          rel="noopener"
+        >
+          Vendas: (35) 99915-8800
+        </a>
+
+        <a
+          href="https://wa.me/5535998840518"
+          target="_blank"
+          rel="noopener"
+        >
+          Vendas: (35) 99884-0518
+        </a>
+
+        <a
+          href="https://wa.me/5535998848963"
+          target="_blank"
+          rel="noopener"
+        >
+          Aluguel: (35) 99884-8963
+        </a>
+
+        <a href="tel:3532661985">
+          Fixo: (35) 3266-1985
+        </a>
+
+      </div>
+
+
+      <div class="footer-col">
+
+        <h4>Contato</h4>
+
+        <a href="mailto:imobiliariapaulino@gmail.com">
+          imobiliariapaulino@gmail.com
+        </a>
+
+        <a href="#">
+          Rua Bento de Brito, 170 — Centro
+        </a>
+
+        <a
+          href="https://wa.me/5535998848963"
+          target="_blank"
+          rel="noopener"
+        >
+          Falar no WhatsApp
+        </a>
+
+      </div>
+
+
+    </div>
+
+
+    <div class="footer-bottom">
+
+      <span>
+        © 2026 Paulino Imóveis — CRECI 37888
+      </span>
+
+      <span>
+        Três Pontas, Minas Gerais
+      </span>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+<!-- =========================================================
+     SUPABASE
+========================================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
+<script src="assets/config.js"></script>
+
+<script src="assets/site.js"></script>
+
+
+<!-- =========================================================
+     LÓGICA DA PÁGINA
+========================================================= -->
+
+<script>
+
+const params = new URLSearchParams(location.search);
+
+const id = params.get("id");
+
+
+/* =========================================================
+   ESCAPA HTML
+   Evita que título/descrição quebrem o HTML.
+========================================================= */
+
+function escapeHtml(valor){
+
+  if(valor === null || valor === undefined){
+    return "";
+  }
+
+  return String(valor)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
 }
-carregar();
+
+
+/* =========================================================
+   IMAGEM SEGURA
+========================================================= */
+
+function imagemSegura(url){
+
+  if(!url){
+    return "";
+  }
+
+  return String(url).trim();
+
+}
+
+
+/* =========================================================
+   CARREGAR IMÓVEL
+========================================================= */
+
+async function carregar(){
+
+  const el = document.getElementById("conteudo");
+
+
+  /* ---------------------------------------------------------
+     Sem ID
+  --------------------------------------------------------- */
+
+  if(!id){
+
+    el.innerHTML = `
+      <div class="estado">
+        Imóvel não encontrado.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  /* ---------------------------------------------------------
+     Busca no Supabase
+  --------------------------------------------------------- */
+
+  const {
+    data: imovel,
+    error
+  } = await sb
+    .from("imoveis")
+    .select("*")
+    .eq("id",id)
+    .eq("disponivel",true)
+    .single();
+
+
+  /* ---------------------------------------------------------
+     Imóvel não encontrado
+  --------------------------------------------------------- */
+
+  if(error || !imovel){
+
+    console.error(
+      "Erro ao buscar imóvel:",
+      error
+    );
+
+    el.innerHTML = `
+      <div class="estado">
+
+        Este imóvel não está mais disponível.
+
+        <br><br>
+
+        <a
+          href="index.html"
+          style="
+            color:var(--green);
+            font-weight:600;
+          "
+        >
+          Ver catálogo
+        </a>
+
+      </div>
+    `;
+
+    return;
+  }
+
+
+  /* ---------------------------------------------------------
+     Incrementa visualização
+  --------------------------------------------------------- */
+
+  sb
+    .rpc(
+      "incrementar_visualizacao",
+      {
+        imovel_id:id
+      }
+    )
+    .then(() => {})
+    .catch(() => {});
+
+
+  /* ---------------------------------------------------------
+     Título
+  --------------------------------------------------------- */
+
+  document.title =
+    `${imovel.titulo} — Paulino Imóveis`;
+
+
+  /* ---------------------------------------------------------
+     FOTOS
+  --------------------------------------------------------- */
+
+  let fotos = [];
+
+  if(
+    Array.isArray(imovel.fotos) &&
+    imovel.fotos.length
+  ){
+
+    fotos = imovel.fotos
+      .map(imagemSegura)
+      .filter(Boolean);
+
+  }
+
+
+  /*
+    Se não houver fotos, usamos um array com null
+    para manter a estrutura da galeria.
+  */
+
+  if(!fotos.length){
+
+    fotos = [null];
+
+  }
+
+
+  /* ---------------------------------------------------------
+     FINALIDADE
+  --------------------------------------------------------- */
+
+  const fin =
+    rotuloFinalidade(imovel.finalidade);
+
+
+  /* ---------------------------------------------------------
+     ESPECIFICAÇÕES
+  --------------------------------------------------------- */
+
+  const specsList = [];
+
+
+  if(imovel.area_construida_m2){
+
+    specsList.push({
+
+      valor:
+        `${imovel.area_construida_m2} m²`,
+
+      rotulo:
+        "Área construída"
+
+    });
+
+  }
+
+
+  if(imovel.area_terreno_m2){
+
+    specsList.push({
+
+      valor:
+        `${imovel.area_terreno_m2} m²`,
+
+      rotulo:
+        "Área do terreno"
+
+    });
+
+  }
+
+
+  if(imovel.quartos){
+
+    specsList.push({
+
+      valor:
+        imovel.quartos,
+
+      rotulo:
+        imovel.quartos === 1
+          ? "Quarto"
+          : "Quartos"
+
+    });
+
+  }
+
+
+  if(imovel.banheiros){
+
+    specsList.push({
+
+      valor:
+        imovel.banheiros,
+
+      rotulo:
+        imovel.banheiros === 1
+          ? "Banheiro"
+          : "Banheiros"
+
+    });
+
+  }
+
+
+  if(imovel.vagas){
+
+    specsList.push({
+
+      valor:
+        imovel.vagas,
+
+      rotulo:
+        imovel.vagas === 1
+          ? "Vaga"
+          : "Vagas"
+
+    });
+
+  }
+
+
+  /* ---------------------------------------------------------
+     WHATSAPP
+  --------------------------------------------------------- */
+
+  const numeroWhats =
+    imovel.finalidade === "Alugar" ||
+    imovel.finalidade === "Temporada"
+
+      ? "5535998848963"
+
+      : "5535999158800";
+
+
+  const textoWhats =
+    `Olá! Tenho interesse no imóvel ${
+      imovel.codigo
+        ? "(" + imovel.codigo + ") "
+        : ""
+    }${imovel.titulo}.`;
+
+
+  const linkWhats =
+    `https://wa.me/${numeroWhats}?text=${
+      encodeURIComponent(textoWhats)
+    }`;
+
+
+  /* ---------------------------------------------------------
+     HTML
+  --------------------------------------------------------- */
+
+  el.innerHTML = `
+
+    <div class="detalhe">
+
+      <div class="detalhe-grid">
+
+
+        <!-- ================================================
+             COLUNA PRINCIPAL
+        ================================================= -->
+
+        <div>
+
+
+          <!-- GALERIA -->
+
+          <div class="foto-principal">
+
+
+            <!-- TAGS -->
+
+            <div class="tags-galeria">
+
+              ${
+                imovel.destaque_manual
+
+                  ? `
+                    <span class="tag-pill destaque">
+                      Destaque
+                    </span>
+                  `
+
+                  : ""
+              }
+
+
+              <span class="tag-pill ${escapeHtml(fin.classe)}">
+
+                ${escapeHtml(fin.texto)}
+
+              </span>
+
+            </div>
+
+
+            <!-- NAVEGAÇÃO -->
+
+            ${
+              fotos.length > 1
+
+                ? `
+
+                  <button
+                    type="button"
+                    class="foto-nav prev"
+                    aria-label="Foto anterior"
+                  >
+                    &#8249;
+                  </button>
+
+
+                  <button
+                    type="button"
+                    class="foto-nav next"
+                    aria-label="Próxima foto"
+                  >
+                    &#8250;
+                  </button>
+
+
+                  <span
+                    class="foto-contador"
+                    id="foto-contador"
+                  >
+                    1 / ${fotos.length}
+                  </span>
+
+                `
+
+                : ""
+            }
+
+
+            <!-- IMAGEM PRINCIPAL -->
+
+            ${
+              fotos[0]
+
+                ? `
+
+                  <img
+                    id="foto-principal-img"
+                    src="${escapeHtml(fotos[0])}"
+                    alt="${escapeHtml(imovel.titulo)}"
+                    width="800"
+                    height="500"
+                    loading="eager"
+                    decoding="async"
+                  >
+
+                `
+
+                : `
+
+                  <div
+                    style="
+                      position:absolute;
+                      inset:0;
+                      display:flex;
+                      align-items:center;
+                      justify-content:center;
+                      color:var(--ink-soft);
+                      font-size:14px;
+                      z-index:1;
+                    "
+                  >
+                    Foto não disponível
+                  </div>
+
+                `
+            }
+
+
+          </div>
+
+
+          <!-- MINIATURAS -->
+
+          ${
+            fotos.length > 1
+
+              ? `
+
+                <div
+                  class="miniaturas"
+                  id="miniaturas"
+                >
+
+                  ${
+
+                    fotos
+                      .map((foto,index) => `
+
+                        <img
+                          src="${escapeHtml(foto)}"
+                          data-idx="${index}"
+                          class="${index === 0 ? "ativa" : ""}"
+                          width="84"
+                          height="60"
+                          loading="lazy"
+                          decoding="async"
+                          alt="Miniatura ${index + 1}"
+                        >
+
+                      `)
+                      .join("")
+
+                  }
+
+                </div>
+
+              `
+
+              : ""
+          }
+
+
+          <!-- TÍTULO -->
+
+          <div class="titulo-bloco">
+
+
+            ${
+              imovel.codigo
+
+                ? `
+
+                  <span class="codigo-badge">
+
+                    Código ${escapeHtml(imovel.codigo)}
+
+                  </span>
+
+                `
+
+                : ""
+            }
+
+
+            <h1>
+              ${escapeHtml(imovel.titulo)}
+            </h1>
+
+
+            <div class="local">
+
+              ${
+                [
+                  imovel.rua,
+                  imovel.bairro,
+                  imovel.cidade
+                ]
+                .filter(Boolean)
+                .map(escapeHtml)
+                .join(", ")
+              }
+
+            </div>
+
+
+          </div>
+
+
+          <!-- ESPECIFICAÇÕES -->
+
+          ${
+            specsList.length
+
+              ? `
+
+                <div class="specs-grid">
+
+                  ${
+
+                    specsList
+                      .map(s => `
+
+                        <div class="spec-item">
+
+                          <div class="valor">
+                            ${escapeHtml(s.valor)}
+                          </div>
+
+                          <div class="rotulo">
+                            ${escapeHtml(s.rotulo)}
+                          </div>
+
+                        </div>
+
+                      `)
+                      .join("")
+
+                  }
+
+                </div>
+
+              `
+
+              : ""
+          }
+
+
+          <!-- DESCRIÇÃO -->
+
+          <div class="desc-titulo">
+            Sobre o imóvel
+          </div>
+
+
+          <div class="desc">
+
+            ${
+              imovel.descricao
+
+                ? escapeHtml(imovel.descricao)
+
+                : "Sem descrição cadastrada. Entre em contato para mais detalhes."
+            }
+
+          </div>
+
+
+        </div>
+
+
+        <!-- ================================================
+             COLUNA LATERAL
+        ================================================= -->
+
+        <div>
+
+
+          <div class="card-preco">
+
+
+            <div class="preco">
+
+              ${fmtPreco(imovel.preco)}
+
+            </div>
+
+
+            <div class="preco-sub">
+
+              ${
+                fin.texto === "Aluguel"
+                  ? "valor mensal"
+                  : "valor à vista"
+              }
+
+            </div>
+
+
+            <a
+              class="btn-whats"
+              href="${linkWhats}"
+              target="_blank"
+              rel="noopener"
+            >
+              Falar no WhatsApp
+            </a>
+
+
+            <a
+              class="btn-tel"
+              href="tel:3532661985"
+            >
+              Ligar (35) 3266-1985
+            </a>
+
+
+            <hr>
+
+
+            <div class="agente">
+
+
+              <div class="agente-avatar">
+                PI
+              </div>
+
+
+              <div>
+
+                <div class="agente-nome">
+                  Paulino Imóveis
+                </div>
+
+                <div class="agente-cargo">
+                  CRECI 37888 · Três Pontas–MG
+                </div>
+
+              </div>
+
+
+            </div>
+
+
+          </div>
+
+
+        </div>
+
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  /* =========================================================
+     GALERIA INTERATIVA
+  ========================================================= */
+
+  if(fotos.length > 1){
+
+    let idx = 0;
+
+
+    const imgPrincipal =
+      document.getElementById(
+        "foto-principal-img"
+      );
+
+
+    const contador =
+      document.getElementById(
+        "foto-contador"
+      );
+
+
+    const miniaturas =
+      [
+        ...document.querySelectorAll(
+          "#miniaturas img"
+        )
+      ];
+
+
+    const botaoAnterior =
+      document.querySelector(
+        ".foto-nav.prev"
+      );
+
+
+    const botaoProximo =
+      document.querySelector(
+        ".foto-nav.next"
+      );
+
+
+    function mostrarFoto(novoIdx){
+
+      idx =
+        (
+          novoIdx +
+          fotos.length
+        ) %
+        fotos.length;
+
+
+      if(imgPrincipal){
+
+        imgPrincipal.src =
+          fotos[idx];
+
+      }
+
+
+      if(contador){
+
+        contador.textContent =
+          `${idx + 1} / ${fotos.length}`;
+
+      }
+
+
+      miniaturas.forEach(
+        (miniatura,i) => {
+
+          miniatura.classList.toggle(
+            "ativa",
+            i === idx
+          );
+
+        }
+      );
+
+    }
+
+
+    if(botaoAnterior){
+
+      botaoAnterior.addEventListener(
+        "click",
+        () => {
+          mostrarFoto(idx - 1);
+        }
+      );
+
+    }
+
+
+    if(botaoProximo){
+
+      botaoProximo.addEventListener(
+        "click",
+        () => {
+          mostrarFoto(idx + 1);
+        }
+      );
+
+    }
+
+
+    miniaturas.forEach(
+      miniatura => {
+
+        miniatura.addEventListener(
+          "click",
+          () => {
+
+            mostrarFoto(
+              Number(
+                miniatura.dataset.idx
+              )
+            );
+
+          }
+        );
+
+      }
+    );
+
+
+    /*
+      Navegação pelo teclado
+    */
+
+    document.addEventListener(
+      "keydown",
+      event => {
+
+        if(event.key === "ArrowLeft"){
+
+          mostrarFoto(idx - 1);
+
+        }
+
+        if(event.key === "ArrowRight"){
+
+          mostrarFoto(idx + 1);
+
+        }
+
+      }
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   INICIALIZA
+========================================================= */
+
+carregar()
+  .catch(error => {
+
+    console.error(
+      "Erro inesperado ao carregar imóvel:",
+      error
+    );
+
+    const el =
+      document.getElementById("conteudo");
+
+    if(el){
+
+      el.innerHTML = `
+
+        <div class="estado">
+
+          Ocorreu um erro ao carregar
+          este imóvel.
+
+          <br><br>
+
+          <a
+            href="index.html"
+            style="
+              color:var(--green);
+              font-weight:600;
+            "
+          >
+            Voltar para o catálogo
+          </a>
+
+        </div>
+
+      `;
+
+    }
+
+  });
+
 </script>
+
 </body>
 </html>
