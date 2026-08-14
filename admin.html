@@ -74,7 +74,7 @@
 
   /* Painel de Filtros e Busca */
   .filtros-box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:20px;}
-  .filtros-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:12px;align-items:end;}
+  .filtros-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1.2fr;gap:12px;align-items:end;}
 
   table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
   th,td{padding:12px 14px;text-align:left;font-size:13.5px;border-bottom:1px solid var(--line);}
@@ -120,9 +120,13 @@
           <div>
             <label>Tipo</label>
             <select name="tipo">
-              <option value="Terreno">Terreno</option>
               <option value="Casa">Casa</option>
               <option value="Apartamento">Apartamento</option>
+              <option value="Barracão">Barracão</option>
+              <option value="Ponto Comercial">Ponto Comercial</option>
+              <option value="Sítio/Fazenda">Sítio/Fazenda</option>
+              <option value="Terreno">Terreno</option>
+              <option value="Área de Lazer">Área de Lazer</option>
             </select>
           </div>
         </div>
@@ -135,18 +139,23 @@
               <option value="Temporada">Temporada</option>
             </select>
           </div>
-          <div><label>Cidade</label><input name="cidade" placeholder="Três Pontas"></div>
-          <div><label>Bairro</label><input name="bairro" placeholder="Centro"></div>
+          <div><label>Cidade</label><input name="cidade" id="f-cidade" list="lista-cidades" autocomplete="off" placeholder="Digite para buscar a cidade"><datalist id="lista-cidades"></datalist></div>
+          <div><label>Bairro</label><input name="bairro" id="f-bairro" list="lista-bairros" autocomplete="off" placeholder="Digite para buscar o bairro"><datalist id="lista-bairros"></datalist></div>
         </div>
         <div class="form-grid">
-          <div><label>Preço (R$)</label><input name="preco" type="number" step="0.01" placeholder="150000"></div>
-          <div><label>Área (m²)</label><input name="area_m2" type="number" step="0.01" placeholder="360"></div>
+          <div><label>Preço (R$)</label><input name="preco" id="f-preco" inputmode="numeric" autocomplete="off" placeholder="100.000,00"></div>
+          <div><label>Área construída (m²)</label><input name="area_construida_m2" type="number" step="0.01" placeholder="120"></div>
+          <div><label>Área do terreno (m²)</label><input name="area_terreno_m2" type="number" step="0.01" placeholder="360"></div>
+        </div>
+        <div class="form-grid">
           <div><label>Quartos</label><input name="quartos" type="number" placeholder="3"></div>
-        </div>
-        <div class="form-grid">
           <div><label>Banheiros</label><input name="banheiros" type="number" placeholder="2"></div>
           <div><label>Vagas</label><input name="vagas" type="number" placeholder="2"></div>
+        </div>
+        <div class="form-grid">
           <div><label>Proprietário (Interno)</label><input name="proprietario" placeholder="Nome do proprietário"></div>
+          <div><label>Nº do proprietário (WhatsApp/telefone)</label><input name="proprietario_telefone" type="tel" placeholder="(35) 99999-9999"></div>
+          <div><label>Rua do imóvel</label><input name="rua" placeholder="Rua, Avenida..."></div>
         </div>
         <div class="form-grid full">
           <div><label>Descrição</label><textarea name="descricao" placeholder="Detalhes do imóvel..."></textarea></div>
@@ -193,8 +202,12 @@
           <select id="filtro-tipo">
             <option value="">Todos os tipos</option>
             <option value="Casa">Casa</option>
-            <option value="Terreno">Terreno</option>
             <option value="Apartamento">Apartamento</option>
+            <option value="Barracão">Barracão</option>
+            <option value="Ponto Comercial">Ponto Comercial</option>
+            <option value="Sítio/Fazenda">Sítio/Fazenda</option>
+            <option value="Terreno">Terreno</option>
+            <option value="Área de Lazer">Área de Lazer</option>
           </select>
         </div>
         <div>
@@ -206,12 +219,8 @@
           </select>
         </div>
         <div>
-          <label>Postado De</label>
-          <input type="date" id="filtro-data-de">
-        </div>
-        <div>
-          <label>Postado Até</label>
-          <input type="date" id="filtro-data-ate">
+          <label>Mês da postagem</label>
+          <select id="filtro-mes-postagem"><option value="">Todos os meses</option></select>
         </div>
       </div>
     </div>
@@ -348,12 +357,15 @@ async function salvarImovel(ev) {
       finalidade: fd.get("finalidade"),
       cidade: fd.get("cidade") || null,
       bairro: fd.get("bairro") || null,
-      preco: fd.get("preco") ? Number(fd.get("preco")) : null,
-      area_m2: fd.get("area_m2") ? Number(fd.get("area_m2")) : null,
+      preco: parsePrecoBR(fd.get("preco")),
+      area_construida_m2: fd.get("area_construida_m2") ? Number(fd.get("area_construida_m2")) : null,
+      area_terreno_m2: fd.get("area_terreno_m2") ? Number(fd.get("area_terreno_m2")) : null,
       quartos: fd.get("quartos") ? Number(fd.get("quartos")) : null,
       banheiros: fd.get("banheiros") ? Number(fd.get("banheiros")) : null,
       vagas: fd.get("vagas") ? Number(fd.get("vagas")) : null,
       proprietario: fd.get("proprietario") || null,
+      proprietario_telefone: fd.get("proprietario_telefone") || null,
+      rua: fd.get("rua") || null,
       descricao: fd.get("descricao") || null,
       destaque_manual: document.getElementById("destaque_manual").checked,
     };
@@ -394,12 +406,15 @@ function editarImovel(id) {
   form.finalidade.value = im.finalidade || "Comprar";
   form.cidade.value = im.cidade || "";
   form.bairro.value = im.bairro || "";
-  form.preco.value = im.preco ?? "";
-  form.area_m2.value = im.area_m2 ?? "";
+  form.preco.value = im.preco != null ? formatarPrecoBR(im.preco) : "";
+  form.area_construida_m2.value = im.area_construida_m2 ?? "";
+  form.area_terreno_m2.value = im.area_terreno_m2 ?? "";
   form.quartos.value = im.quartos ?? "";
   form.banheiros.value = im.banheiros ?? "";
   form.vagas.value = im.vagas ?? "";
   form.proprietario.value = im.proprietario || "";
+  form.proprietario_telefone.value = im.proprietario_telefone || "";
+  form.rua.value = im.rua || "";
   form.descricao.value = im.descricao || "";
   document.getElementById("destaque_manual").checked = !!im.destaque_manual;
   document.getElementById("titulo-form").textContent = "Editando: " + im.titulo;
@@ -450,8 +465,7 @@ function aplicarFiltros() {
   const termo = document.getElementById("filtro-termo").value.trim().toLowerCase();
   const tipo = document.getElementById("filtro-tipo").value;
   const status = document.getElementById("filtro-status").value;
-  const dataDe = document.getElementById("filtro-data-de").value;
-  const dataAte = document.getElementById("filtro-data-ate").value;
+  const mesPostagem = document.getElementById("filtro-mes-postagem").value;
 
   imoveisFiltrados = imoveisCache.filter(im => {
     const emCodigo = (im.codigo || "").toLowerCase().includes(termo);
@@ -464,11 +478,7 @@ function aplicarFiltros() {
     if (status === "disp" && !im.disponivel) return false;
     if (status === "vend" && im.disponivel) return false;
 
-    if (im.criado_em) {
-      const dataCriacao = im.criado_em.substring(0, 10);
-      if (dataDe && dataCriacao < dataDe) return false;
-      if (dataAte && dataCriacao > dataAte) return false;
-    }
+    if (mesPostagem && im.criado_em && im.criado_em.substring(0, 7) !== mesPostagem) return false;
 
     return true;
   });
@@ -519,7 +529,10 @@ function exportarExcel() {
     "Preço (R$)": im.preco || 0,
     "Cidade": im.cidade || "—",
     "Bairro": im.bairro || "—",
-    "Área (m²)": im.area_m2 || "—",
+    "Área construída (m²)": im.area_construida_m2 || "—",
+     "Área do terreno (m²)": im.area_terreno_m2 || "—",
+     "Rua": im.rua || "—",
+     "Nº proprietário": im.proprietario_telefone || "—",
     "Quartos": im.quartos || 0,
     "Banheiros": im.banheiros || 0,
     "Vagas": im.vagas || 0,
@@ -536,10 +549,62 @@ function exportarExcel() {
 }
 
 // Event Listeners para acionar a filtragem
-["filtro-termo", "filtro-tipo", "filtro-status", "filtro-data-de", "filtro-data-ate"].forEach(id => {
+["filtro-termo", "filtro-tipo", "filtro-status", "filtro-mes-postagem"].forEach(id => {
   document.getElementById(id).addEventListener("input", aplicarFiltros);
   document.getElementById(id).addEventListener("change", aplicarFiltros);
 });
+
+
+// ===== Melhorias: localidades, preço e filtro mensal =====
+function formatarPrecoBR(valor){
+  if (valor === null || valor === undefined || valor === "") return "";
+  return Number(valor).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function parsePrecoBR(valor){
+  if (!valor) return null;
+  const n=Number(String(valor).replace(/\s/g,"").replace(/\./g,"").replace(",","."));
+  return Number.isFinite(n)?n:null;
+}
+const precoInput=document.getElementById("f-preco");
+precoInput.addEventListener("input",()=>{
+  const digitos=precoInput.value.replace(/\D/g,"");
+  precoInput.value=digitos ? formatarPrecoBR(Number(digitos)/100) : "";
+});
+function normalizarLocal(s){
+  return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toLowerCase();
+}
+async function carregarSugestoesLocalidade(){
+  const cidade=document.getElementById("f-cidade");
+  const bairro=document.getElementById("f-bairro");
+  const lc=document.getElementById("lista-cidades");
+  const lb=document.getElementById("lista-bairros");
+  try{
+    const r=await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/municipios");
+    const municipios=await r.json();
+    municipios.sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
+    lc.innerHTML=municipios.map(m=>`<option value="${m.nome}"></option>`).join("");
+  }catch(e){console.warn("IBGE indisponível",e);}
+  async function bairrosDaCidade(){
+    const {data}=await sb.from("imoveis").select("cidade,bairro").eq("disponivel",true);
+    const lista=[...new Set((data||[]).filter(r=>!cidade.value||normalizarLocal(r.cidade)===normalizarLocal(cidade.value)).map(r=>r.bairro).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+    lb.innerHTML=lista.map(v=>`<option value="${String(v).replace(/"/g,"&quot;")}"></option>`).join("");
+  }
+  cidade.addEventListener("input",bairrosDaCidade);
+  cidade.addEventListener("change",bairrosDaCidade);
+  await bairrosDaCidade();
+}
+function preencherFiltroMeses(){
+  const s=document.getElementById("filtro-mes-postagem");
+  const fmt=new Intl.DateTimeFormat("pt-BR",{month:"long"});
+  const chaves=[...new Set(imoveisCache.filter(i=>i.criado_em).map(i=>i.criado_em.slice(0,7)))].sort().reverse();
+  s.innerHTML='<option value="">Todos os meses</option>'+chaves.map(k=>{
+    const [a,m]=k.split("-"), nome=fmt.format(new Date(+a,+m-1,1));
+    return `<option value="${k}">${nome[0].toUpperCase()+nome.slice(1)}, ${a}</option>`;
+  }).join("");
+}
+const carregarTabelaBase=carregarTabela;
+carregarTabela=async function(){await carregarTabelaBase();preencherFiltroMeses();};
+carregarSugestoesLocalidade();
 
 checarSessao();
 </script>
