@@ -1,206 +1,595 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1"
+>
+
 <title>Painel Admin — Paulino Imóveis</title>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<!-- Biblioteca para gerar arquivos Excel (XLSX) -->
+
+<link
+  href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
+  rel="stylesheet"
+>
+
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
 <style>
-  :root{
-    --green:#0C3B2C; --green-dark:#082B20; --red:#C81E2C;
-    --ink:#121815; --ink-soft:#5C665F; --line:#E3E7E2; --offwhite:#F6F7F5;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Inter',sans-serif;color:var(--ink);background:var(--offwhite);}
-  .wrap{max-width:1180px;margin:0 auto;padding:32px 24px 80px;}
-  h1{font-family:'Archivo',sans-serif;font-weight:800;font-size:24px;margin-bottom:24px;}
-  h2{font-family:'Archivo',sans-serif;font-weight:700;font-size:18px;margin-bottom:14px;}
 
-  #tela-login{max-width:340px;margin:100px auto;background:#fff;padding:32px;border-radius:12px;border:1px solid var(--line);}
-  #tela-login input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:8px;margin-bottom:12px;font-size:14px;}
-  #tela-login button{width:100%;padding:12px;background:var(--green);color:#fff;border:0;border-radius:8px;font-weight:600;cursor:pointer;}
-  .erro{color:var(--red);font-size:13px;margin-bottom:10px;}
+:root{
+  --green:#0C3B2C;
+  --green-dark:#082B20;
+  --red:#C81E2C;
+  --ink:#121815;
+  --ink-soft:#5C665F;
+  --line:#E3E7E2;
+  --offwhite:#F6F7F5;
+}
 
-  #app{display:none;}
-  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
-  .btn{padding:10px 16px;border-radius:8px;border:0;font-size:13.5px;font-weight:600;cursor:pointer;}
-  .btn-green{background:var(--green);color:#fff;}
-  .btn-outline{background:#fff;border:1px solid var(--line);color:var(--ink);}
-  .btn-red{background:var(--red);color:#fff;}
-  .btn-sm{padding:7px 12px;font-size:12.5px;}
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
 
-  .card-form{background:#fff;border:1px solid var(--line);border-radius:12px;padding:24px;margin-bottom:32px;}
-  .form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
-  .form-grid.full{grid-template-columns:1fr;}
-  label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;}
-  input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;}
-  textarea{min-height:80px;resize:vertical;}
-  .check-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
-  .msg{font-size:13px;margin-bottom:12px;}
-  .msg.ok{color:var(--green);}
-  .msg.erro{color:var(--red);}
+body{
+  font-family:'Inter',sans-serif;
+  color:var(--ink);
+  background:var(--offwhite);
+}
 
-  /* Componente Dropzone (Drag & Drop de Fotos) */
-  .dropzone {
-    border: 2px dashed var(--line);
-    border-radius: 8px;
-    padding: 24px 16px;
-    text-align: center;
-    background: #fafbfa;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  .dropzone:hover, .dropzone.dragover {
-    border-color: var(--green);
-    background: #eef4f0;
-  }
-  .dropzone-icon {
-    font-size: 28px;
-    display: block;
-    margin-bottom: 6px;
-  }
-  .dropzone p {
-    font-size: 13.5px;
-    color: var(--ink);
-    margin-bottom: 4px;
-  }
-  .dropzone-info {
-    font-size: 12px;
-    color: var(--ink-soft);
-    font-weight: 500;
+button,
+input,
+select,
+textarea{
+  font:inherit;
+}
+
+.wrap{
+  max-width:1400px;
+  margin:0 auto;
+  padding:32px 24px 80px;
+}
+
+h1,
+h2{
+  font-family:'Archivo',sans-serif;
+}
+
+h1{
+  font-weight:800;
+  font-size:24px;
+  margin-bottom:24px;
+}
+
+h2{
+  font-weight:700;
+  font-size:18px;
+  margin-bottom:14px;
+}
+
+/* ============================================================
+   LOGIN
+   ============================================================ */
+
+#tela-login{
+  max-width:340px;
+  margin:100px auto;
+  background:#fff;
+  padding:32px;
+  border-radius:12px;
+  border:1px solid var(--line);
+}
+
+#tela-login h1{
+  margin-bottom:20px;
+}
+
+#tela-login input{
+  width:100%;
+  padding:11px 12px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  margin-bottom:12px;
+  font-size:14px;
+}
+
+#tela-login button{
+  width:100%;
+  padding:12px;
+  background:var(--green);
+  color:#fff;
+  border:0;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+#tela-login button:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+.erro{
+  color:var(--red);
+  font-size:13px;
+  margin-bottom:10px;
+}
+
+/* ============================================================
+   APP
+   ============================================================ */
+
+#app{
+  display:none;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:28px;
+  gap:20px;
+}
+
+.topbar h1{
+  margin-bottom:0;
+}
+
+/* ============================================================
+   BOTÕES
+   ============================================================ */
+
+.btn{
+  padding:10px 16px;
+  border-radius:8px;
+  border:0;
+  font-size:13.5px;
+  font-weight:600;
+  cursor:pointer;
+  transition:.15s ease;
+}
+
+.btn:hover{
+  transform:translateY(-1px);
+}
+
+.btn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+  transform:none;
+}
+
+.btn-green{
+  background:var(--green);
+  color:#fff;
+}
+
+.btn-outline{
+  background:#fff;
+  border:1px solid var(--line);
+  color:var(--ink);
+}
+
+.btn-red{
+  background:var(--red);
+  color:#fff;
+}
+
+.btn-sm{
+  padding:7px 12px;
+  font-size:12.5px;
+}
+
+/* ============================================================
+   FORMULÁRIO
+   ============================================================ */
+
+.card-form{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:24px;
+  margin-bottom:32px;
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+  margin-bottom:14px;
+}
+
+.form-grid.full{
+  grid-template-columns:1fr;
+}
+
+label{
+  display:block;
+  font-size:12px;
+  font-weight:600;
+  color:var(--ink-soft);
+  margin-bottom:5px;
+}
+
+input,
+select,
+textarea{
+  width:100%;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  font-size:14px;
+  font-family:inherit;
+  background:#fff;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  outline:none;
+  border-color:var(--green);
+  box-shadow:0 0 0 3px rgba(12,59,44,.08);
+}
+
+textarea{
+  min-height:100px;
+  resize:vertical;
+}
+
+.check-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:14px;
+}
+
+.check-row input{
+  width:auto;
+}
+
+.msg{
+  font-size:13px;
+  margin-bottom:12px;
+}
+
+.msg.ok{
+  color:var(--green);
+}
+
+.msg.erro{
+  color:var(--red);
+}
+
+/* ============================================================
+   DROPZONE
+   ============================================================ */
+
+.dropzone{
+  border:2px dashed var(--line);
+  border-radius:8px;
+  padding:24px 16px;
+  text-align:center;
+  background:#fafbfa;
+  cursor:pointer;
+  transition:.2s ease;
+}
+
+.dropzone:hover,
+.dropzone.dragover{
+  border-color:var(--green);
+  background:#eef4f0;
+}
+
+.dropzone-icon{
+  font-size:28px;
+  display:block;
+  margin-bottom:6px;
+}
+
+.dropzone p{
+  font-size:13.5px;
+  color:var(--ink);
+  margin-bottom:4px;
+}
+
+.dropzone-info{
+  font-size:12px;
+  color:var(--ink-soft);
+  font-weight:500;
+}
+
+/* ============================================================
+   FILTROS
+   ============================================================ */
+
+.filtros-box{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:20px;
+  margin-bottom:20px;
+}
+
+.filtros-grid{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr 1.2fr;
+  gap:12px;
+  align-items:end;
+}
+
+/* ============================================================
+   TABELA
+   ============================================================ */
+
+.tabela-container{
+  width:100%;
+  overflow-x:auto;
+  border-radius:12px;
+}
+
+table{
+  width:100%;
+  min-width:1200px;
+  border-collapse:collapse;
+  background:#fff;
+  border:1px solid var(--line);
+}
+
+th,
+td{
+  padding:12px 14px;
+  text-align:left;
+  font-size:13.5px;
+  border-bottom:1px solid var(--line);
+  vertical-align:middle;
+}
+
+th{
+  background:#fafbfa;
+  font-size:11.5px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  color:var(--ink-soft);
+  white-space:nowrap;
+}
+
+tr:last-child td{
+  border-bottom:none;
+}
+
+.thumb{
+  width:56px;
+  height:42px;
+  object-fit:cover;
+  border-radius:6px;
+  background:#eee;
+  display:block;
+}
+
+.status{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:100px;
+  font-size:11.5px;
+  font-weight:600;
+  white-space:nowrap;
+}
+
+.status.disp{
+  background:#E8EFEA;
+  color:var(--green);
+}
+
+.status.vend{
+  background:#FBE8E9;
+  color:var(--red);
+}
+
+.acoes{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  min-width:190px;
+}
+
+.tabela-topo{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:14px;
+  gap:16px;
+}
+
+.codigo-cell{
+  font-family:'Archivo',sans-serif;
+  font-weight:700;
+  font-size:12.5px;
+  color:var(--green);
+  background:var(--offwhite);
+  padding:3px 8px;
+  border-radius:6px;
+  display:inline-block;
+}
+
+.proprietario-tag{
+  display:block;
+  font-size:11px;
+  color:var(--ink-soft);
+  margin-top:2px;
+}
+
+/* ============================================================
+   RESPONSIVO
+   ============================================================ */
+
+@media(max-width:900px){
+
+  .form-grid{
+    grid-template-columns:1fr 1fr;
   }
 
-  /* Painel de Filtros e Busca */
-  .filtros-box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:20px;}
-  .filtros-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1.2fr;gap:12px;align-items:end;}
+  .filtros-grid{
+    grid-template-columns:1fr 1fr;
+  }
 
-  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
-  th,td{padding:12px 14px;text-align:left;font-size:13.5px;border-bottom:1px solid var(--line);}
-  th{background:#fafbfa;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);}
-  tr:last-child td{border-bottom:none;}
-  .thumb{width:56px;height:42px;object-fit:cover;border-radius:6px;background:#eee;}
-  .status{display:inline-block;padding:4px 10px;border-radius:100px;font-size:11.5px;font-weight:600;}
-  .status.disp{background:#E8EFEA;color:var(--green);}
-  .status.vend{background:#FBE8E9;color:var(--red);}
-  .acoes{display:flex;gap:6px;flex-wrap:wrap;}
-  .tabela-topo{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:16px;}
-  .codigo-cell{font-family:'Archivo',sans-serif;font-weight:700;font-size:12.5px;color:var(--green);background:var(--offwhite);padding:3px 8px;border-radius:6px;display:inline-block;}
-  .proprietario-tag{display:block;font-size:11px;color:var(--ink-soft);margin-top:2px;}
+}
+
+@media(max-width:600px){
+
+  .wrap{
+    padding:20px 14px 60px;
+  }
+
+  .topbar{
+    align-items:flex-start;
+  }
+
+  .form-grid,
+  .filtros-grid{
+    grid-template-columns:1fr;
+  }
+
+  .card-form{
+    padding:18px;
+  }
+
+}
+
 </style>
+
 </head>
+
 <body>
 
+<!-- ============================================================
+     LOGIN
+     ============================================================ -->
+
 <div id="tela-login">
+
   <h1>Entrar no painel</h1>
-  <div class="erro" id="login-erro" style="display:none;"></div>
-  <label>E-mail</label>
-  <input id="login-email" type="email" autocomplete="username">
-  <label>Senha</label>
-  <input id="login-senha" type="password" autocomplete="current-password">
-  <button class="btn btn-green" onclick="entrar()">Entrar</button>
+
+  <div
+    class="erro"
+    id="login-erro"
+    style="display:none;"
+  ></div>
+
+  <label for="login-email">
+    E-mail
+  </label>
+
+  <input
+    id="login-email"
+    type="email"
+    autocomplete="username"
+  >
+
+  <label for="login-senha">
+    Senha
+  </label>
+
+  <input
+    id="login-senha"
+    type="password"
+    autocomplete="current-password"
+  >
+
+  <button
+    class="btn btn-green"
+    id="btn-login"
+    type="button"
+  >
+    Entrar
+  </button>
+
 </div>
 
+
+<!-- ============================================================
+     APLICAÇÃO
+     ============================================================ -->
+
 <div id="app">
-  <div class="wrap">
-    <div class="topbar">
-      <h1>Painel de imóveis</h1>
-      <button class="btn btn-outline" onclick="sair()">Sair</button>
-    </div>
 
-    <div class="card-form">
-      <h2 id="titulo-form">Adicionar novo imóvel</h2>
-      <div class="msg" id="form-msg" style="display:none;"></div>
-      <form id="form-imovel" onsubmit="return salvarImovel(event)">
-        <input type="hidden" name="id" id="f-id">
-        <div class="form-grid">
-          <div><label>Título</label><input name="titulo" required placeholder="Terreno no Bairro X"></div>
-          <div><label>Código</label><input name="codigo" placeholder="Gerado automaticamente"></div>
-          <div>
-            <label>Tipo</label>
-            <select name="tipo">
-              <option value="Casa">Casa</option>
-              <option value="Apartamento">Apartamento</option>
-              <option value="Barracão">Barracão</option>
-              <option value="Ponto Comercial">Ponto Comercial</option>
-              <option value="Sítio/Fazenda">Sítio/Fazenda</option>
-              <option value="Terreno">Terreno</option>
-              <option value="Área de Lazer">Área de Lazer</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-grid">
-          <div>
-            <label>Finalidade</label>
-            <select name="finalidade">
-              <option value="Comprar">Comprar</option>
-              <option value="Alugar">Alugar</option>
-              <option value="Temporada">Temporada</option>
-            </select>
-          </div>
-          <div><label>Cidade</label><input name="cidade" id="f-cidade" list="lista-cidades" autocomplete="off" placeholder="Digite para buscar a cidade"><datalist id="lista-cidades"></datalist></div>
-          <div><label>Bairro</label><input name="bairro" id="f-bairro" list="lista-bairros" autocomplete="off" placeholder="Digite para buscar o bairro"><datalist id="lista-bairros"></datalist></div>
-        </div>
-        <div class="form-grid">
-          <div><label>Preço (R$)</label><input name="preco" id="f-preco" inputmode="numeric" autocomplete="off" placeholder="100.000,00"></div>
-          <div><label>Área construída (m²)</label><input name="area_construida_m2" type="number" step="0.01" placeholder="120"></div>
-          <div><label>Área do terreno (m²)</label><input name="area_terreno_m2" type="number" step="0.01" placeholder="360"></div>
-        </div>
-        <div class="form-grid">
-          <div><label>Quartos</label><input name="quartos" type="number" placeholder="3"></div>
-          <div><label>Banheiros</label><input name="banheiros" type="number" placeholder="2"></div>
-          <div><label>Vagas</label><input name="vagas" type="number" placeholder="2"></div>
-        </div>
-        <div class="form-grid">
-          <div><label>Proprietário (Interno)</label><input name="proprietario" placeholder="Nome do proprietário"></div>
-          <div><label>Nº do proprietário (WhatsApp/telefone)</label><input name="proprietario_telefone" type="tel" placeholder="(35) 99999-9999"></div>
-          <div><label>Rua do imóvel</label><input name="rua" placeholder="Rua, Avenida..."></div>
-        </div>
-        <div class="form-grid full">
-          <div><label>Descrição</label><textarea name="descricao" placeholder="Detalhes do imóvel..."></textarea></div>
-        </div>
-        
-        <!-- DROPZONE (ARRASTAR & SOLTAR FOTOS) -->
-        <div class="form-grid full">
-          <div>
-            <label>Fotos novas (pode selecionar várias ou arrastar para cá)</label>
-            <div id="dropzone" class="dropzone" onclick="document.getElementById('f-fotos').click()">
-              <div class="dropzone-content">
-                <span class="dropzone-icon">📁</span>
-                <p><strong>Clique para selecionar</strong> ou arraste as fotos até aqui</p>
-                <span id="fotos-qtd" class="dropzone-info">Nenhuma foto selecionada</span>
-              </div>
-              <input name="fotos" id="f-fotos" type="file" accept="image/*" multiple style="display:none;">
-            </div>
-          </div>
-        </div>
+<div class="wrap">
 
-        <div class="check-row">
-          <input type="checkbox" id="destaque_manual" name="destaque_manual">
-          <label style="margin:0;" for="destaque_manual">Forçar destaque na home (independente de visualizações)</label>
-        </div>
-        <button class="btn btn-green" type="submit" id="btn-salvar">Salvar imóvel</button>
-        <button class="btn btn-outline" type="button" id="btn-cancelar-edicao" style="display:none;" onclick="cancelarEdicao()">Cancelar edição</button>
-      </form>
-    </div>
+  <div class="topbar">
 
-    <!-- PAINEL DE FILTROS E PESQUISA -->
-    <div class="tabela-topo">
-      <h2 style="margin-bottom:0;">Imóveis cadastrados</h2>
-      <button class="btn btn-outline btn-sm" onclick="exportarExcel()">📊 Exportar XLSX</button>
-    </div>
+    <h1>
+      Painel de imóveis
+    </h1>
 
-    <div class="filtros-box">
-      <div class="filtros-grid">
+    <button
+      class="btn btn-outline"
+      id="btn-sair"
+      type="button"
+    >
+      Sair
+    </button>
+
+  </div>
+
+
+  <!-- ==========================================================
+       FORMULÁRIO
+       ========================================================== -->
+
+  <div class="card-form">
+
+    <h2 id="titulo-form">
+      Adicionar novo imóvel
+    </h2>
+
+    <div
+      class="msg"
+      id="form-msg"
+      style="display:none;"
+    ></div>
+
+    <form id="form-imovel">
+
+      <input
+        type="hidden"
+        name="id"
+        id="f-id"
+      >
+
+      <div class="form-grid">
+
         <div>
-          <label>Buscar (Código, Título ou Proprietário)</label>
-          <input type="text" id="filtro-termo" placeholder="Digite para buscar...">
+          <label>Título</label>
+
+          <input
+            name="titulo"
+            required
+            placeholder="Terreno no Bairro X"
+          >
         </div>
+
         <div>
+
+          <label>Código</label>
+
+          <input
+            name="codigo"
+            placeholder="Gerado automaticamente"
+          >
+
+        </div>
+
+        <div>
+
           <label>Tipo</label>
-          <select id="filtro-tipo">
-            <option value="">Todos os tipos</option>
+
+          <select name="tipo">
+
             <option value="Casa">Casa</option>
             <option value="Apartamento">Apartamento</option>
             <option value="Barracão">Barracão</option>
@@ -208,405 +597,2712 @@
             <option value="Sítio/Fazenda">Sítio/Fazenda</option>
             <option value="Terreno">Terreno</option>
             <option value="Área de Lazer">Área de Lazer</option>
+
           </select>
+
         </div>
-        <div>
-          <label>Status</label>
-          <select id="filtro-status">
-            <option value="">Todos</option>
-            <option value="disp">Disponível</option>
-            <option value="vend">Vendido/Inativo</option>
-          </select>
-        </div>
-        <div>
-          <label>Mês da postagem</label>
-          <select id="filtro-mes-postagem"><option value="">Todos os meses</option></select>
-        </div>
+
       </div>
+
+
+      <div class="form-grid">
+
+        <div>
+
+          <label>Finalidade</label>
+
+          <select name="finalidade">
+
+            <option value="Comprar">Comprar</option>
+            <option value="Alugar">Alugar</option>
+            <option value="Temporada">Temporada</option>
+
+          </select>
+
+        </div>
+
+        <div>
+
+          <label>Cidade</label>
+
+          <input
+            name="cidade"
+            id="f-cidade"
+            list="lista-cidades"
+            autocomplete="off"
+            placeholder="Digite para buscar a cidade"
+          >
+
+          <datalist id="lista-cidades"></datalist>
+
+        </div>
+
+        <div>
+
+          <label>Bairro</label>
+
+          <input
+            name="bairro"
+            id="f-bairro"
+            list="lista-bairros"
+            autocomplete="off"
+            placeholder="Digite para buscar o bairro"
+          >
+
+          <datalist id="lista-bairros"></datalist>
+
+        </div>
+
+      </div>
+
+
+      <div class="form-grid">
+
+        <div>
+
+          <label>Preço (R$)</label>
+
+          <input
+            name="preco"
+            id="f-preco"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="100.000,00"
+          >
+
+        </div>
+
+        <div>
+
+          <label>
+            Área construída (m²)
+          </label>
+
+          <input
+            name="area_construida_m2"
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="120"
+          >
+
+        </div>
+
+        <div>
+
+          <label>
+            Área do terreno (m²)
+          </label>
+
+          <input
+            name="area_terreno_m2"
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="360"
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="form-grid">
+
+        <div>
+
+          <label>Quartos</label>
+
+          <input
+            name="quartos"
+            type="number"
+            min="0"
+            placeholder="3"
+          >
+
+        </div>
+
+        <div>
+
+          <label>Banheiros</label>
+
+          <input
+            name="banheiros"
+            type="number"
+            min="0"
+            placeholder="2"
+          >
+
+        </div>
+
+        <div>
+
+          <label>Vagas</label>
+
+          <input
+            name="vagas"
+            type="number"
+            min="0"
+            placeholder="2"
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="form-grid">
+
+        <div>
+
+          <label>
+            Proprietário (Interno)
+          </label>
+
+          <input
+            name="proprietario"
+            placeholder="Nome do proprietário"
+          >
+
+        </div>
+
+        <div>
+
+          <label>
+            Nº do proprietário (WhatsApp/telefone)
+          </label>
+
+          <input
+            name="proprietario_telefone"
+            type="tel"
+            placeholder="(35) 99999-9999"
+          >
+
+        </div>
+
+        <div>
+
+          <label>
+            Rua do imóvel
+          </label>
+
+          <input
+            name="rua"
+            placeholder="Rua, Avenida..."
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="form-grid full">
+
+        <div>
+
+          <label>
+            Descrição
+          </label>
+
+          <textarea
+            name="descricao"
+            placeholder="Detalhes do imóvel..."
+          ></textarea>
+
+        </div>
+
+      </div>
+
+
+      <!-- ========================================================
+           FOTOS
+           ======================================================== -->
+
+      <div class="form-grid full">
+
+        <div>
+
+          <label>
+            Fotos novas
+          </label>
+
+          <div
+            id="dropzone"
+            class="dropzone"
+          >
+
+            <div class="dropzone-content">
+
+              <span class="dropzone-icon">
+                📁
+              </span>
+
+              <p>
+                <strong>
+                  Clique para selecionar
+                </strong>
+                ou arraste as fotos até aqui
+              </p>
+
+              <span
+                id="fotos-qtd"
+                class="dropzone-info"
+              >
+                Nenhuma foto selecionada
+              </span>
+
+            </div>
+
+            <input
+              name="fotos"
+              id="f-fotos"
+              type="file"
+              accept="image/*"
+              multiple
+              style="display:none;"
+            >
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="check-row">
+
+        <input
+          type="checkbox"
+          id="destaque_manual"
+          name="destaque_manual"
+        >
+
+        <label
+          style="margin:0;"
+          for="destaque_manual"
+        >
+          Forçar destaque na home
+          (independente de visualizações)
+        </label>
+
+      </div>
+
+
+      <button
+        class="btn btn-green"
+        type="submit"
+        id="btn-salvar"
+      >
+        Salvar imóvel
+      </button>
+
+      <button
+        class="btn btn-outline"
+        type="button"
+        id="btn-cancelar-edicao"
+        style="display:none;"
+      >
+        Cancelar edição
+      </button>
+
+    </form>
+
+  </div>
+
+
+  <!-- ==========================================================
+       LISTAGEM
+       ========================================================== -->
+
+  <div class="tabela-topo">
+
+    <h2 style="margin-bottom:0;">
+      Imóveis cadastrados
+    </h2>
+
+    <button
+      class="btn btn-outline btn-sm"
+      id="btn-exportar"
+      type="button"
+    >
+      📊 Exportar XLSX
+    </button>
+
+  </div>
+
+
+  <div class="filtros-box">
+
+    <div class="filtros-grid">
+
+      <div>
+
+        <label>
+          Buscar
+          (Código, Título ou Proprietário)
+        </label>
+
+        <input
+          type="text"
+          id="filtro-termo"
+          placeholder="Digite para buscar..."
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>Tipo</label>
+
+        <select id="filtro-tipo">
+
+          <option value="">
+            Todos os tipos
+          </option>
+
+          <option value="Casa">Casa</option>
+          <option value="Apartamento">Apartamento</option>
+          <option value="Barracão">Barracão</option>
+          <option value="Ponto Comercial">Ponto Comercial</option>
+          <option value="Sítio/Fazenda">Sítio/Fazenda</option>
+          <option value="Terreno">Terreno</option>
+          <option value="Área de Lazer">Área de Lazer</option>
+
+        </select>
+
+      </div>
+
+
+      <div>
+
+        <label>Status</label>
+
+        <select id="filtro-status">
+
+          <option value="">
+            Todos
+          </option>
+
+          <option value="disp">
+            Disponível
+          </option>
+
+          <option value="vend">
+            Vendido/Inativo
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div>
+
+        <label>
+          Mês da postagem
+        </label>
+
+        <select id="filtro-mes-postagem">
+
+          <option value="">
+            Todos os meses
+          </option>
+
+        </select>
+
+      </div>
+
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Foto</th><th>Código / Proprietário</th><th>Título</th><th>Tipo / Finalidade</th><th>Data Postagem</th><th>Local</th><th>Preço</th><th>Views</th><th>Status</th><th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="tabela-imoveis"></tbody>
-    </table>
   </div>
+
+
+  <div class="tabela-container">
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>Foto</th>
+
+          <th>
+            Código / Proprietário
+          </th>
+
+          <th>Título</th>
+
+          <th>
+            Tipo / Finalidade
+          </th>
+
+          <th>
+            Data Postagem
+          </th>
+
+          <th>Local</th>
+
+          <th>Preço</th>
+
+          <th>Views</th>
+
+          <th>Status</th>
+
+          <th>Ações</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody id="tabela-imoveis"></tbody>
+
+    </table>
+
+  </div>
+
 </div>
 
+</div>
+
+
+<!-- ============================================================
+     SCRIPTS
+     ============================================================ -->
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
 <script src="assets/config.js"></script>
+
 <script src="assets/site.js"></script>
+
+
 <script>
+
+"use strict";
+
+/* ==============================================================
+   ESTADO
+   ============================================================== */
+
 let editandoId = null;
+
 let imoveisCache = [];
+
 let imoveisFiltrados = [];
 
-// ELEMENTOS DA DROPZONE
-const dropzone = document.getElementById("dropzone");
-const fileInput = document.getElementById("f-fotos");
-const fotosQtdText = document.getElementById("fotos-qtd");
+let carregandoTabela = false;
+
+let cidadesCarregadas = false;
+
+
+/* ==============================================================
+   ELEMENTOS
+   ============================================================== */
+
+const telaLogin =
+  document.getElementById("tela-login");
+
+const app =
+  document.getElementById("app");
+
+const form =
+  document.getElementById("form-imovel");
+
+const fileInput =
+  document.getElementById("f-fotos");
+
+const dropzone =
+  document.getElementById("dropzone");
+
+const fotosQtdText =
+  document.getElementById("fotos-qtd");
+
+const precoInput =
+  document.getElementById("f-preco");
+
+
+/* ==============================================================
+   DROPZONE
+   ============================================================== */
 
 function atualizarTextoFotos() {
-  const count = fileInput.files ? fileInput.files.length : 0;
-  if (count === 0) {
-    fotosQtdText.textContent = "Nenhuma foto selecionada";
-  } else if (count === 1) {
-    fotosQtdText.textContent = "1 foto selecionada";
-  } else {
-    fotosQtdText.textContent = `${count} fotos selecionadas`;
-  }
-}
 
-fileInput.addEventListener("change", atualizarTextoFotos);
+  const quantidade =
+    fileInput.files
+      ? fileInput.files.length
+      : 0;
 
-['dragenter', 'dragover'].forEach(eventName => {
-  dropzone.addEventListener(eventName, (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dropzone.classList.add('dragover');
-  }, false);
-});
+  if (!quantidade) {
 
-['dragleave', 'drop'].forEach(eventName => {
-  dropzone.addEventListener(eventName, (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dropzone.classList.remove('dragover');
-  }, false);
-});
+    fotosQtdText.textContent =
+      "Nenhuma foto selecionada";
 
-dropzone.addEventListener("drop", (e) => {
-  const dt = e.dataTransfer;
-  const files = dt.files;
-  if (files && files.length > 0) {
-    fileInput.files = files;
-    atualizarTextoFotos();
-  }
-});
-
-async function checarSessao() {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) {
-    document.getElementById("tela-login").style.display = "none";
-    document.getElementById("app").style.display = "block";
-    carregarTabela();
-  }
-}
-
-async function entrar() {
-  const email = document.getElementById("login-email").value;
-  const senha = document.getElementById("login-senha").value;
-  const erroEl = document.getElementById("login-erro");
-  erroEl.style.display = "none";
-
-  const { error } = await sb.auth.signInWithPassword({ email, password: senha });
-  if (error) {
-    erroEl.textContent = "E-mail ou senha inválidos.";
-    erroEl.style.display = "block";
     return;
   }
-  checarSessao();
+
+  fotosQtdText.textContent =
+    quantidade === 1
+      ? "1 foto selecionada"
+      : `${quantidade} fotos selecionadas`;
 }
 
-async function sair() {
-  await sb.auth.signOut();
-  location.reload();
-}
 
-function mostrarMsg(texto, tipo) {
-  const el = document.getElementById("form-msg");
-  el.textContent = texto;
-  el.className = "msg " + tipo;
-  el.style.display = "block";
-  setTimeout(() => { el.style.display = "none"; }, 4000);
-}
+fileInput.addEventListener(
+  "change",
+  atualizarTextoFotos
+);
 
-async function uploadFotos(arquivos) {
-  const caminhos = [];
-  for (const arquivo of arquivos) {
-    const nome = `${Date.now()}-${Math.random().toString(36).slice(2)}-${arquivo.name}`;
-    const { error } = await sb.storage.from("fotos-imoveis").upload(nome, arquivo);
+
+dropzone.addEventListener(
+  "click",
+  () => fileInput.click()
+);
+
+
+["dragenter", "dragover"].forEach(
+  evento => {
+
+    dropzone.addEventListener(
+      evento,
+      event => {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        dropzone.classList.add(
+          "dragover"
+        );
+
+      }
+    );
+
+  }
+);
+
+
+["dragleave", "drop"].forEach(
+  evento => {
+
+    dropzone.addEventListener(
+      evento,
+      event => {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        dropzone.classList.remove(
+          "dragover"
+        );
+
+      }
+    );
+
+  }
+);
+
+
+dropzone.addEventListener(
+  "drop",
+  event => {
+
+    const arquivos =
+      event.dataTransfer?.files;
+
+    if (
+      !arquivos ||
+      !arquivos.length
+    ) {
+      return;
+    }
+
+    const imagens =
+      [...arquivos].filter(
+        arquivo =>
+          arquivo.type.startsWith(
+            "image/"
+          )
+      );
+
+    if (!imagens.length) {
+
+      alert(
+        "Selecione apenas arquivos de imagem."
+      );
+
+      return;
+    }
+
+    try {
+
+      const dataTransfer =
+        new DataTransfer();
+
+      imagens.forEach(
+        arquivo =>
+          dataTransfer.items.add(
+            arquivo
+          )
+      );
+
+      fileInput.files =
+        dataTransfer.files;
+
+      atualizarTextoFotos();
+
+    } catch (erro) {
+
+      console.error(
+        "Erro ao adicionar arquivos:",
+        erro
+      );
+
+    }
+
+  }
+);
+
+
+/* ==============================================================
+   PREÇO
+   ============================================================== */
+
+precoInput.addEventListener(
+  "input",
+  () => {
+
+    const digitos =
+      precoInput.value
+        .replace(/\D/g, "");
+
+    if (!digitos) {
+
+      precoInput.value = "";
+
+      return;
+    }
+
+    const numero =
+      Number(digitos) / 100;
+
+    precoInput.value =
+      formatarPrecoBR(numero);
+
+  }
+);
+
+
+/* ==============================================================
+   LOGIN
+   ============================================================== */
+
+async function checarSessao() {
+
+  try {
+
+    const {
+      data,
+      error
+    } = await sb.auth.getSession();
+
     if (error) {
       console.error(error);
-      continue;
+      return;
     }
-    caminhos.push(nome);
+
+    if (data?.session) {
+
+      mostrarAplicacao();
+
+    } else {
+
+      mostrarLogin();
+
+    }
+
+  } catch (erro) {
+
+    console.error(
+      "Erro ao verificar sessão:",
+      erro
+    );
+
+    mostrarLogin();
+
   }
-  return caminhos;
+
 }
 
-async function salvarImovel(ev) {
-  ev.preventDefault();
-  const form = document.getElementById("form-imovel");
-  const fd = new FormData(form);
-  const btn = document.getElementById("btn-salvar");
+
+function mostrarLogin() {
+
+  telaLogin.style.display =
+    "block";
+
+  app.style.display =
+    "none";
+
+}
+
+
+function mostrarAplicacao() {
+
+  telaLogin.style.display =
+    "none";
+
+  app.style.display =
+    "block";
+
+  carregarTabela();
+
+  carregarSugestoesLocalidade();
+
+}
+
+
+async function entrar() {
+
+  const email =
+    document.getElementById(
+      "login-email"
+    ).value.trim();
+
+  const senha =
+    document.getElementById(
+      "login-senha"
+    ).value;
+
+  const erroEl =
+    document.getElementById(
+      "login-erro"
+    );
+
+  const btn =
+    document.getElementById(
+      "btn-login"
+    );
+
+  erroEl.style.display =
+    "none";
+
+  if (!email || !senha) {
+
+    erroEl.textContent =
+      "Informe o e-mail e a senha.";
+
+    erroEl.style.display =
+      "block";
+
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Entrando...";
+
+  try {
+
+    const {
+      error
+    } = await sb.auth.signInWithPassword({
+      email,
+      password: senha
+    });
+
+    if (error) {
+
+      console.error(error);
+
+      erroEl.textContent =
+        "E-mail ou senha inválidos.";
+
+      erroEl.style.display =
+        "block";
+
+      return;
+    }
+
+    mostrarAplicacao();
+
+  } catch (erro) {
+
+    console.error(erro);
+
+    erroEl.textContent =
+      "Não foi possível realizar o login.";
+
+    erroEl.style.display =
+      "block";
+
+  } finally {
+
+    btn.disabled = false;
+    btn.textContent = "Entrar";
+
+  }
+
+}
+
+
+async function sair() {
+
+  try {
+
+    await sb.auth.signOut();
+
+  } catch (erro) {
+
+    console.error(
+      "Erro ao sair:",
+      erro
+    );
+
+  } finally {
+
+    location.reload();
+
+  }
+
+}
+
+
+/* ==============================================================
+   MENSAGENS
+   ============================================================== */
+
+function mostrarMsg(
+  texto,
+  tipo = "ok"
+) {
+
+  const el =
+    document.getElementById(
+      "form-msg"
+    );
+
+  el.textContent =
+    texto;
+
+  el.className =
+    `msg ${tipo}`;
+
+  el.style.display =
+    "block";
+
+  clearTimeout(
+    mostrarMsg.timeout
+  );
+
+  mostrarMsg.timeout =
+    setTimeout(
+      () => {
+        el.style.display =
+          "none";
+      },
+      5000
+    );
+
+}
+
+
+/* ==============================================================
+   UPLOAD
+   ============================================================== */
+
+function gerarNomeArquivo(
+  arquivo
+) {
+
+  const extensao =
+    arquivo.name.includes(".")
+      ? arquivo.name
+          .split(".")
+          .pop()
+          .toLowerCase()
+      : "jpg";
+
+  const id =
+    crypto.randomUUID
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random()
+          .toString(36)
+          .slice(2)}`;
+
+  return `${id}.${extensao}`;
+
+}
+
+
+async function uploadFotos(
+  arquivos
+) {
+
+  const caminhos = [];
+
+  for (
+    const arquivo of arquivos
+  ) {
+
+    if (
+      !arquivo.type.startsWith(
+        "image/"
+      )
+    ) {
+      continue;
+    }
+
+    const nome =
+      gerarNomeArquivo(
+        arquivo
+      );
+
+    const {
+      error
+    } = await sb.storage
+      .from("fotos-imoveis")
+      .upload(
+        nome,
+        arquivo,
+        {
+          cacheControl: "3600",
+          upsert: false,
+          contentType:
+            arquivo.type
+        }
+      );
+
+    if (error) {
+
+      console.error(
+        "Erro no upload:",
+        error
+      );
+
+      throw new Error(
+        `Erro ao enviar a foto "${arquivo.name}": ${error.message}`
+      );
+
+    }
+
+    caminhos.push(nome);
+
+  }
+
+  return caminhos;
+
+}
+
+
+/* ==============================================================
+   SALVAR IMÓVEL
+   ============================================================== */
+
+async function salvarImovel(
+  event
+) {
+
+  event.preventDefault();
+
+  const btn =
+    document.getElementById(
+      "btn-salvar"
+    );
+
   btn.disabled = true;
   btn.textContent = "Salvando...";
 
+  let fotosNovas = [];
+
   try {
-    const arquivos = fileInput.files;
-    const novasFotos = arquivos.length ? await uploadFotos(arquivos) : [];
+
+    const fd =
+      new FormData(form);
+
+    const titulo =
+      String(
+        fd.get("titulo") || ""
+      ).trim();
+
+    if (!titulo) {
+      throw new Error(
+        "Informe o título do imóvel."
+      );
+    }
+
+    /* ----------------------------------------------------------
+       UPLOAD
+       ---------------------------------------------------------- */
+
+    const arquivos =
+      fileInput.files
+        ? [...fileInput.files]
+        : [];
+
+    if (arquivos.length) {
+
+      fotosNovas =
+        await uploadFotos(
+          arquivos
+        );
+
+    }
+
+    /* ----------------------------------------------------------
+       PAYLOAD
+       ---------------------------------------------------------- */
 
     const payload = {
-      titulo: fd.get("titulo"),
-      codigo: fd.get("codigo") || null,
-      tipo: fd.get("tipo"),
-      finalidade: fd.get("finalidade"),
-      cidade: fd.get("cidade") || null,
-      bairro: fd.get("bairro") || null,
-      preco: parsePrecoBR(fd.get("preco")),
-      area_construida_m2: fd.get("area_construida_m2") ? Number(fd.get("area_construida_m2")) : null,
-      area_terreno_m2: fd.get("area_terreno_m2") ? Number(fd.get("area_terreno_m2")) : null,
-      quartos: fd.get("quartos") ? Number(fd.get("quartos")) : null,
-      banheiros: fd.get("banheiros") ? Number(fd.get("banheiros")) : null,
-      vagas: fd.get("vagas") ? Number(fd.get("vagas")) : null,
-      proprietario: fd.get("proprietario") || null,
-      proprietario_telefone: fd.get("proprietario_telefone") || null,
-      rua: fd.get("rua") || null,
-      descricao: fd.get("descricao") || null,
-      destaque_manual: document.getElementById("destaque_manual").checked,
+
+      titulo,
+
+      codigo:
+        String(
+          fd.get("codigo") || ""
+        ).trim() || null,
+
+      tipo:
+        fd.get("tipo") || null,
+
+      finalidade:
+        fd.get("finalidade") || null,
+
+      cidade:
+        String(
+          fd.get("cidade") || ""
+        ).trim() || null,
+
+      bairro:
+        String(
+          fd.get("bairro") || ""
+        ).trim() || null,
+
+      preco:
+        parsePrecoBR(
+          fd.get("preco")
+        ),
+
+      area_construida_m2:
+        fd.get("area_construida_m2")
+          ? Number(
+              fd.get(
+                "area_construida_m2"
+              )
+            )
+          : null,
+
+      area_terreno_m2:
+        fd.get("area_terreno_m2")
+          ? Number(
+              fd.get(
+                "area_terreno_m2"
+              )
+            )
+          : null,
+
+      quartos:
+        fd.get("quartos")
+          ? Number(
+              fd.get("quartos")
+            )
+          : null,
+
+      banheiros:
+        fd.get("banheiros")
+          ? Number(
+              fd.get("banheiros")
+            )
+          : null,
+
+      vagas:
+        fd.get("vagas")
+          ? Number(
+              fd.get("vagas")
+            )
+          : null,
+
+      proprietario:
+        String(
+          fd.get("proprietario") || ""
+        ).trim() || null,
+
+      proprietario_telefone:
+        String(
+          fd.get(
+            "proprietario_telefone"
+          ) || ""
+        ).trim() || null,
+
+      rua:
+        String(
+          fd.get("rua") || ""
+        ).trim() || null,
+
+      descricao:
+        String(
+          fd.get("descricao") || ""
+        ).trim() || null,
+
+      destaque_manual:
+        document.getElementById(
+          "destaque_manual"
+        ).checked
+
     };
 
+
+    /* ----------------------------------------------------------
+       EDIÇÃO
+       ---------------------------------------------------------- */
+
     if (editandoId) {
-      const existente = imoveisCache.find(i => i.id === editandoId);
-      payload.fotos = [...(existente?.fotos || []), ...novasFotos];
-      const { error } = await sb.from("imoveis").update(payload).eq("id", editandoId);
-      if (error) throw error;
-      mostrarMsg("Imóvel atualizado com sucesso.", "ok");
-    } else {
-      payload.fotos = novasFotos;
-      const { error } = await sb.from("imoveis").insert(payload);
-      if (error) throw error;
-      mostrarMsg("Imóvel cadastrado com sucesso.", "ok");
+
+      const existente =
+        imoveisCache.find(
+          im =>
+            String(im.id) ===
+            String(editandoId)
+        );
+
+      const fotosAntigas =
+        Array.isArray(
+          existente?.fotos
+        )
+          ? existente.fotos
+          : [];
+
+      payload.fotos = [
+        ...fotosAntigas,
+        ...fotosNovas
+      ];
+
+      const {
+        error
+      } = await sb
+        .from("imoveis")
+        .update(payload)
+        .eq(
+          "id",
+          editandoId
+        );
+
+      if (error) {
+        throw error;
+      }
+
+      mostrarMsg(
+        "Imóvel atualizado com sucesso.",
+        "ok"
+      );
+
+    }
+
+    /* ----------------------------------------------------------
+       NOVO IMÓVEL
+       ---------------------------------------------------------- */
+
+    else {
+
+      payload.fotos =
+        fotosNovas;
+
+      const {
+        error
+      } = await sb
+        .from("imoveis")
+        .insert(
+          payload
+        );
+
+      if (error) {
+        throw error;
+      }
+
+      mostrarMsg(
+        "Imóvel cadastrado com sucesso.",
+        "ok"
+      );
+
     }
 
     cancelarEdicao();
-    carregarTabela();
-  } catch (err) {
-    console.error(err);
-    mostrarMsg("Erro ao salvar: " + (err.message || err), "erro");
+
+    await carregarTabela();
+
+  } catch (erro) {
+
+    console.error(
+      "Erro ao salvar imóvel:",
+      erro
+    );
+
+    /*
+     * Se o banco falhou depois do upload,
+     * tentamos apagar as fotos recém-enviadas
+     * para evitar arquivos órfãos no Storage.
+     */
+
+    if (fotosNovas.length) {
+
+      try {
+
+        await sb.storage
+          .from("fotos-imoveis")
+          .remove(
+            fotosNovas
+          );
+
+      } catch (storageErro) {
+
+        console.error(
+          "Erro ao limpar uploads:",
+          storageErro
+        );
+
+      }
+
+    }
+
+    mostrarMsg(
+      "Erro ao salvar: " +
+        (
+          erro?.message ||
+          "erro desconhecido"
+        ),
+      "erro"
+    );
+
   } finally {
+
     btn.disabled = false;
-    btn.textContent = "Salvar imóvel";
+    btn.textContent =
+      "Salvar imóvel";
+
   }
+
   return false;
+
 }
+
+
+/* ==============================================================
+   EDITAR
+   ============================================================== */
 
 function editarImovel(id) {
-  const im = imoveisCache.find(i => i.id === id);
-  if (!im) return;
-  editandoId = id;
-  const form = document.getElementById("form-imovel");
-  form.titulo.value = im.titulo || "";
-  form.codigo.value = im.codigo || "";
-  form.tipo.value = im.tipo || "Terreno";
-  form.finalidade.value = im.finalidade || "Comprar";
-  form.cidade.value = im.cidade || "";
-  form.bairro.value = im.bairro || "";
-  form.preco.value = im.preco != null ? formatarPrecoBR(im.preco) : "";
-  form.area_construida_m2.value = im.area_construida_m2 ?? "";
-  form.area_terreno_m2.value = im.area_terreno_m2 ?? "";
-  form.quartos.value = im.quartos ?? "";
-  form.banheiros.value = im.banheiros ?? "";
-  form.vagas.value = im.vagas ?? "";
-  form.proprietario.value = im.proprietario || "";
-  form.proprietario_telefone.value = im.proprietario_telefone || "";
-  form.rua.value = im.rua || "";
-  form.descricao.value = im.descricao || "";
-  document.getElementById("destaque_manual").checked = !!im.destaque_manual;
-  document.getElementById("titulo-form").textContent = "Editando: " + im.titulo;
-  document.getElementById("btn-cancelar-edicao").style.display = "inline-block";
-  atualizarTextoFotos();
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
 
-function cancelarEdicao() {
-  editandoId = null;
-  document.getElementById("form-imovel").reset();
-  document.getElementById("titulo-form").textContent = "Adicionar novo imóvel";
-  document.getElementById("btn-cancelar-edicao").style.display = "none";
-  atualizarTextoFotos();
-}
+  const im =
+    imoveisCache.find(
+      item =>
+        String(item.id) ===
+        String(id)
+    );
 
-async function alternarDisponibilidade(id, disponivelAtual) {
-  const { error } = await sb.from("imoveis").update({ disponivel: !disponivelAtual }).eq("id", id);
-  if (error) { alert("Erro: " + error.message); return; }
-  carregarTabela();
-}
+  if (!im) {
 
-async function excluirImovel(id) {
-  if (!confirm("Excluir este imóvel permanentemente? Essa ação não pode ser desfeita.")) return;
-  const im = imoveisCache.find(i => i.id === id);
-  if (im && im.fotos && im.fotos.length) {
-    await sb.storage.from("fotos-imoveis").remove(im.fotos);
-  }
-  const { error } = await sb.from("imoveis").delete().eq("id", id);
-  if (error) { alert("Erro: " + error.message); return; }
-  carregarTabela();
-}
+    alert(
+      "Imóvel não encontrado."
+    );
 
-async function carregarTabela() {
-  const { data, error } = await sb.from("imoveis").select("*").order("criado_em", { ascending: false });
-  if (error) { console.error(error); return; }
-  imoveisCache = data;
-  aplicarFiltros();
-}
-
-function formatarData(isoStr) {
-  if (!isoStr) return "—";
-  const d = new Date(isoStr);
-  return d.toLocaleDateString("pt-BR");
-}
-
-function aplicarFiltros() {
-  const termo = document.getElementById("filtro-termo").value.trim().toLowerCase();
-  const tipo = document.getElementById("filtro-tipo").value;
-  const status = document.getElementById("filtro-status").value;
-  const mesPostagem = document.getElementById("filtro-mes-postagem").value;
-
-  imoveisFiltrados = imoveisCache.filter(im => {
-    const emCodigo = (im.codigo || "").toLowerCase().includes(termo);
-    const emTitulo = (im.titulo || "").toLowerCase().includes(termo);
-    const emProprietario = (im.proprietario || "").toLowerCase().includes(termo);
-    if (termo && !emCodigo && !emTitulo && !emProprietario) return false;
-
-    if (tipo && im.tipo !== tipo) return false;
-
-    if (status === "disp" && !im.disponivel) return false;
-    if (status === "vend" && im.disponivel) return false;
-
-    if (mesPostagem && im.criado_em && im.criado_em.substring(0, 7) !== mesPostagem) return false;
-
-    return true;
-  });
-
-  renderizarTabela(imoveisFiltrados);
-}
-
-function renderizarTabela(lista) {
-  const tbody = document.getElementById("tabela-imoveis");
-
-  tbody.innerHTML = lista.map(im => `
-    <tr>
-      <td><img class="thumb" src="${im.fotos && im.fotos[0] ? urlFoto(im.fotos[0]) : 'https://via.placeholder.com/56x42?text=—'}"></td>
-      <td>
-        <span class="codigo-cell">${im.codigo || "—"}</span>
-        <span class="proprietario-tag">👤 ${im.proprietario || "Não informado"}</span>
-      </td>
-      <td>${im.titulo}</td>
-      <td><strong>${im.tipo || "—"}</strong> / ${im.finalidade || "—"}</td>
-      <td>${formatarData(im.criado_em)}</td>
-      <td>${[im.bairro, im.cidade].filter(Boolean).join(", ") || "—"}</td>
-      <td>${fmtPreco(im.preco)}</td>
-      <td>${im.visualizacoes || 0}</td>
-      <td><span class="status ${im.disponivel ? "disp" : "vend"}">${im.disponivel ? "Disponível" : "Vendido/Inativo"}</span></td>
-      <td class="acoes">
-        <button class="btn btn-outline btn-sm" onclick="editarImovel('${im.id}')">Editar</button>
-        <button class="btn btn-outline btn-sm" onclick="alternarDisponibilidade('${im.id}', ${im.disponivel})">
-          ${im.disponivel ? "Marcar vendido" : "Reativar"}
-        </button>
-        <button class="btn btn-red btn-sm" onclick="excluirImovel('${im.id}')">Excluir</button>
-      </td>
-    </tr>
-  `).join("") || '<tr><td colspan="10" style="color:#5C665F; padding:20px; text-align:center;">Nenhum imóvel encontrado com esses filtros.</td></tr>';
-}
-
-function exportarExcel() {
-  if (!imoveisFiltrados.length) {
-    alert("Nenhum imóvel para exportar.");
     return;
   }
 
-  const dadosExportar = imoveisFiltrados.map(im => ({
-    "Código": im.codigo || "—",
-    "Título": im.titulo || "—",
-    "Proprietário": im.proprietario || "—",
-    "Tipo": im.tipo || "—",
-    "Finalidade": im.finalidade || "—",
-    "Preço (R$)": im.preco || 0,
-    "Cidade": im.cidade || "—",
-    "Bairro": im.bairro || "—",
-    "Área construída (m²)": im.area_construida_m2 || "—",
-     "Área do terreno (m²)": im.area_terreno_m2 || "—",
-     "Rua": im.rua || "—",
-     "Nº proprietário": im.proprietario_telefone || "—",
-    "Quartos": im.quartos || 0,
-    "Banheiros": im.banheiros || 0,
-    "Vagas": im.vagas || 0,
-    "Status": im.disponivel ? "Disponível" : "Vendido/Inativo",
-    "Visualizações": im.visualizacoes || 0,
-    "Data de Postagem": formatarData(im.criado_em)
-  }));
+  editandoId =
+    im.id;
 
-  const worksheet = XLSX.utils.json_to_sheet(dadosExportar);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Imóveis Filtrados");
-  
-  XLSX.writeFile(workbook, `Relatorio_Imoveis_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  form.titulo.value =
+    im.titulo || "";
+
+  form.codigo.value =
+    im.codigo || "";
+
+  form.tipo.value =
+    im.tipo || "Terreno";
+
+  form.finalidade.value =
+    im.finalidade || "Comprar";
+
+  form.cidade.value =
+    im.cidade || "";
+
+  form.bairro.value =
+    im.bairro || "";
+
+  form.preco.value =
+    im.preco != null
+      ? formatarPrecoBR(
+          im.preco
+        )
+      : "";
+
+  form.area_construida_m2.value =
+    im.area_construida_m2 ??
+    "";
+
+  form.area_terreno_m2.value =
+    im.area_terreno_m2 ??
+    "";
+
+  form.quartos.value =
+    im.quartos ??
+    "";
+
+  form.banheiros.value =
+    im.banheiros ??
+    "";
+
+  form.vagas.value =
+    im.vagas ??
+    "";
+
+  form.proprietario.value =
+    im.proprietario || "";
+
+  form.proprietario_telefone.value =
+    im.proprietario_telefone ||
+    "";
+
+  form.rua.value =
+    im.rua || "";
+
+  form.descricao.value =
+    im.descricao || "";
+
+  document.getElementById(
+    "destaque_manual"
+  ).checked =
+    Boolean(
+      im.destaque_manual
+    );
+
+  document.getElementById(
+    "titulo-form"
+  ).textContent =
+    "Editando: " +
+    (im.titulo || "Imóvel");
+
+  document.getElementById(
+    "btn-cancelar-edicao"
+  ).style.display =
+    "inline-block";
+
+  atualizarTextoFotos();
+
+  carregarBairros();
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
 }
 
-// Event Listeners para acionar a filtragem
-["filtro-termo", "filtro-tipo", "filtro-status", "filtro-mes-postagem"].forEach(id => {
-  document.getElementById(id).addEventListener("input", aplicarFiltros);
-  document.getElementById(id).addEventListener("change", aplicarFiltros);
-});
+
+/* ==============================================================
+   CANCELAR EDIÇÃO
+   ============================================================== */
+
+function cancelarEdicao() {
+
+  editandoId =
+    null;
+
+  form.reset();
+
+  document.getElementById(
+    "titulo-form"
+  ).textContent =
+    "Adicionar novo imóvel";
+
+  document.getElementById(
+    "btn-cancelar-edicao"
+  ).style.display =
+    "none";
+
+  fileInput.value =
+    "";
+
+  atualizarTextoFotos();
+
+}
 
 
-// ===== Melhorias: localidades, preço e filtro mensal =====
-function formatarPrecoBR(valor){
-  if (valor === null || valor === undefined || valor === "") return "";
-  return Number(valor).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
-}
-function parsePrecoBR(valor){
-  if (!valor) return null;
-  const n=Number(String(valor).replace(/\s/g,"").replace(/\./g,"").replace(",","."));
-  return Number.isFinite(n)?n:null;
-}
-const precoInput=document.getElementById("f-preco");
-precoInput.addEventListener("input",()=>{
-  const digitos=precoInput.value.replace(/\D/g,"");
-  precoInput.value=digitos ? formatarPrecoBR(Number(digitos)/100) : "";
-});
-function normalizarLocal(s){
-  return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toLowerCase();
-}
-async function carregarSugestoesLocalidade(){
-  const cidade=document.getElementById("f-cidade");
-  const bairro=document.getElementById("f-bairro");
-  const lc=document.getElementById("lista-cidades");
-  const lb=document.getElementById("lista-bairros");
-  try{
-    const r=await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/municipios");
-    const municipios=await r.json();
-    municipios.sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
-    lc.innerHTML=municipios.map(m=>`<option value="${m.nome}"></option>`).join("");
-  }catch(e){console.warn("IBGE indisponível",e);}
-  async function bairrosDaCidade(){
-    const {data}=await sb.from("imoveis").select("cidade,bairro").eq("disponivel",true);
-    const lista=[...new Set((data||[]).filter(r=>!cidade.value||normalizarLocal(r.cidade)===normalizarLocal(cidade.value)).map(r=>r.bairro).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
-    lb.innerHTML=lista.map(v=>`<option value="${String(v).replace(/"/g,"&quot;")}"></option>`).join("");
+/* ==============================================================
+   DISPONIBILIDADE
+   ============================================================== */
+
+async function alternarDisponibilidade(
+  id,
+  disponivelAtual
+) {
+
+  const novoStatus =
+    !Boolean(
+      disponivelAtual
+    );
+
+  const {
+    error
+  } = await sb
+    .from("imoveis")
+    .update({
+      disponivel:
+        novoStatus
+    })
+    .eq(
+      "id",
+      id
+    );
+
+  if (error) {
+
+    console.error(error);
+
+    alert(
+      "Erro ao alterar status:\n" +
+      error.message
+    );
+
+    return;
   }
-  cidade.addEventListener("input",bairrosDaCidade);
-  cidade.addEventListener("change",bairrosDaCidade);
-  await bairrosDaCidade();
+
+  await carregarTabela();
+
 }
-function preencherFiltroMeses(){
-  const s=document.getElementById("filtro-mes-postagem");
-  const fmt=new Intl.DateTimeFormat("pt-BR",{month:"long"});
-  const chaves=[...new Set(imoveisCache.filter(i=>i.criado_em).map(i=>i.criado_em.slice(0,7)))].sort().reverse();
-  s.innerHTML='<option value="">Todos os meses</option>'+chaves.map(k=>{
-    const [a,m]=k.split("-"), nome=fmt.format(new Date(+a,+m-1,1));
-    return `<option value="${k}">${nome[0].toUpperCase()+nome.slice(1)}, ${a}</option>`;
-  }).join("");
+
+
+/* ==============================================================
+   EXCLUIR
+   ============================================================== */
+
+async function excluirImovel(
+  id
+) {
+
+  const im =
+    imoveisCache.find(
+      item =>
+        String(item.id) ===
+        String(id)
+    );
+
+  if (!im) {
+    alert(
+      "Imóvel não encontrado."
+    );
+    return;
+  }
+
+  const confirmado =
+    confirm(
+      "Excluir este imóvel permanentemente?\n\n" +
+      "Essa ação não pode ser desfeita."
+    );
+
+  if (!confirmado) {
+    return;
+  }
+
+  try {
+
+    /* ----------------------------------------------------------
+       PRIMEIRO REMOVE O REGISTRO DO BANCO
+       ---------------------------------------------------------- */
+
+    const {
+      error
+    } = await sb
+      .from("imoveis")
+      .delete()
+      .eq(
+        "id",
+        id
+      );
+
+    if (error) {
+      throw error;
+    }
+
+    /* ----------------------------------------------------------
+       DEPOIS REMOVE AS FOTOS
+       ---------------------------------------------------------- */
+
+    if (
+      Array.isArray(im.fotos) &&
+      im.fotos.length
+    ) {
+
+      const fotosStorage =
+        im.fotos.filter(
+          foto =>
+            foto &&
+            !String(
+              foto
+            ).startsWith(
+              "http://"
+            ) &&
+            !String(
+              foto
+            ).startsWith(
+              "https://"
+            )
+        );
+
+      if (fotosStorage.length) {
+
+        const {
+          error:
+            storageError
+        } = await sb.storage
+          .from(
+            "fotos-imoveis"
+          )
+          .remove(
+            fotosStorage
+          );
+
+        if (storageError) {
+
+          console.warn(
+            "Registro excluído, mas houve erro ao remover fotos:",
+            storageError
+          );
+
+        }
+
+      }
+
+    }
+
+    if (
+      String(editandoId) ===
+      String(id)
+    ) {
+      cancelarEdicao();
+    }
+
+    await carregarTabela();
+
+    mostrarMsg(
+      "Imóvel excluído com sucesso.",
+      "ok"
+    );
+
+  } catch (erro) {
+
+    console.error(
+      "Erro ao excluir:",
+      erro
+    );
+
+    alert(
+      "Erro ao excluir:\n" +
+      (
+        erro?.message ||
+        "Erro desconhecido"
+      )
+    );
+
+  }
+
 }
-const carregarTabelaBase=carregarTabela;
-carregarTabela=async function(){await carregarTabelaBase();preencherFiltroMeses();};
-carregarSugestoesLocalidade();
+
+
+/* ==============================================================
+   CARREGAR TABELA
+   ============================================================== */
+
+async function carregarTabela() {
+
+  if (carregandoTabela) {
+    return;
+  }
+
+  carregandoTabela =
+    true;
+
+  try {
+
+    const {
+      data,
+      error
+    } = await sb
+      .from("imoveis")
+      .select("*")
+      .order(
+        "criado_em",
+        {
+          ascending:false
+        }
+      );
+
+    if (error) {
+      throw error;
+    }
+
+    imoveisCache =
+      Array.isArray(data)
+        ? data
+        : [];
+
+    preencherFiltroMeses();
+
+    aplicarFiltros();
+
+  } catch (erro) {
+
+    console.error(
+      "Erro ao carregar imóveis:",
+      erro
+    );
+
+    document.getElementById(
+      "tabela-imoveis"
+    ).innerHTML = `
+      <tr>
+        <td
+          colspan="10"
+          style="
+            color:#C81E2C;
+            padding:20px;
+            text-align:center;
+          "
+        >
+          Erro ao carregar os imóveis.
+          <br>
+          ${escapeHtml(
+            erro?.message ||
+            ""
+          )}
+        </td>
+      </tr>
+    `;
+
+  } finally {
+
+    carregandoTabela =
+      false;
+
+  }
+
+}
+
+
+/* ==============================================================
+   DATA
+   ============================================================== */
+
+function formatarData(
+  isoStr
+) {
+
+  if (!isoStr) {
+    return "—";
+  }
+
+  const data =
+    new Date(
+      isoStr
+    );
+
+  if (
+    Number.isNaN(
+      data.getTime()
+    )
+  ) {
+    return "—";
+  }
+
+  return data.toLocaleDateString(
+    "pt-BR",
+    {
+      day:"2-digit",
+      month:"2-digit",
+      year:"numeric"
+    }
+  );
+
+}
+
+
+/* ==============================================================
+   FILTROS
+   ============================================================== */
+
+function aplicarFiltros() {
+
+  const termo =
+    document.getElementById(
+      "filtro-termo"
+    )
+    .value
+    .trim()
+    .toLowerCase();
+
+  const tipo =
+    document.getElementById(
+      "filtro-tipo"
+    ).value;
+
+  const status =
+    document.getElementById(
+      "filtro-status"
+    ).value;
+
+  const mes =
+    document.getElementById(
+      "filtro-mes-postagem"
+    ).value;
+
+
+  imoveisFiltrados =
+    imoveisCache.filter(
+      im => {
+
+        if (termo) {
+
+          const campos = [
+
+            im.codigo,
+
+            im.titulo,
+
+            im.proprietario,
+
+            im.cidade,
+
+            im.bairro,
+
+            im.rua
+
+          ]
+            .filter(Boolean)
+            .map(
+              valor =>
+                String(valor)
+                  .toLowerCase()
+            );
+
+          const encontrou =
+            campos.some(
+              campo =>
+                campo.includes(
+                  termo
+                )
+            );
+
+          if (!encontrou) {
+            return false;
+          }
+
+        }
+
+
+        if (
+          tipo &&
+          im.tipo !== tipo
+        ) {
+          return false;
+        }
+
+
+        if (
+          status === "disp" &&
+          !im.disponivel
+        ) {
+          return false;
+        }
+
+
+        if (
+          status === "vend" &&
+          im.disponivel
+        ) {
+          return false;
+        }
+
+
+        if (mes) {
+
+          if (!im.criado_em) {
+            return false;
+          }
+
+          const chave =
+            String(
+              im.criado_em
+            ).slice(0,7);
+
+          if (
+            chave !== mes
+          ) {
+            return false;
+          }
+
+        }
+
+        return true;
+
+      }
+    );
+
+  renderizarTabela(
+    imoveisFiltrados
+  );
+
+}
+
+
+/* ==============================================================
+   RENDER TABELA
+   ============================================================== */
+
+function renderizarTabela(
+  lista
+) {
+
+  const tbody =
+    document.getElementById(
+      "tabela-imoveis"
+    );
+
+  if (!lista.length) {
+
+    tbody.innerHTML = `
+      <tr>
+        <td
+          colspan="10"
+          style="
+            color:#5C665F;
+            padding:20px;
+            text-align:center;
+          "
+        >
+          Nenhum imóvel encontrado
+          com esses filtros.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  tbody.innerHTML =
+    lista.map(
+      im => {
+
+        const foto =
+          Array.isArray(im.fotos) &&
+          im.fotos.length
+            ? urlFoto(
+                im.fotos[0]
+              )
+            : "https://via.placeholder.com/56x42?text=—";
+
+        return `
+
+          <tr>
+
+            <td>
+
+              <img
+                class="thumb"
+                src="${escapeHtml(foto)}"
+                alt=""
+                onerror="
+                  this.src='https://via.placeholder.com/56x42?text=—';
+                "
+              >
+
+            </td>
+
+
+            <td>
+
+              <span class="codigo-cell">
+
+                ${escapeHtml(
+                  im.codigo ||
+                  "—"
+                )}
+
+              </span>
+
+              <span class="proprietario-tag">
+
+                👤
+                ${escapeHtml(
+                  im.proprietario ||
+                  "Não informado"
+                )}
+
+              </span>
+
+            </td>
+
+
+            <td>
+
+              ${escapeHtml(
+                im.titulo ||
+                "—"
+              )}
+
+            </td>
+
+
+            <td>
+
+              <strong>
+                ${escapeHtml(
+                  im.tipo ||
+                  "—"
+                )}
+              </strong>
+
+              /
+              ${escapeHtml(
+                im.finalidade ||
+                "—"
+              )}
+
+            </td>
+
+
+            <td>
+
+              ${formatarData(
+                im.criado_em
+              )}
+
+            </td>
+
+
+            <td>
+
+              ${escapeHtml(
+                [
+                  im.bairro,
+                  im.cidade
+                ]
+                  .filter(Boolean)
+                  .join(", ") ||
+                "—"
+              )}
+
+            </td>
+
+
+            <td>
+
+              ${escapeHtml(
+                fmtPreco(
+                  im.preco
+                )
+              )}
+
+            </td>
+
+
+            <td>
+
+              ${Number(
+                im.visualizacoes ||
+                0
+              ).toLocaleString(
+                "pt-BR"
+              )}
+
+            </td>
+
+
+            <td>
+
+              <span
+                class="
+                  status
+                  ${
+                    im.disponivel
+                      ? "disp"
+                      : "vend"
+                  }
+                "
+              >
+
+                ${
+                  im.disponivel
+                    ? "Disponível"
+                    : "Vendido/Inativo"
+                }
+
+              </span>
+
+            </td>
+
+
+            <td class="acoes">
+
+              <button
+                class="btn btn-outline btn-sm"
+                type="button"
+                onclick="editarImovel('${escapeHtml(
+                  im.id
+                )}')"
+              >
+                Editar
+              </button>
+
+
+              <button
+                class="btn btn-outline btn-sm"
+                type="button"
+                onclick="alternarDisponibilidade(
+                  '${escapeHtml(
+                    im.id
+                  )}',
+                  ${Boolean(
+                    im.disponivel
+                  )}
+                )"
+              >
+
+                ${
+                  im.disponivel
+                    ? "Marcar vendido"
+                    : "Reativar"
+                }
+
+              </button>
+
+
+              <button
+                class="btn btn-red btn-sm"
+                type="button"
+                onclick="excluirImovel('${escapeHtml(
+                  im.id
+                )}')"
+              >
+                Excluir
+              </button>
+
+            </td>
+
+          </tr>
+
+        `;
+
+      }
+    ).join("");
+
+}
+
+
+/* ==============================================================
+   EXCEL
+   ============================================================== */
+
+function exportarExcel() {
+
+  if (
+    !imoveisFiltrados.length
+  ) {
+
+    alert(
+      "Nenhum imóvel para exportar."
+    );
+
+    return;
+  }
+
+
+  const dados =
+    imoveisFiltrados.map(
+      im => ({
+
+        "Código":
+          im.codigo || "—",
+
+        "Título":
+          im.titulo || "—",
+
+        "Proprietário":
+          im.proprietario || "—",
+
+        "Telefone proprietário":
+          im.proprietario_telefone ||
+          "—",
+
+        "Tipo":
+          im.tipo || "—",
+
+        "Finalidade":
+          im.finalidade || "—",
+
+        "Preço (R$)":
+          im.preco ?? "",
+
+        "Cidade":
+          im.cidade || "—",
+
+        "Bairro":
+          im.bairro || "—",
+
+        "Rua":
+          im.rua || "—",
+
+        "Área construída (m²)":
+          im.area_construida_m2 ??
+          "",
+
+        "Área terreno (m²)":
+          im.area_terreno_m2 ??
+          "",
+
+        "Quartos":
+          im.quartos ?? "",
+
+        "Banheiros":
+          im.banheiros ?? "",
+
+        "Vagas":
+          im.vagas ?? "",
+
+        "Status":
+          im.disponivel
+            ? "Disponível"
+            : "Vendido/Inativo",
+
+        "Visualizações":
+          im.visualizacoes || 0,
+
+        "Destaque manual":
+          im.destaque_manual
+            ? "Sim"
+            : "Não",
+
+        "Data de Postagem":
+          formatarData(
+            im.criado_em
+          )
+
+      })
+    );
+
+
+  const worksheet =
+    XLSX.utils.json_to_sheet(
+      dados
+    );
+
+
+  worksheet["!cols"] = [
+
+    { wch:14 },
+    { wch:35 },
+    { wch:25 },
+    { wch:20 },
+    { wch:18 },
+    { wch:16 },
+    { wch:15 },
+    { wch:20 },
+    { wch:25 },
+    { wch:30 },
+    { wch:22 },
+    { wch:22 },
+    { wch:12 },
+    { wch:12 },
+    { wch:12 },
+    { wch:20 },
+    { wch:16 },
+    { wch:18 },
+    { wch:18 }
+
+  ];
+
+
+  const workbook =
+    XLSX.utils.book_new();
+
+
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    "Imóveis"
+  );
+
+
+  const hoje =
+    new Date()
+      .toISOString()
+      .slice(0,10);
+
+
+  XLSX.writeFile(
+    workbook,
+    `Relatorio_Imoveis_${hoje}.xlsx`
+  );
+
+}
+
+
+/* ==============================================================
+   LOCALIDADES
+   ============================================================== */
+
+function normalizarLocal(
+  valor
+) {
+
+  return String(
+    valor || ""
+  )
+    .normalize("NFD")
+    .replace(
+      /[\u0300-\u036f]/g,
+      ""
+    )
+    .trim()
+    .toLowerCase();
+
+}
+
+
+async function carregarSugestoesLocalidade() {
+
+  if (cidadesCarregadas) {
+    return;
+  }
+
+  cidadesCarregadas =
+    true;
+
+  const cidade =
+    document.getElementById(
+      "f-cidade"
+    );
+
+  const bairro =
+    document.getElementById(
+      "f-bairro"
+    );
+
+  const listaCidades =
+    document.getElementById(
+      "lista-cidades"
+    );
+
+  try {
+
+    const response =
+      await fetch(
+        "https://servicodados.ibge.gov.br/api/v1/localidades/municipios"
+      );
+
+    if (!response.ok) {
+      throw new Error(
+        "IBGE retornou erro."
+      );
+    }
+
+    const municipios =
+      await response.json();
+
+    municipios.sort(
+      (a,b) =>
+        a.nome.localeCompare(
+          b.nome,
+          "pt-BR"
+        )
+    );
+
+    listaCidades.innerHTML =
+      municipios
+        .map(
+          municipio =>
+            `<option value="${escapeHtml(
+              municipio.nome
+            )}"></option>`
+        )
+        .join("");
+
+  } catch (erro) {
+
+    console.warn(
+      "Não foi possível carregar cidades do IBGE:",
+      erro
+    );
+
+  }
+
+
+  cidade.addEventListener(
+    "input",
+    carregarBairros
+  );
+
+  cidade.addEventListener(
+    "change",
+    carregarBairros
+  );
+
+  await carregarBairros();
+
+}
+
+
+async function carregarBairros() {
+
+  const cidade =
+    document.getElementById(
+      "f-cidade"
+    );
+
+  const bairro =
+    document.getElementById(
+      "f-bairro"
+    );
+
+  const listaBairros =
+    document.getElementById(
+      "lista-bairros"
+    );
+
+
+  const cidadeNormalizada =
+    normalizarLocal(
+      cidade.value
+    );
+
+
+  try {
+
+    let query =
+      sb
+        .from("imoveis")
+        .select(
+          "cidade,bairro"
+        )
+        .not(
+          "bairro",
+          "is",
+          null
+        );
+
+
+    if (cidadeNormalizada) {
+
+      /*
+       * Buscamos os imóveis e fazemos
+       * a comparação sem acento no JS,
+       * pois ilike não resolve todos os
+       * casos de acentuação.
+       */
+
+    }
+
+
+    const {
+      data,
+      error
+    } = await query;
+
+
+    if (error) {
+      throw error;
+    }
+
+
+    const bairros =
+      [
+        ...new Set(
+          (data || [])
+            .filter(
+              item => {
+
+                if (
+                  !cidadeNormalizada
+                ) {
+                  return true;
+                }
+
+                return (
+                  normalizarLocal(
+                    item.cidade
+                  ) ===
+                  cidadeNormalizada
+                );
+
+              }
+            )
+            .map(
+              item =>
+                item.bairro
+            )
+            .filter(Boolean)
+        )
+      ].sort(
+        (a,b) =>
+          a.localeCompare(
+            b,
+            "pt-BR"
+          )
+      );
+
+
+    listaBairros.innerHTML =
+      bairros
+        .map(
+          item =>
+            `<option value="${escapeHtml(
+              item
+            )}"></option>`
+        )
+        .join("");
+
+
+  } catch (erro) {
+
+    console.warn(
+      "Erro ao carregar bairros:",
+      erro
+    );
+
+    listaBairros.innerHTML =
+      "";
+
+  }
+
+}
+
+
+/* ==============================================================
+   FILTRO DE MESES
+   ============================================================== */
+
+function preencherFiltroMeses() {
+
+  const select =
+    document.getElementById(
+      "filtro-mes-postagem"
+    );
+
+  const meses =
+    [
+      ...new Set(
+        imoveisCache
+          .filter(
+            im =>
+              im.criado_em
+          )
+          .map(
+            im =>
+              String(
+                im.criado_em
+              ).slice(0,7)
+          )
+      )
+    ]
+    .sort()
+    .reverse();
+
+
+  const formatter =
+    new Intl.DateTimeFormat(
+      "pt-BR",
+      {
+        month:"long"
+      }
+    );
+
+
+  select.innerHTML =
+    `
+      <option value="">
+        Todos os meses
+      </option>
+    ` +
+    meses
+      .map(
+        chave => {
+
+          const [
+            ano,
+            mes
+          ] =
+            chave.split("-");
+
+          const data =
+            new Date(
+              Number(ano),
+              Number(mes) - 1,
+              1
+            );
+
+          const nome =
+            formatter.format(
+              data
+            );
+
+          const nomeFormatado =
+            nome.charAt(0)
+              .toUpperCase() +
+            nome.slice(1);
+
+
+          return `
+            <option value="${chave}">
+              ${nomeFormatado}, ${ano}
+            </option>
+          `;
+
+        }
+      )
+      .join("");
+
+}
+
+
+/* ==============================================================
+   EVENTOS
+   ============================================================== */
+
+document
+  .getElementById("btn-login")
+  .addEventListener(
+    "click",
+    entrar
+  );
+
+
+document
+  .getElementById("btn-sair")
+  .addEventListener(
+    "click",
+    sair
+  );
+
+
+document
+  .getElementById(
+    "btn-cancelar-edicao"
+  )
+  .addEventListener(
+    "click",
+    cancelarEdicao
+  );
+
+
+document
+  .getElementById(
+    "btn-exportar"
+  )
+  .addEventListener(
+    "click",
+    exportarExcel
+  );
+
+
+form.addEventListener(
+  "submit",
+  salvarImovel
+);
+
+
+[
+  "filtro-termo",
+  "filtro-tipo",
+  "filtro-status",
+  "filtro-mes-postagem"
+].forEach(
+  id => {
+
+    const elemento =
+      document.getElementById(
+        id
+      );
+
+    elemento.addEventListener(
+      "input",
+      aplicarFiltros
+    );
+
+    elemento.addEventListener(
+      "change",
+      aplicarFiltros
+    );
+
+  }
+);
+
+
+/* ==============================================================
+   ENTER NO LOGIN
+   ============================================================== */
+
+document
+  .getElementById(
+    "login-senha"
+  )
+  .addEventListener(
+    "keydown",
+    event => {
+
+      if (
+        event.key ===
+        "Enter"
+      ) {
+        entrar();
+      }
+
+    }
+  );
+
+
+/* ==============================================================
+   MONITORAR SESSÃO
+   ============================================================== */
+
+sb.auth.onAuthStateChange(
+  (
+    event,
+    session
+  ) => {
+
+    if (
+      event ===
+      "SIGNED_OUT"
+    ) {
+
+      mostrarLogin();
+
+      return;
+    }
+
+    if (
+      session &&
+      (
+        event ===
+          "SIGNED_IN" ||
+        event ===
+          "INITIAL_SESSION"
+      )
+    ) {
+
+      mostrarAplicacao();
+
+    }
+
+  }
+);
+
+
+/* ==============================================================
+   INICIALIZAÇÃO
+   ============================================================== */
 
 checarSessao();
+
 </script>
+
 </body>
 </html>
