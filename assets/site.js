@@ -29,8 +29,42 @@ function parseMoedaParaNumero(str) {
 }
 
 function urlFoto(caminho) {
-  if (!caminho) return "https://via.placeholder.com/600x450?text=Sem+foto";
-  const { data } = sb.storage.from("fotos-imoveis").getPublicUrl(caminho);
+  if (!caminho) {
+    return "https://via.placeholder.com/600x450?text=Sem+foto";
+  }
+
+  caminho = String(caminho).trim();
+
+  // ============================================================
+  // 1. Já é uma URL completa do Supabase Storage
+  // ============================================================
+  if (
+    caminho.startsWith(
+      "https://fiakktgrfatuacicefnp.supabase.co/storage/v1/object/public/fotos-imoveis/"
+    )
+  ) {
+    return caminho;
+  }
+
+  // ============================================================
+  // 2. É uma URL completa externa
+  //    Ex.: fotos antigas do WordPress
+  // ============================================================
+  if (
+    caminho.startsWith("https://") ||
+    caminho.startsWith("http://")
+  ) {
+    return caminho;
+  }
+
+  // ============================================================
+  // 3. É apenas o caminho do arquivo dentro do Storage
+  //    Ex.: 20002/foto_001.png
+  // ============================================================
+  const { data } = sb.storage
+    .from("fotos-imoveis")
+    .getPublicUrl(caminho);
+
   return data.publicUrl;
 }
 
