@@ -1,123 +1,75 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Anunciar Imóvel — Paulino Imóveis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{ --green:#0C3B2C; --green-dark:#082B20; --line:#E3E7E2; --offwhite:#F6F7F5; --ink:#121815; --ink-soft:#5C665F; }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Inter',sans-serif;background:var(--offwhite);color:var(--ink);}
-  .wrap{max-width:760px;margin:40px auto;padding:0 20px;}
-  header{background:var(--green-dark);color:#fff;padding:16px 0;}
-  .header-inner{max-width:1240px;margin:0 auto;padding:0 32px;display:flex;justify-style:space-between;align-items:center;}
-  .card-anunciar{background:#fff;border:1px solid var(--line);border-radius:16px;padding:36px;box-shadow:0 12px 32px rgba(0,0,0,.05);}
-  h1{font-family:'Archivo',sans-serif;font-size:26px;margin-bottom:8px;}
-  p.sub{color:var(--ink-soft);font-size:14px;margin-bottom:28px;}
-  .grid-form{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
-  label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;}
-  input,select,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;}
-  button{width:100%;background:var(--green);color:#fff;font-weight:700;padding:16px;border:0;border-radius:8px;font-size:15px;cursor:pointer;}
+:root{--green:#0C3B2C;--dark:#082B20;--red:#C81E2C;--ink:#121815;--soft:#5C665F;--line:#E3E7E2;--off:#F6F7F5}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;color:var(--ink);background:var(--off)}
+a{text-decoration:none;color:inherit}.wrap{max-width:1100px;margin:auto;padding:0 28px}
+header{background:var(--dark);color:#fff}.head{height:84px;display:flex;align-items:center;justify-content:space-between}.logo{display:flex;align-items:center;gap:10px}.logo img{height:50px}.sub{font-size:10px;color:#cdd8d2}.nav{display:flex;gap:25px;align-items:center}.nav a{font-size:13px;color:#fff}.nav .fin{background:var(--red);padding:10px 14px;border-radius:7px}
+.hero{padding:58px 0 35px}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--green);font-weight:800}.hero h1{font:800 clamp(32px,5vw,50px) Archivo,sans-serif;margin:10px 0 12px}.hero p{color:var(--soft);max-width:620px;line-height:1.65}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:30px;box-shadow:0 20px 50px rgba(12,24,18,.07);margin-bottom:70px}.section-title{font:700 20px Archivo;margin-bottom:20px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin-bottom:15px}.full{grid-column:1/-1}label{display:block;font-size:11px;font-weight:700;color:var(--soft);margin-bottom:6px}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:12px 13px;font:14px Inter;background:#fff}textarea{min-height:110px;resize:vertical}.choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}.choice input{display:none}.choice label{border:1px solid var(--line);border-radius:10px;padding:14px;text-align:center;cursor:pointer;font-size:13px}.choice input:checked+label{background:var(--green);border-color:var(--green);color:#fff}.submit{width:100%;border:0;background:var(--red);color:#fff;padding:15px;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer}.hint{font-size:12px;color:var(--soft);margin-top:10px;text-align:center}
+footer{background:var(--dark);color:#fff;padding:40px 0}.foot{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap}.foot p{color:rgba(255,255,255,.65);font-size:12px;line-height:1.6}.foot a{font-size:12px;color:#fff}
+@media(max-width:650px){.nav{display:none}.grid{grid-template-columns:1fr}.card{padding:20px}}
 </style>
 </head>
 <body>
-
-<header>
-  <div class="header-inner">
-    <a href="index.html" style="color:#fff;font-weight:700;text-decoration:none;">← Voltar ao site</a>
-    <span style="font-size:12px;opacity:.8;">Paulino Imóveis — CRECI 37888</span>
-  </div>
-</header>
-
-<div class="wrap">
-  <div class="card-anunciar">
-    <h1>Anuncie seu imóvel sem custo</h1>
-    <p class="sub">Preencha os dados abaixo. Você será redirecionado ao WhatsApp do setor responsável imediatamente.</p>
-    
-    <form onsubmit="return enviarWhatsApp(event)">
-      <div class="grid-form">
-        <div>
-          <label>Seu Nome Completo</label>
-          <input id="nome" required placeholder="Ex: Maria Silva">
-        </div>
-        <div>
-          <label>Finalidade Desejada</label>
-          <select id="finalidade" required>
-            <option value="Alugar">Quero Alugar meu Imóvel</option>
-            <option value="Vender">Quero Vender meu Imóvel</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="grid-form">
-        <div>
-          <label>Tipo de Imóvel</label>
-          <select id="tipo" required>
-            <option value="Casa">Casa</option>
-            <option value="Apartamento">Apartamento</option>
-            <option value="Barracão">Barracão</option>
-            <option value="Ponto Comercial">Ponto Comercial</option>
-            <option value="Sítio/Fazenda">Sítio/Fazenda</option>
-            <option value="Terreno">Terreno</option>
-            <option value="Área de Lazer">Área de Lazer</option>
-          </select>
-        </div>
-        <div>
-          <label>Preço Pretendido (R$)</label>
-          <input id="preco" placeholder="Ex: 250.000,00">
-        </div>
-      </div>
-
-      <div class="grid-form">
-        <div>
-          <label>Cidade</label>
-          <input id="cidade" required placeholder="Ex: Três Pontas">
-        </div>
-        <div>
-          <label>Bairro e Rua</label>
-          <input id="endereco" required placeholder="Ex: Centro, Rua Bento de Brito">
-        </div>
-      </div>
-
-      <div style="margin-bottom:24px;">
-        <label>Detalhes Adicionais (Quartos, m², estado de conservação)</label>
-        <textarea id="detalhes" style="height:100px;" placeholder="Conte mais sobre o imóvel..."></textarea>
-      </div>
-
-      <button type="submit">Enviar Dados para o WhatsApp →</button>
-    </form>
-  </div>
+<header><div class="wrap head">
+<a class="logo" href="index.html"><img src="assets/logo.png" alt="Paulino Imóveis"><span class="sub">CRECI 37888<br>Três Pontas–MG</span></a>
+<nav class="nav"><a href="index.html#resultados">Comprar</a><a href="index.html#resultados">Alugar</a><a href="index.html#resultados">Terrenos</a><a href="index.html">Início</a><a class="fin" href="https://wa.me/5535998848963?text=Ol%C3%A1!%20Quero%20falar%20sobre%20financiamento%20de%20um%20im%C3%B3vel." target="_blank">Financiamento</a></nav>
+</div></header>
+<main class="wrap">
+<section class="hero"><span class="eyebrow">Anuncie com a Paulino</span><h1>Seu imóvel pode encontrar o próximo comprador ou inquilino.</h1><p>Preencha os dados abaixo. Ao clicar em <b>Anunciar imóvel</b>, o WhatsApp será aberto com as informações já organizadas para nosso atendimento.</p></section>
+<form class="card" id="form-anuncio">
+<h2 class="section-title">1. O que você quer anunciar?</h2>
+<div class="choice">
+<input id="vender" name="finalidade" value="Vender" type="radio" checked><label for="vender">🏠 Quero vender</label>
+<input id="alugar" name="finalidade" value="Alugar" type="radio"><label for="alugar">🔑 Quero alugar</label>
 </div>
-
-<script src="assets/site.js"></script>
+<h2 class="section-title">2. Dados do imóvel</h2>
+<div class="grid">
+<div class="full"><label>Tipo do imóvel</label><select name="tipo" required>
+<option value="">Selecione</option><option>Casa</option><option>Apartamento</option><option>Barracão</option><option>Ponto Comercial</option><option>Sítio/Fazenda</option><option>Terreno</option><option>Área de Lazer</option></select></div>
+<div><label>Título / identificação</label><input name="titulo" placeholder="Ex.: Casa no Centro" required></div>
+<div><label>Preço pretendido (R$)</label><input name="preco" id="preco" inputmode="numeric" placeholder="100.000,00" required></div>
+<div><label>Cidade</label><input name="cidade" placeholder="Três Pontas" required></div>
+<div><label>Bairro</label><input name="bairro" placeholder="Centro"></div>
+<div class="full"><label>Rua / endereço do imóvel</label><input name="rua" placeholder="Rua, Avenida, número..."></div>
+<div><label>Área construída (m²)</label><input name="area_construida" type="number" step="0.01"></div>
+<div><label>Área do terreno (m²)</label><input name="area_terreno" type="number" step="0.01"></div>
+<div><label>Quartos</label><input name="quartos" type="number"></div>
+<div><label>Banheiros</label><input name="banheiros" type="number"></div>
+<div><label>Vagas</label><input name="vagas" type="number"></div>
+<div class="full"><label>Detalhes do imóvel</label><textarea name="descricao" placeholder="Descreva o imóvel, diferenciais, condições etc."></textarea></div>
+</div>
+<h2 class="section-title">3. Como podemos falar com você?</h2>
+<div class="grid">
+<div><label>Seu nome</label><input name="nome" required></div><div><label>Seu telefone / WhatsApp</label><input name="telefone" required></div>
+</div>
+<button class="submit" type="submit">Anunciar imóvel pelo WhatsApp →</button>
+<div class="hint">Você será direcionado ao número responsável por vendas ou aluguéis.</div>
+</form>
+</main>
+<footer><div class="wrap foot"><p>© 2026 Paulino Imóveis — CRECI 37888<br>Três Pontas, Minas Gerais</p><a href="index.html">← Voltar para o catálogo</a></div></footer>
 <script>
-aplicarMascaraMoeda(document.getElementById("preco"));
-
-function enviarWhatsApp(e) {
-  e.preventDefault();
-  const nome = document.getElementById("nome").value;
-  const fin = document.getElementById("finalidade").value;
-  const tipo = document.getElementById("tipo").value;
-  const preco = document.getElementById("preco").value;
-  const cidade = document.getElementById("cidade").value;
-  const endereco = document.getElementById("endereco").value;
-  const detalhes = document.getElementById("detalhes").value;
-
-  // LÓGICA DE DESTINO DO NÚMERO CONFORME SOLICITADO
-  const numeroDestino = fin === "Alugar" ? "5535998848963" : "5535999158800";
-
-  const msg = `Olá! Quero *${fin.toUpperCase()}* meu imóvel através da imobiliária.
-  
-📌 *Dados do Proprietário e Imóvel:*
-• *Proprietário:* ${nome}
-• *Tipo:* ${tipo}
-• *Cidade/Bairro:* ${cidade} - ${endereco}
-• *Valor Pretendido:* ${preco || 'A combinar'}
-• *Observações:* ${detalhes || 'Sem detalhes adicionais'}`;
-
-  window.open(`https://wa.me/${numeroDestino}?text=${encodeURIComponent(msg)}`, '_blank');
-}
+const p=document.getElementById("preco");
+p.addEventListener("input",()=>{const d=p.value.replace(/\D/g,"");p.value=d?Number(d/100).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}):""});
+document.getElementById("form-anuncio").addEventListener("submit",e=>{
+ e.preventDefault();const f=new FormData(e.currentTarget), venda=f.get("finalidade")==="Vender";
+ const numero=venda?"5535999158800":"5535998848963";
+ const linhas=[
+ "Olá! Quero anunciar um imóvel.",
+ `Finalidade: ${f.get("finalidade")}`,
+ `Tipo: ${f.get("tipo")}`,`Título: ${f.get("titulo")}`,`Preço: R$ ${f.get("preco")}`,
+ `Cidade: ${f.get("cidade")}`,`Bairro: ${f.get("bairro")||"Não informado"}`,`Rua: ${f.get("rua")||"Não informado"}`,
+ `Área construída: ${f.get("area_construida")||"Não informada"} m²`,`Área do terreno: ${f.get("area_terreno")||"Não informada"} m²`,
+ `Quartos: ${f.get("quartos")||"Não informado"}`,`Banheiros: ${f.get("banheiros")||"Não informado"}`,`Vagas: ${f.get("vagas")||"Não informado"}`,
+ `Descrição: ${f.get("descricao")||"Não informada"}`,"","Meus dados:",`Nome: ${f.get("nome")}`,`WhatsApp: ${f.get("telefone")}`
+ ];
+ window.open(`https://wa.me/${numero}?text=${encodeURIComponent(linhas.join("\n"))}`,"_blank");
+});
 </script>
-</body>
-</html>
+</body></html>
