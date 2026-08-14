@@ -1533,63 +1533,48 @@ function gerarNomeArquivo(
 }
 
 
-async function uploadFotos(
-  arquivos
-) {
-
+async function uploadFotos(arquivos, imovelId) {
   const caminhos = [];
 
-  for (
-    const arquivo of arquivos
-  ) {
+  if (!arquivos || !arquivos.length) {
+    return caminhos;
+  }
 
-    if (
-      !arquivo.type.startsWith(
-        "image/"
-      )
-    ) {
-      continue;
-    }
+  for (const arquivo of arquivos) {
+    try {
+      // Sanitiza o nome original
+      const nomeOriginal = arquivo.name
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9._-]/g, "_");
 
-    const nome =
-      gerarNomeArquivo(
-        arquivo
-      );
+      // Cada imóvel possui sua própria "pasta"
+      const nomeArquivo =
+        `${Date.now()}-${Math.random().toString(36).slice(2)}-${nomeOriginal}`;
 
-    const {
-      error
-    } = await sb.storage
-      .from("fotos-imoveis")
-      .upload(
-        nome,
-        arquivo,
-        {
+      const caminho = `${imovelId}/${nomeArquivo}`;
+
+      const { error } = await sb.storage
+        .from("fotos-imoveis")
+        .upload(caminho, arquivo, {
           cacheControl: "3600",
-          upsert: false,
-          contentType:
-            arquivo.type
-        }
-      );
+          upsert: false
+        });
 
-    if (error) {
+      if (error) {
+        console.error("Erro ao enviar foto:", error);
+        throw error;
+      }
 
-      console.error(
-        "Erro no upload:",
-        error
-      );
+      caminhos.push(caminho);
 
-      throw new Error(
-        `Erro ao enviar a foto "${arquivo.name}": ${error.message}`
-      );
-
+    } catch (error) {
+      console.error("Falha no upload da foto:", arquivo.name, error);
+      throw error;
     }
-
-    caminhos.push(nome);
-
   }
 
   return caminhos;
-
 }
 
 
@@ -1597,196 +1582,133 @@ async function uploadFotos(
    SALVAR IMÓVEL
    ============================================================== */
 
-async function salvarImovel(
-  event
-) {
+async function salvarImovel(ev) {
+  ev.preventDefault();
 
-  event.preventDefault();
+  const form = document.getElementById("form-imovel");
+  const fd = new FormData(form);
 
-  const btn =
-    document.getElementById(
-      "btn-salvar"
-    );
+  const btn = document.getElementById("btn-salvar");
 
   btn.disabled = true;
-  btn.textContent = "Salvando...";
-
-  let fotosNovas = [];
+  btn.textContent = editandoId
+    ? "Atualizando..."
+    : "Criando imóvel...";
 
   try {
+    const arquivos = Array.from(fileInput.files || []);
 
-    const fd =
-      new FormData(form);
-
-    const titulo =
-      String(
-        fd.get("titulo") || ""
-      ).trim();
-
-    if (!titulo) {
-      throw new Error(
-        "Informe o título do imóvel."
-      );
-    }
-
-    /* ----------------------------------------------------------
-       UPLOAD
-       ---------------------------------------------------------- */
-
-    const arquivos =
-      fileInput.files
-        ? [...fileInput.files]
-        : [];
-
-    if (arquivos.length) {
-
-      fotosNovas =
-        await uploadFotos(
-          arquivos
-        );
-
-    }
-
-    /* ----------------------------------------------------------
-       PAYLOAD
-       ---------------------------------------------------------- */
+    // ==========================================================
+    // MONTA O DADOS DO IMÓVEL
+    // ==========================================================
 
     const payload = {
+      titulo: fd.get("titulo")?.trim() || "",
+      codigo: fd.get("codigo")?.trim() || null,
+      tipo: fd.get("tipo") || null,
+      finalidade: fd.get("finalidade") || null,
 
-      titulo,
+      cidade: fd.get("cidade")?.trim() || null,
+      bairro: fd.get("bairro")?.trim() || null,
 
-      codigo:
-        String(
-          fd.get("codigo") || ""
-        ).trim() || null,
-
-      tipo:
-        fd.get("tipo") || null,
-
-      finalidade:
-        fd.get("finalidade") || null,
-
-      cidade:
-        String(
-          fd.get("cidade") || ""
-        ).trim() || null,
-
-      bairro:
-        String(
-          fd.get("bairro") || ""
-        ).trim() || null,
-
-      preco:
-        parsePrecoBR(
-          fd.get("preco")
-        ),
+      preco: parsePrecoBR(fd.get("preco")),
 
       area_construida_m2:
         fd.get("area_construida_m2")
-          ? Number(
-              fd.get(
-                "area_construida_m2"
-              )
-            )
+          ? Number(fd.get("area_construida_m2"))
           : null,
 
       area_terreno_m2:
         fd.get("area_terreno_m2")
-          ? Number(
-              fd.get(
-                "area_terreno_m2"
-              )
-            )
+          ? Number(fd.get("area_terreno_m2"))
           : null,
 
       quartos:
         fd.get("quartos")
-          ? Number(
-              fd.get("quartos")
-            )
+          ? Number(fd.get("quartos"))
           : null,
 
       banheiros:
         fd.get("banheiros")
-          ? Number(
-              fd.get("banheiros")
-            )
+          ? Number(fd.get("banheiros"))
           : null,
 
       vagas:
         fd.get("vagas")
-          ? Number(
-              fd.get("vagas")
-            )
+          ? Number(fd.get("vagas"))
           : null,
 
       proprietario:
-        String(
-          fd.get("proprietario") || ""
-        ).trim() || null,
+        fd.get("proprietario")?.trim() || null,
 
       proprietario_telefone:
-        String(
-          fd.get(
-            "proprietario_telefone"
-          ) || ""
-        ).trim() || null,
+        fd.get("proprietario_telefone")?.trim() || null,
 
       rua:
-        String(
-          fd.get("rua") || ""
-        ).trim() || null,
+        fd.get("rua")?.trim() || null,
 
       descricao:
-        String(
-          fd.get("descricao") || ""
-        ).trim() || null,
+        fd.get("descricao")?.trim() || null,
 
       destaque_manual:
-        document.getElementById(
-          "destaque_manual"
-        ).checked
-
+        document.getElementById("destaque_manual").checked
     };
 
 
-    /* ----------------------------------------------------------
-       EDIÇÃO
-       ---------------------------------------------------------- */
+    // ==========================================================
+    // EDITANDO IMÓVEL EXISTENTE
+    // ==========================================================
 
     if (editandoId) {
 
-      const existente =
-        imoveisCache.find(
-          im =>
-            String(im.id) ===
-            String(editandoId)
-        );
+      const existente = imoveisCache.find(
+        i => String(i.id) === String(editandoId)
+      );
 
-      const fotosAntigas =
-        Array.isArray(
-          existente?.fotos
-        )
-          ? existente.fotos
-          : [];
+      if (!existente) {
+        throw new Error("Imóvel não encontrado no cache.");
+      }
 
-      payload.fotos = [
-        ...fotosAntigas,
-        ...fotosNovas
-      ];
+      // Mantém as fotos antigas
+      let fotosExistentes = Array.isArray(existente.fotos)
+        ? [...existente.fotos]
+        : [];
 
-      const {
-        error
-      } = await sb
+      // Primeiro atualiza os dados
+      const { error: updateError } = await sb
         .from("imoveis")
         .update(payload)
-        .eq(
-          "id",
+        .eq("id", editandoId);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      // Faz upload das novas fotos dentro da pasta do imóvel
+      if (arquivos.length > 0) {
+
+        btn.textContent = "Enviando fotos...";
+
+        const novasFotos = await uploadFotos(
+          arquivos,
           editandoId
         );
 
-      if (error) {
-        throw error;
+        fotosExistentes = [
+          ...fotosExistentes,
+          ...novasFotos
+        ];
+
+        const { error: fotosError } = await sb
+          .from("imoveis")
+          .update({
+            fotos: fotosExistentes
+          })
+          .eq("id", editandoId);
+
+        if (fotosError) {
+          throw fotosError;
+        }
       }
 
       mostrarMsg(
@@ -1796,93 +1718,95 @@ async function salvarImovel(
 
     }
 
-    /* ----------------------------------------------------------
-       NOVO IMÓVEL
-       ---------------------------------------------------------- */
+    // ==========================================================
+    // CRIANDO NOVO IMÓVEL
+    // ==========================================================
 
     else {
 
-      payload.fotos =
-        fotosNovas;
+      // Primeiro cria o imóvel.
+      // O Supabase gera o ID.
+      btn.textContent = "Criando imóvel...";
 
-      const {
-        error
-      } = await sb
+      const { data: novoImovel, error: insertError } = await sb
         .from("imoveis")
-        .insert(
-          payload
+        .insert({
+          ...payload,
+          fotos: []
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      if (!novoImovel || !novoImovel.id) {
+        throw new Error(
+          "O imóvel foi criado, mas não foi possível obter o ID."
+        );
+      }
+
+      const novoId = novoImovel.id;
+
+      // ========================================================
+      // AGORA TEMOS O ID
+      // E PODEMOS CRIAR A "PASTA"
+      // ========================================================
+
+      if (arquivos.length > 0) {
+
+        btn.textContent = "Enviando fotos...";
+
+        const novasFotos = await uploadFotos(
+          arquivos,
+          novoId
         );
 
-      if (error) {
-        throw error;
+        // Salva os caminhos das fotos no registro
+        const { error: fotosError } = await sb
+          .from("imoveis")
+          .update({
+            fotos: novasFotos
+          })
+          .eq("id", novoId);
+
+        if (fotosError) {
+          throw fotosError;
+        }
       }
 
       mostrarMsg(
         "Imóvel cadastrado com sucesso.",
         "ok"
       );
-
     }
+
+    // ==========================================================
+    // FINALIZA
+    // ==========================================================
 
     cancelarEdicao();
 
     await carregarTabela();
 
-  } catch (erro) {
+  } catch (err) {
 
-    console.error(
-      "Erro ao salvar imóvel:",
-      erro
-    );
-
-    /*
-     * Se o banco falhou depois do upload,
-     * tentamos apagar as fotos recém-enviadas
-     * para evitar arquivos órfãos no Storage.
-     */
-
-    if (fotosNovas.length) {
-
-      try {
-
-        await sb.storage
-          .from("fotos-imoveis")
-          .remove(
-            fotosNovas
-          );
-
-      } catch (storageErro) {
-
-        console.error(
-          "Erro ao limpar uploads:",
-          storageErro
-        );
-
-      }
-
-    }
+    console.error("Erro ao salvar imóvel:", err);
 
     mostrarMsg(
-      "Erro ao salvar: " +
-        (
-          erro?.message ||
-          "erro desconhecido"
-        ),
+      "Erro ao salvar: " + (err.message || err),
       "erro"
     );
 
   } finally {
 
     btn.disabled = false;
-    btn.textContent =
-      "Salvar imóvel";
-
+    btn.textContent = "Salvar imóvel";
   }
 
   return false;
-
 }
-
 
 /* ==============================================================
    EDITAR
