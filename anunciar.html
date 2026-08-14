@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Anunciar Imóvel — Paulino Imóveis</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{ --green:#0C3B2C; --green-dark:#082B20; --line:#E3E7E2; --offwhite:#F6F7F5; --ink:#121815; --ink-soft:#5C665F; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;background:var(--offwhite);color:var(--ink);}
+  .wrap{max-width:760px;margin:40px auto;padding:0 20px;}
+  header{background:var(--green-dark);color:#fff;padding:16px 0;}
+  .header-inner{max-width:1240px;margin:0 auto;padding:0 32px;display:flex;justify-style:space-between;align-items:center;}
+  .card-anunciar{background:#fff;border:1px solid var(--line);border-radius:16px;padding:36px;box-shadow:0 12px 32px rgba(0,0,0,.05);}
+  h1{font-family:'Archivo',sans-serif;font-size:26px;margin-bottom:8px;}
+  p.sub{color:var(--ink-soft);font-size:14px;margin-bottom:28px;}
+  .grid-form{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+  label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;}
+  input,select,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;}
+  button{width:100%;background:var(--green);color:#fff;font-weight:700;padding:16px;border:0;border-radius:8px;font-size:15px;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="index.html" style="color:#fff;font-weight:700;text-decoration:none;">← Voltar ao site</a>
+    <span style="font-size:12px;opacity:.8;">Paulino Imóveis — CRECI 37888</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="card-anunciar">
+    <h1>Anuncie seu imóvel sem custo</h1>
+    <p class="sub">Preencha os dados abaixo. Você será redirecionado ao WhatsApp do setor responsável imediatamente.</p>
+    
+    <form onsubmit="return enviarWhatsApp(event)">
+      <div class="grid-form">
+        <div>
+          <label>Seu Nome Completo</label>
+          <input id="nome" required placeholder="Ex: Maria Silva">
+        </div>
+        <div>
+          <label>Finalidade Desejada</label>
+          <select id="finalidade" required>
+            <option value="Alugar">Quero Alugar meu Imóvel</option>
+            <option value="Vender">Quero Vender meu Imóvel</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-form">
+        <div>
+          <label>Tipo de Imóvel</label>
+          <select id="tipo" required>
+            <option value="Casa">Casa</option>
+            <option value="Apartamento">Apartamento</option>
+            <option value="Barracão">Barracão</option>
+            <option value="Ponto Comercial">Ponto Comercial</option>
+            <option value="Sítio/Fazenda">Sítio/Fazenda</option>
+            <option value="Terreno">Terreno</option>
+            <option value="Área de Lazer">Área de Lazer</option>
+          </select>
+        </div>
+        <div>
+          <label>Preço Pretendido (R$)</label>
+          <input id="preco" placeholder="Ex: 250.000,00">
+        </div>
+      </div>
+
+      <div class="grid-form">
+        <div>
+          <label>Cidade</label>
+          <input id="cidade" required placeholder="Ex: Três Pontas">
+        </div>
+        <div>
+          <label>Bairro e Rua</label>
+          <input id="endereco" required placeholder="Ex: Centro, Rua Bento de Brito">
+        </div>
+      </div>
+
+      <div style="margin-bottom:24px;">
+        <label>Detalhes Adicionais (Quartos, m², estado de conservação)</label>
+        <textarea id="detalhes" style="height:100px;" placeholder="Conte mais sobre o imóvel..."></textarea>
+      </div>
+
+      <button type="submit">Enviar Dados para o WhatsApp →</button>
+    </form>
+  </div>
+</div>
+
+<script src="assets/site.js"></script>
+<script>
+aplicarMascaraMoeda(document.getElementById("preco"));
+
+function enviarWhatsApp(e) {
+  e.preventDefault();
+  const nome = document.getElementById("nome").value;
+  const fin = document.getElementById("finalidade").value;
+  const tipo = document.getElementById("tipo").value;
+  const preco = document.getElementById("preco").value;
+  const cidade = document.getElementById("cidade").value;
+  const endereco = document.getElementById("endereco").value;
+  const detalhes = document.getElementById("detalhes").value;
+
+  // LÓGICA DE DESTINO DO NÚMERO CONFORME SOLICITADO
+  const numeroDestino = fin === "Alugar" ? "5535998848963" : "5535999158800";
+
+  const msg = `Olá! Quero *${fin.toUpperCase()}* meu imóvel através da imobiliária.
+  
+📌 *Dados do Proprietário e Imóvel:*
+• *Proprietário:* ${nome}
+• *Tipo:* ${tipo}
+• *Cidade/Bairro:* ${cidade} - ${endereco}
+• *Valor Pretendido:* ${preco || 'A combinar'}
+• *Observações:* ${detalhes || 'Sem detalhes adicionais'}`;
+
+  window.open(`https://wa.me/${numeroDestino}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+</script>
+</body>
+</html>
