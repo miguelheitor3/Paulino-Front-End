@@ -8,193 +8,115 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --green:#0C3B2C;
-    --green-dark:#082B20;
-    --green-tint:#E8EFEA;
-    --red:#C81E2C;
-    --white:#FFFFFF;
-    --offwhite:#F6F7F5;
-    --ink:#121815;
-    --ink-soft:#5C665F;
-    --line:#E3E7E2;
+    --green:#0C3B2C; --green-dark:#082B20; --green-tint:#E8EFEA;
+    --red:#C81E2C; --white:#FFFFFF; --offwhite:#F6F7F5;
+    --ink:#121815; --ink-soft:#5C665F; --line:#E3E7E2;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--white);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
   a{color:inherit;text-decoration:none;}
   img{display:block;max-width:100%;}
   .wrap{max-width:1240px;margin:0 auto;padding:0 32px;}
-  .display{font-family:'Archivo',sans-serif;}
   .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--green);}
 
-  /* HEADER */
-  header{border-bottom:1px solid var(--line);}
-  .header-inner{display:flex;align-items:center;justify-content:space-between;padding:20px 0;}
+  /* HEADER COM ESTILO ESCURO */
+  header{background:var(--green-dark);color:#fff;border-bottom:1px solid rgba(255,255,255,.1);}
+  .header-inner{display:flex;align-items:center;justify-content:space-between;padding:16px 0;}
   .logo{display:flex;align-items:center;gap:10px;}
-  .logo-img{height:52px;width:auto;display:block;}
-  .logo-sub{font-size:10px;color:var(--ink-soft);letter-spacing:.04em;margin-top:2px;}
-  nav{display:flex;gap:32px;}
-  nav a{font-size:14px;font-weight:500;color:var(--ink);}
-  .header-right{display:flex;align-items:center;gap:20px;}
-  .header-phone{font-size:13.5px;color:var(--ink-soft);}
-  .btn-green{background:var(--green);color:#fff;font-size:13.5px;font-weight:600;padding:12px 22px;border-radius:6px;transition:background .15s ease;}
-  .btn-green:hover{background:var(--green-dark);}
+  .logo-img{height:48px;width:auto;display:block;background:#fff;padding:4px 8px;border-radius:6px;}
+  .logo-sub{font-size:10px;color:rgba(255,255,255,.7);letter-spacing:.04em;}
+  nav{display:flex;gap:24px;}
+  nav a{font-size:14px;font-weight:500;color:#fff;transition:opacity .15s;}
+  nav a:hover{opacity:.8;}
+  .header-right{display:flex;align-items:center;gap:18px;}
+  .header-phone{font-size:13.5px;color:rgba(255,255,255,.8);}
+  
+  /* BOTÃO WHATSAPP COR MAIS 'CARA' (DOURADO / AMBER PREMIUM) */
+  .btn-whats-header{background:linear-gradient(135deg, #D4AF37 0%, #AA7C11 100%);color:#fff;font-size:13.5px;font-weight:700;padding:12px 20px;border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.2);transition:all .2s;}
+  .btn-whats-header:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.3);}
 
   /* HERO */
-  .hero{background:var(--offwhite);padding:64px 0 0;}
-  .hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;}
-  .hero-title{font-family:'Archivo',sans-serif;font-weight:800;font-size:clamp(34px,4vw,52px);line-height:1.06;letter-spacing:-.01em;margin:16px 0 20px;}
+  .hero{background:var(--offwhite);padding:56px 0 0;}
+  .hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;}
+  .hero-title{font-family:'Archivo',sans-serif;font-weight:800;font-size:clamp(32px,3.8vw,48px);line-height:1.1;margin:14px 0 18px;}
   .hero-title .accent{color:var(--green);}
-  .hero-sub{font-size:16px;color:var(--ink-soft);line-height:1.6;max-width:440px;margin-bottom:32px;}
-  .hero-stats{display:flex;gap:36px;}
-  .stat-num{font-family:'Archivo',sans-serif;font-weight:800;font-size:26px;color:var(--green);}
-  .stat-label{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  .hero-sub{font-size:15px;color:var(--ink-soft);line-height:1.6;margin-bottom:28px;}
+  .hero-stats{display:flex;gap:32px;}
+  .stat-num{font-family:'Archivo',sans-serif;font-weight:800;font-size:24px;color:var(--green);}
+  .stat-label{font-size:12px;color:var(--ink-soft);}
   .hero-photo{position:relative;}
-  .hero-photo img {
-      width: 100%;
-      aspect-ratio: 4/3.2;
-      object-fit: cover;
-      border-radius: 16px;
-      box-shadow: 
-        0 20px 40px -10px rgba(12, 59, 44, 0.22),
-        0 10px 20px -5px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    
+  .hero-photo img {width: 100%;aspect-ratio: 4/3.2;object-fit: cover;border-radius: 16px;box-shadow: 0 20px 40px -10px rgba(12, 59, 44, 0.22);}
   .hero-badge{position:absolute;bottom:20px;left:20px;background:#fff;padding:12px 18px;border-radius:10px;box-shadow:0 12px 30px rgba(12,59,44,.16);display:flex;align-items:center;gap:10px;}
   .hero-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--red);}
   .hero-badge span{font-size:12.5px;font-weight:600;}
 
-  /* Efeitos e interações nos cards e Hero */
-  .card-photo { position: relative; cursor: pointer; }
-  .card-tags { pointer-events: none; }
-  .carousel-btn, .tag-fav, .carousel-dots { pointer-events: auto; z-index: 10; }
-  
-  #hero-photo-link {
-    position: relative;
-    display: block;
-  }
-  
-  #hero-photo-link:hover img {
-    transform: translateY(-4px);
-    box-shadow: 
-      0 28px 50px -10px rgba(12, 59, 44, 0.28),
-      0 12px 24px -5px rgba(0, 0, 0, 0.12);
-  }
-  
-  /* SEARCH CARD */
+  /* SEARCH CARD & SETAS MAIORES */
   .search-card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 48px rgba(12,24,18,.08);margin-top:28px;padding:8px;display:grid;grid-template-columns:repeat(5,minmax(100px,1fr)) auto;align-items:stretch;position:relative;}
   .search-card .field{position:relative;border-right:1px solid var(--line);min-width:0;}
   .search-card .field:last-of-type{border-right:none;}
-  .search-card .field label{display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin:16px 18px 4px;font-weight:600;white-space:nowrap;pointer-events:none;}
-  .dropdown-btn{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:0 18px 14px;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);font-weight:500;border-radius:10px;}
-  .dropdown-valor{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .dropdown-seta{font-size:10px;color:var(--ink-soft);flex-shrink:0;transition:transform .15s ease;}
+  .search-card .field label{display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin:12px 16px 2px;font-weight:600;}
+  .dropdown-btn{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:0 16px 12px;cursor:pointer;font-size:13.5px;color:var(--ink);font-weight:600;}
+  .dropdown-seta{font-size:16px;font-weight:800;color:var(--green);transition:transform .15s ease;} /* SETA MAIOR */
   .field:hover{background:var(--offwhite);border-radius:10px;}
   .field.aberto .dropdown-seta{transform:rotate(180deg);}
   .dropdown-menu{display:none;position:absolute;top:calc(100% + 8px);left:0;min-width:100%;width:max-content;max-width:260px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 16px 36px rgba(12,24,18,.14);padding:6px;z-index:20;max-height:260px;overflow-y:auto;}
   .field.aberto .dropdown-menu{display:block;}
-  .dropdown-opcao{padding:10px 12px;font-size:13.5px;font-weight:500;border-radius:7px;cursor:pointer;color:var(--ink);white-space:nowrap;}
+  .dropdown-opcao{padding:10px 12px;font-size:13.5px;font-weight:500;border-radius:7px;cursor:pointer;color:var(--ink);}
   .dropdown-opcao:hover{background:var(--green-tint);}
   .dropdown-opcao.selecionada{background:var(--green);color:#fff;}
-  .search-submit{background:var(--green);color:#fff;border:0;border-radius:10px;font-size:13.5px;font-weight:600;padding:0 24px;cursor:pointer;transition:background .15s ease;white-space:nowrap;flex-shrink:0;}
+  .search-submit{background:var(--green);color:#fff;border:0;border-radius:10px;font-size:14px;font-weight:700;padding:0 24px;cursor:pointer;transition:background .15s ease;}
   .search-submit:hover{background:var(--green-dark);}
 
-  /* TRUST STRIP */
-  .trust{padding:64px 0 72px;}
-  .trust-head{max-width:560px;margin-bottom:48px;}
-  .trust-head h2{font-family:'Archivo',sans-serif;font-weight:700;font-size:30px;margin-top:12px;line-height:1.2;}
-  .trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
-  .trust-item{background:#fff;padding:32px 28px;}
-  .trust-num{font-family:'Archivo',sans-serif;font-weight:800;font-size:15px;color:var(--red);margin-bottom:14px;}
-  .trust-item h3{font-size:16px;font-weight:600;margin-bottom:8px;}
-  .trust-item p{font-size:13.5px;color:var(--ink-soft);line-height:1.6;}
-
-  /* CATEGORY PILLS */
-  .pills{display:flex;gap:10px;margin-bottom:44px;flex-wrap:wrap;}
-  .pill{border:1px solid var(--line);border-radius:100px;padding:10px 20px;font-size:13.5px;font-weight:500;color:var(--ink-soft);background:#fff;cursor:pointer;}
-  .pill.active{background:var(--green);border-color:var(--green);color:#fff;}
-
-  /* LISTINGS */
-  .section{padding:16px 0 88px;}
-  .section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:32px;}
+  /* SEÇÕES E CARDS */
+  .section{padding:48px 0 64px;}
+  .section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;}
   .section-head h2{font-family:'Archivo',sans-serif;font-weight:700;font-size:26px;}
-  .see-all{font-size:13.5px;font-weight:600;color:var(--green);border-bottom:1.5px solid var(--green);padding-bottom:2px;}
-
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
-  .card{display:block;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;transition:box-shadow .2s ease,transform .2s ease;cursor:pointer;}
-  .card:hover{box-shadow:0 18px 40px rgba(12,24,18,.1);transform:translateY(-2px);}
+  .card{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;transition:transform .2s ease;cursor:pointer;}
+  .card:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.08);}
   .card-photo{position:relative;aspect-ratio:4/3;overflow:hidden;background:#eee;}
-
-  /* Carrossel de fotos dentro do card */
   .carousel-imgs{position:relative;width:100%;height:100%;}
   .carousel-imgs img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s ease;}
   .carousel-imgs img.ativa{opacity:1;}
-  .carousel-btn{position:absolute;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.92);border:0;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;cursor:pointer;color:var(--ink);z-index:6;opacity:0;transition:opacity .15s ease,background .15s ease;}
+  .carousel-btn{position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.9);border:0;font-size:20px;cursor:pointer;z-index:6;opacity:0;transition:opacity .15s;}
   .card-photo:hover .carousel-btn{opacity:1;}
-  .carousel-btn:hover{background:#fff;}
-  .carousel-btn.prev{left:10px;}
-  .carousel-btn.next{right:10px;}
+  .carousel-btn.prev{left:10px;} .carousel-btn.next{right:10px;}
   .carousel-dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:5px;z-index:6;}
-  .carousel-dots .dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.65);transition:width .15s ease,background .15s ease;}
-  .carousel-dots .dot.ativa{background:#fff;width:15px;border-radius:3px;}
+  .carousel-dots .dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.6);}
+  .carousel-dots .dot.ativa{background:#fff;width:14px;border-radius:3px;}
+  .card-tags{position:absolute;top:12px;left:12px;display:flex;flex-direction:column;gap:4px;z-index:6;}
+  .tag-destaque{background:var(--red);color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;padding:4px 8px;border-radius:4px;}
+  .tag-finalidade{color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;padding:4px 8px;border-radius:4px;}
+  .tag-finalidade.venda{background:var(--green);} .tag-finalidade.aluguel{background:#2563EB;}
+  .tag-fav{position:absolute;top:12px;right:12px;width:30px;height:30px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;z-index:6;}
+  .card-body{padding:16px 18px;}
+  .card-price{font-family:'Archivo',sans-serif;font-weight:800;font-size:20px;}
+  .card-code{font-size:11px;color:var(--ink-soft);}
+  .card-title{font-size:14px;font-weight:600;margin-top:6px;}
+  .card-place{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
+  .card-specs{display:flex;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-soft);font-weight:600;}
 
-  /* Tags */
-  .card-tags{position:absolute;top:14px;left:14px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;z-index:6;}
-  .tag-destaque{background:var(--red);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:5px 11px;border-radius:6px;}
-  .tag-finalidade{color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:5px 11px;border-radius:6px;}
-  .tag-finalidade.venda{background:var(--green);}
-  .tag-finalidade.aluguel{background:#2563EB;}
-  .tag-finalidade.temporada{background:#7C3AED;}
-  .tag-fav{position:absolute;top:14px;right:14px;width:32px;height:32px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--ink-soft);z-index:6;}
-  .card-body{padding:18px 20px 20px;}
-  .card-price{font-family:'Archivo',sans-serif;font-weight:800;font-size:21px;}
-  .card-code{font-size:11px;color:var(--ink-soft);font-weight:500;margin-top:2px;}
-  .card-title{font-size:14px;font-weight:600;margin-top:10px;}
-  .card-place{font-size:13px;color:var(--ink-soft);margin-top:2px;}
-  .card-specs{display:flex;gap:14px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-soft);font-weight:500;}
-  .empty-msg{color:var(--ink-soft);font-size:14px;padding:8px 0 24px;grid-column:1/-1;}
-
-  /* CTA BAND */
-  .cta-band{background:var(--green);border-radius:20px;padding:56px;margin:0 32px 96px;max-width:1176px;margin-left:auto;margin-right:auto;display:flex;justify-content:space-between;align-items:center;gap:32px;flex-wrap:wrap;}
-  .cta-band h2{font-family:'Archivo',sans-serif;font-weight:700;font-size:26px;color:#fff;max-width:480px;line-height:1.25;}
-  .cta-band p{font-size:14px;color:rgba(255,255,255,.72);margin-top:10px;max-width:440px;}
-  .btn-white{background:#fff;color:var(--green);font-size:13.5px;font-weight:700;padding:14px 26px;border-radius:8px;white-space:nowrap;}
-  .btn-white:hover{background:var(--offwhite);}
-
-  /* FAQ */
-  .faq{padding-bottom:96px;}
-  .faq-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:56px;}
-  .faq-head h2{font-family:'Archivo',sans-serif;font-weight:700;font-size:28px;line-height:1.25;margin-top:12px;}
-  .faq-item{padding:22px 0;border-bottom:1px solid var(--line);}
-  .faq-item h3{font-size:15px;font-weight:600;margin-bottom:8px;}
-  .faq-item p{font-size:13.5px;color:var(--ink-soft);line-height:1.65;}
+  /* DESIGN DE COMO FUNCIONA A VISITA (DUPLA COLUNA) */
+  .visita-section{background:var(--offwhite);padding:64px 0;margin:40px 0;border-y:1px solid var(--line);}
+  .visita-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:24px;}
+  .visita-card{background:#fff;border-radius:14px;padding:32px;border:1px solid var(--line);box-shadow:0 4px 16px rgba(0,0,0,.03);}
+  .visita-tag{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;margin-bottom:12px;}
+  .visita-tag.compra{background:var(--green-tint);color:var(--green);}
+  .visita-tag.aluguel{background:#E0E7FF;color:#3730A3;}
+  .visita-card h3{font-family:'Archivo',sans-serif;font-size:20px;margin-bottom:10px;}
+  .visita-card p{font-size:14px;color:var(--ink-soft);line-height:1.6;}
 
   /* FOOTER */
-  footer{background:var(--green-dark);color:rgba(255,255,255,.7);padding:56px 0 28px;}
-  .footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;margin-bottom:44px;}
-  .footer-col h4{color:#fff;font-size:13px;font-weight:600;margin-bottom:16px;letter-spacing:.02em;}
-  .footer-col a{display:block;font-size:13px;margin-bottom:10px;color:rgba(255,255,255,.65);}
-  .footer-logo{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
-  .footer-logo-chip{background:#fff;border-radius:10px;padding:8px 16px;display:inline-flex;align-items:center;}
-  .footer-logo-chip .logo-img{height:38px;}
-  .footer-desc{font-size:13px;color:rgba(255,255,255,.55);max-width:280px;line-height:1.6;}
-  .footer-bottom{border-top:1px solid rgba(255,255,255,.14);padding-top:22px;display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.45);flex-wrap:wrap;gap:10px;}
+  footer{background:var(--green-dark);color:rgba(255,255,255,.7);padding:48px 0 24px;}
+  .footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:32px;margin-bottom:36px;}
+  .footer-col h4{color:#fff;font-size:13px;font-weight:600;margin-bottom:14px;}
+  .footer-col a{display:block;font-size:13px;margin-bottom:8px;color:rgba(255,255,255,.65);}
+  .footer-bottom{border-top:1px solid rgba(255,255,255,.14);padding-top:20px;display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.45);}
 
-  @media (max-width:960px){
-    .hero-grid{grid-template-columns:1fr;}
-    .search-card{grid-template-columns:1fr 1fr;transform:none;margin-top:24px;}
-    .search-card .field{border-right:none;border-bottom:1px solid var(--line);}
-    .search-submit{grid-column:1/-1;padding:16px;margin-top:6px;border-radius:8px;}
-    .trust-grid{grid-template-columns:1fr;}
-    .grid{grid-template-columns:1fr 1fr;}
-    .faq-grid{grid-template-columns:1fr;}
-    .footer-grid{grid-template-columns:1fr 1fr;}
+  @media(max-width:960px){
+    .hero-grid, .visita-grid, .grid{grid-template-columns:1fr;}
+    .search-card{grid-template-columns:1fr;gap:8px;}
     nav{display:none;}
-  }
-  @media (max-width:560px){
-    .grid{grid-template-columns:1fr;}
-    .cta-band{padding:36px 28px;}
-    .footer-grid{grid-template-columns:1fr;}
   }
 </style>
 </head>
@@ -202,19 +124,20 @@
 
 <header>
   <div class="wrap header-inner">
-    <div class="logo">
+    <a class="logo" href="index.html">
       <img src="assets/logo.png" alt="Paulino Imóveis" class="logo-img">
       <div class="logo-sub">CRECI 37888<br>Três Pontas–MG</div>
-    </div>
+    </a>
     <nav>
       <a href="#resultados">Comprar</a>
       <a href="#resultados">Alugar</a>
       <a href="#resultados">Terrenos</a>
-      <a href="#">Negociar imóvel</a>
+      <a href="anunciar.html">Negociar imóvel</a>
+      <a href="https://wa.me/5535999158800?text=Ol%C3%A1%2C%20tenho%20interesse%20em%20fazer%20um%20financiamento%20imobili%C3%A1rio." target="_blank" rel="noopener">Financiamento</a>
     </nav>
     <div class="header-right">
       <span class="header-phone">(35) 3266-1985</span>
-      <a class="btn-green" href="https://wa.me/5535998848963" target="_blank" rel="noopener">Falar no WhatsApp</a>
+      <a class="btn-whats-header" href="https://wa.me/5535998848963" target="_blank" rel="noopener">Falar no WhatsApp</a>
     </div>
   </div>
 </header>
@@ -233,9 +156,9 @@
         </div>
       </div>
       <div class="hero-photo">
-        <a id="hero-photo-link" href="#" style="display: block; text-decoration: none;">
-          <img id="hero-foto" src="" alt="Imóvel em destaque" style="background:var(--green-tint);aspect-ratio:4/3.2;cursor:pointer;">
-          <div class="hero-badge" id="hero-badge" style="display:none; cursor:pointer;">
+        <a id="hero-photo-link" href="#">
+          <img id="hero-foto" src="" alt="Imóvel em destaque">
+          <div class="hero-badge" id="hero-badge" style="display:none;">
             <span class="dot"></span>
             <span id="hero-badge-texto">Último imóvel adicionado</span>
           </div>
@@ -243,6 +166,7 @@
       </div>
     </div>
 
+    <!-- FILTROS RECONFIGURADOS -->
     <div class="search-card" id="form-busca">
       <div class="field dropdown" data-campo="finalidade" tabindex="0">
         <label>Finalidade</label>
@@ -255,66 +179,41 @@
         </div>
       </div>
       <div class="field dropdown" data-campo="tipo" tabindex="0">
-        <label>Tipo</label>
+        <label>Tipo de Imóvel</label>
         <button type="button" class="dropdown-btn"><span class="dropdown-valor">Qualquer</span><span class="dropdown-seta">▾</span></button>
         <div class="dropdown-menu">
           <div class="dropdown-opcao selecionada" data-value="Qualquer">Qualquer</div>
-          <div class="dropdown-opcao" data-value="Casa">Casas</div>
-          <div class="dropdown-opcao" data-value="Terreno">Terrenos</div>
-          <div class="dropdown-opcao" data-value="Apartamento">Apartamentos</div>
+          <div class="dropdown-opcao" data-value="Casa">Casa</div>
+          <div class="dropdown-opcao" data-value="Apartamento">Apartamento</div>
+          <div class="dropdown-opcao" data-value="Barracão">Barracão</div>
+          <div class="dropdown-opcao" data-value="Ponto Comercial">Ponto Comercial</div>
+          <div class="dropdown-opcao" data-value="Sítio/Fazenda">Sítio/Fazenda</div>
+          <div class="dropdown-opcao" data-value="Terreno">Terreno</div>
+          <div class="dropdown-opcao" data-value="Área de Lazer">Área de Lazer</div>
         </div>
       </div>
-      <div class="field dropdown" data-campo="cidade" tabindex="0">
+      <div class="field" style="padding: 0 12px;">
         <label>Cidade</label>
-        <button type="button" class="dropdown-btn"><span class="dropdown-valor">Todas</span><span class="dropdown-seta">▾</span></button>
-        <div class="dropdown-menu" id="menu-cidade">
-          <div class="dropdown-opcao selecionada" data-value="Todas">Todas</div>
-        </div>
+        <input type="text" id="filtro-cidade-input" list="dl-cidades" placeholder="Digite a cidade..." style="width:100%;border:0;outline:0;font-size:13.5px;font-weight:600;padding-bottom:10px;background:transparent;">
+        <datalist id="dl-cidades"></datalist>
       </div>
-      <div class="field dropdown" data-campo="bairro" tabindex="0">
+      <div class="field" style="padding: 0 12px;">
         <label>Bairro</label>
-        <button type="button" class="dropdown-btn"><span class="dropdown-valor">Todos</span><span class="dropdown-seta">▾</span></button>
-        <div class="dropdown-menu" id="menu-bairro">
-          <div class="dropdown-opcao selecionada" data-value="Todos">Todos</div>
-        </div>
+        <input type="text" id="filtro-bairro-input" list="dl-bairros" placeholder="Digite o bairro..." style="width:100%;border:0;outline:0;font-size:13.5px;font-weight:600;padding-bottom:10px;background:transparent;">
+        <datalist id="dl-bairros"></datalist>
       </div>
-      <div class="field dropdown" data-campo="quartos" tabindex="0">
-        <label>Quartos</label>
-        <button type="button" class="dropdown-btn"><span class="dropdown-valor">Qualquer</span><span class="dropdown-seta">▾</span></button>
+      <div class="field dropdown" data-campo="faixaPreco" tabindex="0">
+        <label>Faixa de Preço</label>
+        <button type="button" class="dropdown-btn"><span class="dropdown-valor">Qualquer valor</span><span class="dropdown-seta">▾</span></button>
         <div class="dropdown-menu">
-          <div class="dropdown-opcao selecionada" data-value="">Qualquer</div>
-          <div class="dropdown-opcao" data-value="1">1+</div>
-          <div class="dropdown-opcao" data-value="2">2+</div>
-          <div class="dropdown-opcao" data-value="3">3+</div>
+          <div class="dropdown-opcao selecionada" data-value="" data-min="" data-max="">Qualquer valor</div>
+          <div class="dropdown-opcao" data-min="" data-max="200000">Até R$ 200 mil</div>
+          <div class="dropdown-opcao" data-min="200000" data-max="500000">R$ 200 mil - R$ 500 mil</div>
+          <div class="dropdown-opcao" data-min="500000" data-max="1000000">R$ 500 mil - R$ 1 Milhão</div>
+          <div class="dropdown-opcao" data-min="1000000" data-max="">Acima de R$ 1 Milhão</div>
         </div>
       </div>
       <button class="search-submit" type="button" id="btn-buscar">Buscar imóveis</button>
-    </div>
-  </div>
-</section>
-
-<section class="trust">
-  <div class="wrap">
-    <div class="trust-head">
-      <span class="eyebrow">Por que a Paulino</span>
-      <h2>Atendimento próximo, do jeito que negócio de imóvel deveria ser</h2>
-    </div>
-    <div class="trust-grid">
-      <div class="trust-item">
-        <div class="trust-num">01</div>
-        <h3>Você fala direto com quem decide</h3>
-        <p>Sem central de atendimento, sem fila. O corretor responsável acompanha sua busca do início ao fim.</p>
-      </div>
-      <div class="trust-item">
-        <div class="trust-num">02</div>
-        <h3>Imóveis avaliados na região</h3>
-        <p>Cada anúncio é conferido presencialmente antes de entrar no catálogo — sem surpresa na visita.</p>
-      </div>
-      <div class="trust-item">
-        <div class="trust-num">03</div>
-        <h3>Anuncie sem custo</h3>
-        <p>Quer vender ou alugar seu imóvel? Cadastro e divulgação são gratuitos, sem taxa de entrada.</p>
-      </div>
     </div>
   </div>
 </section>
@@ -334,48 +233,26 @@
     <div class="section-head">
       <h2 id="titulo-resultados">Todos os imóveis disponíveis</h2>
     </div>
-    <div class="pills" id="pills-preco">
-      <span class="pill active" data-min="" data-max="">Todas as faixas</span>
-      <span class="pill" data-min="" data-max="300000">Até R$ 300 mil</span>
-      <span class="pill" data-min="300000" data-max="600000">R$ 300–600 mil</span>
-      <span class="pill" data-min="600000" data-max="">Acima de R$ 600 mil</span>
-    </div>
     <div class="grid" id="grid-resultados"></div>
   </div>
 </section>
 
-<div class="wrap">
-  <div class="cta-band">
-    <div>
-      <h2>Pensando em vender ou alugar seu imóvel?</h2>
-      <p>Cadastro gratuito, avaliação com base no mercado local e divulgação para nossa base ativa de interessados.</p>
-    </div>
-    <a class="btn-white" href="https://wa.me/5535998848963" target="_blank" rel="noopener">Anunciar meu imóvel</a>
-  </div>
-</div>
-
-<section class="faq">
-  <div class="wrap faq-grid">
-    <div class="faq-head">
-      <span class="eyebrow">Dúvidas frequentes</span>
-      <h2>Tudo o que você precisa saber antes de comprar ou alugar</h2>
-    </div>
-    <div>
-      <div class="faq-item">
-        <h3>Como funciona a visita a um imóvel?</h3>
-        <p>Você entra em contato pelo WhatsApp ou telefone, combinamos um horário e o corretor acompanha a visita pessoalmente.</p>
+<!-- SEÇÃO VISITA FORMATADA EM 2 COLUNAS -->
+<section class="visita-section">
+  <div class="wrap">
+    <span class="eyebrow">Atendimento Presencial</span>
+    <h2 style="font-family:'Archivo',sans-serif;font-size:26px;margin-top:4px;">Como funciona a visita a um imóvel?</h2>
+    
+    <div class="visita-grid">
+      <div class="visita-card">
+        <span class="visita-tag compra">Para Comprar</span>
+        <h3>Agendamento com Consultoria</h3>
+        <p>Você entra em contato via WhatsApp ou telefone, alinhamos seu perfil com as características do imóvel e nosso corretor credenciado acompanha toda a visita técnica, tirando dúvidas sobre documentação, estrutura e vizinhança na hora.</p>
       </div>
-      <div class="faq-item">
-        <h3>Preciso pagar algo para anunciar meu imóvel?</h3>
-        <p>Não. O cadastro e a divulgação do seu imóvel na Paulino Imóveis são gratuitos, sem taxa de entrada.</p>
-      </div>
-      <div class="faq-item">
-        <h3>Vocês atendem outras cidades além de Três Pontas?</h3>
-        <p>Sim. Também temos imóveis em Boa Esperança, Campos Gerais, Nepomuceno, Santana da Vargem e Varginha.</p>
-      </div>
-      <div class="faq-item">
-        <h3>Como verifico se a imobiliária é regularizada?</h3>
-        <p>A Paulino Imóveis é registrada no CRECI sob o número 37888, consultável no site do conselho regional de Minas Gerais.</p>
+      <div class="visita-card">
+        <span class="visita-tag aluguel">Para Alugar</span>
+        <h3>Agilidades na Locação</h3>
+        <p>Combinamos o melhor horário para você conhecer a propriedade. Nosso corretor acompanha a visita no local e te orienta imediatamente sobre a lista de documentos necessários e garantias para fechar o contrato com agilidade.</p>
       </div>
     </div>
   </div>
@@ -385,30 +262,23 @@
   <div class="wrap">
     <div class="footer-grid">
       <div>
-        <div class="footer-logo">
-          <div class="footer-logo-chip"><img src="assets/logo.png" alt="Paulino Imóveis" class="logo-img"></div>
-        </div>
-        <p class="footer-desc">Imobiliária em Três Pontas–MG. Casas, terrenos e imóveis comerciais com atendimento direto e sem burocracia.</p>
+        <div class="logo-img" style="display:inline-block;margin-bottom:12px;"><img src="assets/logo.png" alt="Paulino Imóveis" style="height:36px;"></div>
+        <p style="font-size:13px;color:rgba(255,255,255,.55);max-width:280px;line-height:1.6;">Imobiliária em Três Pontas–MG. Casas, terrenos e imóveis comerciais com atendimento direto e sem burocracia.</p>
       </div>
       <div class="footer-col">
         <h4>Imóveis</h4>
         <a href="#resultados">Casas à venda</a>
         <a href="#resultados">Terrenos à venda</a>
         <a href="#resultados">Imóveis para alugar</a>
-        <a href="https://wa.me/5535998848963" target="_blank" rel="noopener">Anunciar imóvel</a>
-      </div>
-      <div class="footer-col">
-        <h4>Institucional</h4>
-        <a href="#">Sobre nós</a>
-        <a href="#">Documentos</a>
-        <a href="#">Trabalhe conosco</a>
-        <a href="#">Financiamento</a>
+        <a href="anunciar.html">Anunciar imóvel</a>
+        <a href="documentos.html">Documentos para aluguel</a>
       </div>
       <div class="footer-col">
         <h4>Contato</h4>
-        <a href="tel:3532661985">(35) 3266-1985</a>
-        <a href="https://wa.me/5535998848963" target="_blank" rel="noopener">(35) 99884-8963</a>
-        <a href="mailto:imobiliariapaulino@gmail.com">imobiliariapaulino@gmail.com</a>
+        <a href="tel:3532661985">Fixo: (35) 3266-1985</a>
+        <a href="https://wa.me/5535998848963" target="_blank" rel="noopener">Aluguel: (35) 99884-8963</a>
+        <a href="https://wa.me/5535999158800" target="_blank" rel="noopener">Vendas: (35) 99915-8800</a>
+        <a href="https://wa.me/5535998840518" target="_blank" rel="noopener">Vendas: (35) 99884-0518</a>
         <a href="#">Rua Bento de Brito, 170 — Centro</a>
       </div>
     </div>
@@ -423,38 +293,30 @@
 <script src="assets/config.js"></script>
 <script src="assets/site.js"></script>
 <script>
-  let filtroPrecoMin = "";
-  let filtroPrecoMax = "";
+  let filtroPrecoMin = null;
+  let filtroPrecoMax = null;
 
-  const valoresDropdown = {
-    finalidade: "Qualquer",
-    tipo: "Qualquer",
-    cidade: "Todas",
-    bairro: "Todos",
-    quartos: "",
-  };
+  const valoresDropdown = { finalidade: "Qualquer", tipo: "Qualquer" };
 
   function pegarFiltrosAtuais() {
     return {
       finalidade: valoresDropdown.finalidade,
       tipo: valoresDropdown.tipo,
-      cidade: valoresDropdown.cidade,
-      bairro: valoresDropdown.bairro,
-      quartosMin: valoresDropdown.quartos ? Number(valoresDropdown.quartos) : null,
-      precoMin: filtroPrecoMin ? Number(filtroPrecoMin) : null,
-      precoMax: filtroPrecoMax ? Number(filtroPrecoMax) : null,
+      cidade: document.getElementById("filtro-cidade-input").value.trim(),
+      bairro: document.getElementById("filtro-bairro-input").value.trim(),
+      precoMin: filtroPrecoMin,
+      precoMax: filtroPrecoMax
     };
   }
 
   async function renderizarResultados() {
     const gridResultados = document.getElementById("grid-resultados");
-    gridResultados.innerHTML = '<div class="empty-msg">Carregando...</div>';
-    const filtros = pegarFiltrosAtuais();
-    const imoveis = await buscarImoveis(filtros);
+    gridResultados.innerHTML = '<div style="grid-column:1/-1;color:var(--ink-soft);">Carregando imóveis...</div>';
+    const imoveis = await buscarImoveis(pegarFiltrosAtuais());
 
     gridResultados.innerHTML = imoveis.length
       ? imoveis.map(im => cardHtml(im, false)).join("")
-      : '<div class="empty-msg">Nenhum imóvel encontrado com esses filtros. Tente ajustar a busca.</div>';
+      : '<div style="grid-column:1/-1;color:var(--ink-soft);">Nenhum imóvel encontrado com estes filtros.</div>';
   }
 
   async function renderizarDestaques() {
@@ -462,7 +324,7 @@
     const imoveis = await buscarImoveis({ ordenarPorViews: true, limite: 3 });
     gridDestaques.innerHTML = imoveis.length
       ? imoveis.map(im => cardHtml(im, true)).join("")
-      : '<div class="empty-msg">Nenhum imóvel em destaque no momento.</div>';
+      : '<div style="grid-column:1/-1;color:var(--ink-soft);">Nenhum imóvel em destaque.</div>';
   }
 
   async function atualizarStatAtivos() {
@@ -473,67 +335,25 @@
   async function carregarFotoCapa() {
     const heroImg = document.getElementById("hero-foto");
     const heroBadge = document.getElementById("hero-badge");
-    const heroBadgeTexto = document.getElementById("hero-badge-texto");
     const heroLink = document.getElementById("hero-photo-link");
 
-    // Busca o imóvel disponível mais recente que possua pelo menos uma foto
-    const { data } = await sb
-      .from("imoveis")
-      .select("*")
-      .eq("disponivel", true)
-      .order("criado_em", { ascending: false })
-      .limit(10);
-
+    const { data } = await sb.from("imoveis").select("*").eq("disponivel", true).order("criado_em", { ascending: false }).limit(5);
     const maisRecente = (data || []).find(im => im.fotos && im.fotos.length > 0);
 
-    if (!maisRecente || !maisRecente.fotos || !maisRecente.fotos[0]) {
-      heroImg.closest(".hero-photo").style.display = "none";
-      return;
+    if (maisRecente) {
+      heroLink.href = `imovel.html?id=${maisRecente.id}`;
+      heroImg.src = urlFoto(maisRecente.fotos[0]);
+      heroBadge.style.display = "flex";
     }
-
-    // 1. Torna a imagem e o badge clicáveis direcionando para a página do imóvel
-    heroLink.href = `imovel.html?id=${maisRecente.id}`;
-    heroImg.src = urlFoto(maisRecente.fotos[0]);
-
-    // 2. Define o selo fixo sem expirar após 24h
-    heroBadgeTexto.textContent = "Último imóvel adicionado";
-    heroBadge.style.display = "flex";
   }
 
-  /* Dropdown customizado dos filtros */
-  function fecharTodosDropdowns(exceto) {
-    document.querySelectorAll(".field.dropdown.aberto").forEach(el => {
-      if (el !== exceto) el.classList.remove("aberto");
-    });
-  }
-
-  function selecionarOpcao(campoEl, opcaoEl) {
-    const campo = campoEl.dataset.campo;
-    const valor = opcaoEl.dataset.value;
-    const texto = opcaoEl.textContent;
-
-    valoresDropdown[campo] = valor;
-    campoEl.querySelector(".dropdown-valor").textContent = texto;
-    campoEl.querySelectorAll(".dropdown-opcao").forEach(o => o.classList.remove("selecionada"));
-    opcaoEl.classList.add("selecionada");
-    campoEl.classList.remove("aberto");
-  }
-
-  function popularDropdown(menuId, valores, valorPadrao) {
-    const menu = document.getElementById(menuId);
-    const campoEl = menu.closest(".field.dropdown");
-    menu.innerHTML = `<div class="dropdown-opcao selecionada" data-value="${valorPadrao}">${valorPadrao}</div>` +
-      valores.map(v => `<div class="dropdown-opcao" data-value="${v}">${v}</div>`).join("");
-    campoEl.querySelector(".dropdown-valor").textContent = valorPadrao;
-    valoresDropdown[campoEl.dataset.campo] = valorPadrao;
-  }
-
-  async function popularCidadeEBairro() {
+  async function carregarDatalists() {
     const { data } = await sb.from("imoveis").select("cidade, bairro").eq("disponivel", true);
-    const cidades = [...new Set((data || []).map(r => r.cidade).filter(Boolean))].sort();
-    const bairros = [...new Set((data || []).map(r => r.bairro).filter(Boolean))].sort();
-    popularDropdown("menu-cidade", cidades, "Todas");
-    popularDropdown("menu-bairro", bairros, "Todos");
+    if (!data) return;
+    const cidades = [...new Set(data.map(d => d.cidade).filter(Boolean))];
+    const bairros = [...new Set(data.map(d => d.bairro).filter(Boolean))];
+    document.getElementById("dl-cidades").innerHTML = cidades.map(c => `<option value="${c}">`).join("");
+    document.getElementById("dl-bairros").innerHTML = bairros.map(b => `<option value="${b}">`).join("");
   }
 
   document.querySelectorAll(".field.dropdown").forEach(campoEl => {
@@ -541,36 +361,38 @@
     botao.addEventListener("click", (ev) => {
       ev.stopPropagation();
       const jaAberto = campoEl.classList.contains("aberto");
-      fecharTodosDropdowns();
+      document.querySelectorAll(".field.dropdown.aberto").forEach(el => el.classList.remove("aberto"));
       campoEl.classList.toggle("aberto", !jaAberto);
     });
 
     campoEl.querySelector(".dropdown-menu").addEventListener("click", (ev) => {
       const opcao = ev.target.closest(".dropdown-opcao");
       if (!opcao) return;
-      selecionarOpcao(campoEl, opcao);
+      
+      const campo = campoEl.dataset.campo;
+      if (campo === "faixaPreco") {
+        filtroPrecoMin = opcao.dataset.min ? Number(opcao.dataset.min) : null;
+        filtroPrecoMax = opcao.dataset.max ? Number(opcao.dataset.max) : null;
+      } else {
+        valoresDropdown[campo] = opcao.dataset.value;
+      }
+
+      campoEl.querySelector(".dropdown-valor").textContent = opcao.textContent;
+      campoEl.querySelectorAll(".dropdown-opcao").forEach(o => o.classList.remove("selecionada"));
+      opcao.classList.add("selecionada");
+      campoEl.classList.remove("aberto");
     });
   });
 
-  document.addEventListener("click", () => fecharTodosDropdowns());
+  document.addEventListener("click", () => document.querySelectorAll(".field.dropdown.aberto").forEach(el => el.classList.remove("aberto")));
 
   document.getElementById("btn-buscar").addEventListener("click", () => {
     document.getElementById("resultados").scrollIntoView({ behavior: "smooth" });
     renderizarResultados();
   });
 
-  document.getElementById("pills-preco").addEventListener("click", (ev) => {
-    const pill = ev.target.closest(".pill");
-    if (!pill) return;
-    document.querySelectorAll("#pills-preco .pill").forEach(p => p.classList.remove("active"));
-    pill.classList.add("active");
-    filtroPrecoMin = pill.dataset.min;
-    filtroPrecoMax = pill.dataset.max;
-    renderizarResultados();
-  });
-
   (async function init() {
-    await popularCidadeEBairro();
+    await carregarDatalists();
     await Promise.all([renderizarDestaques(), renderizarResultados(), atualizarStatAtivos(), carregarFotoCapa()]);
   })();
 </script>
