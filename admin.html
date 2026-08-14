@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Painel Admin — Paulino Imóveis</title>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Biblioteca para gerar arquivos Excel (XLSX) -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   :root{
@@ -18,11 +19,12 @@
   h2{font-family:'Archivo',sans-serif;font-weight:700;font-size:18px;margin-bottom:14px;}
 
   #tela-login{max-width:340px;margin:100px auto;background:#fff;padding:32px;border-radius:12px;border:1px solid var(--line);}
-  #tela-login input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:8px;margin-bottom:12px;}
+  #tela-login input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:8px;margin-bottom:12px;font-size:14px;}
   #tela-login button{width:100%;padding:12px;background:var(--green);color:#fff;border:0;border-radius:8px;font-weight:600;cursor:pointer;}
+  .erro{color:var(--red);font-size:13px;margin-bottom:10px;}
 
   #app{display:none;}
-  .topbar{display:flex;justify-style:space-between;align-items:center;margin-bottom:28px;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
   .btn{padding:10px 16px;border-radius:8px;border:0;font-size:13.5px;font-weight:600;cursor:pointer;}
   .btn-green{background:var(--green);color:#fff;}
   .btn-outline{background:#fff;border:1px solid var(--line);color:var(--ink);}
@@ -34,28 +36,70 @@
   .form-grid.full{grid-template-columns:1fr;}
   label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;}
   input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;}
-  
-  .dropzone {border: 2px dashed var(--line);border-radius: 8px;padding: 24px 16px;text-align: center;background: #fafbfa;cursor: pointer;}
+  textarea{min-height:80px;resize:vertical;}
+  .check-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .msg{font-size:13px;margin-bottom:12px;}
+  .msg.ok{color:var(--green);}
+  .msg.erro{color:var(--red);}
+
+  /* Componente Dropzone (Drag & Drop de Fotos) */
+  .dropzone {
+    border: 2px dashed var(--line);
+    border-radius: 8px;
+    padding: 24px 16px;
+    text-align: center;
+    background: #fafbfa;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .dropzone:hover, .dropzone.dragover {
+    border-color: var(--green);
+    background: #eef4f0;
+  }
+  .dropzone-icon {
+    font-size: 28px;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .dropzone p {
+    font-size: 13.5px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .dropzone-info {
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+
+  /* Painel de Filtros e Busca */
   .filtros-box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:20px;}
-  .filtros-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:12px;align-items:end;}
+  .filtros-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:12px;align-items:end;}
 
   table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
   th,td{padding:12px 14px;text-align:left;font-size:13.5px;border-bottom:1px solid var(--line);}
-  th{background:#fafbfa;font-size:11.5px;text-transform:uppercase;color:var(--ink-soft);}
-  .thumb{width:56px;height:42px;object-fit:cover;border-radius:6px;}
+  th{background:#fafbfa;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);}
+  tr:last-child td{border-bottom:none;}
+  .thumb{width:56px;height:42px;object-fit:cover;border-radius:6px;background:#eee;}
   .status{display:inline-block;padding:4px 10px;border-radius:100px;font-size:11.5px;font-weight:600;}
   .status.disp{background:#E8EFEA;color:var(--green);}
   .status.vend{background:#FBE8E9;color:var(--red);}
+  .acoes{display:flex;gap:6px;flex-wrap:wrap;}
+  .tabela-topo{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:16px;}
+  .codigo-cell{font-family:'Archivo',sans-serif;font-weight:700;font-size:12.5px;color:var(--green);background:var(--offwhite);padding:3px 8px;border-radius:6px;display:inline-block;}
+  .proprietario-tag{display:block;font-size:11px;color:var(--ink-soft);margin-top:2px;}
 </style>
 </head>
 <body>
 
 <div id="tela-login">
   <h1>Entrar no painel</h1>
-  <div id="login-erro" style="display:none;color:var(--red);margin-bottom:10px;font-size:13px;"></div>
-  <label>E-mail</label><input id="login-email" type="email">
-  <label>Senha</label><input id="login-senha" type="password">
-  <button onclick="entrar()">Entrar</button>
+  <div class="erro" id="login-erro" style="display:none;"></div>
+  <label>E-mail</label>
+  <input id="login-email" type="email" autocomplete="username">
+  <label>Senha</label>
+  <input id="login-senha" type="password" autocomplete="current-password">
+  <button class="btn btn-green" onclick="entrar()">Entrar</button>
 </div>
 
 <div id="app">
@@ -67,27 +111,21 @@
 
     <div class="card-form">
       <h2 id="titulo-form">Adicionar novo imóvel</h2>
-      <div id="form-msg" style="display:none;padding:10px;margin-bottom:10px;border-radius:6px;"></div>
+      <div class="msg" id="form-msg" style="display:none;"></div>
       <form id="form-imovel" onsubmit="return salvarImovel(event)">
         <input type="hidden" name="id" id="f-id">
-        
         <div class="form-grid">
-          <div><label>Título</label><input name="titulo" required placeholder="Casa no Centro"></div>
-          <div><label>Código</label><input name="codigo" placeholder="Autogerado"></div>
+          <div><label>Título</label><input name="titulo" required placeholder="Terreno no Bairro X"></div>
+          <div><label>Código</label><input name="codigo" placeholder="Gerado automaticamente"></div>
           <div>
-            <label>Tipo de Imóvel</label>
-            <select name="tipo" id="f-tipo">
+            <label>Tipo</label>
+            <select name="tipo">
+              <option value="Terreno">Terreno</option>
               <option value="Casa">Casa</option>
               <option value="Apartamento">Apartamento</option>
-              <option value="Barracão">Barracão</option>
-              <option value="Ponto Comercial">Ponto Comercial</option>
-              <option value="Sítio/Fazenda">Sítio/Fazenda</option>
-              <option value="Terreno">Terreno</option>
-              <option value="Área de Lazer">Área de Lazer</option>
             </select>
           </div>
         </div>
-
         <div class="form-grid">
           <div>
             <label>Finalidade</label>
@@ -97,71 +135,57 @@
               <option value="Temporada">Temporada</option>
             </select>
           </div>
-          <div>
-            <label>Cidade</label>
-            <input name="cidade" id="f-cidade" list="dl-admin-cidades" placeholder="Três Pontas">
-            <datalist id="dl-admin-cidades"></datalist>
-          </div>
-          <div>
-            <label>Bairro</label>
-            <input name="bairro" id="f-bairro" list="dl-admin-bairros" placeholder="Centro">
-            <datalist id="dl-admin-bairros"></datalist>
-          </div>
+          <div><label>Cidade</label><input name="cidade" placeholder="Três Pontas"></div>
+          <div><label>Bairro</label><input name="bairro" placeholder="Centro"></div>
         </div>
-
         <div class="form-grid">
-          <div><label>Rua / Endereço</label><input name="rua" placeholder="Rua Bento de Brito, 170"></div>
-          <div><label>Preço (R$)</label><input name="preco" id="f-preco" placeholder="R$ 100.000,00"></div>
-          <div><label>Nº do Proprietário (Tel/WhatsApp)</label><input name="numero_proprietario" placeholder="(35) 99999-9999"></div>
-        </div>
-
-        <div class="form-grid">
-          <div><label>Área Construída (m²)</label><input name="area_construida_m2" type="number" step="0.01" placeholder="120"></div>
-          <div><label>Área do Terreno (m²)</label><input name="area_terreno_m2" type="number" step="0.01" placeholder="250"></div>
-          <div><label>Nome do Proprietário</label><input name="proprietario" placeholder="João da Silva"></div>
-        </div>
-
-        <div class="form-grid">
+          <div><label>Preço (R$)</label><input name="preco" type="number" step="0.01" placeholder="150000"></div>
+          <div><label>Área (m²)</label><input name="area_m2" type="number" step="0.01" placeholder="360"></div>
           <div><label>Quartos</label><input name="quartos" type="number" placeholder="3"></div>
-          <div><label>Banheiros</label><input name="banheiros" type="number" placeholder="2"></div>
-          <div><label>Vagas de Garagem</label><input name="vagas" type="number" placeholder="2"></div>
         </div>
-
+        <div class="form-grid">
+          <div><label>Banheiros</label><input name="banheiros" type="number" placeholder="2"></div>
+          <div><label>Vagas</label><input name="vagas" type="number" placeholder="2"></div>
+          <div><label>Proprietário (Interno)</label><input name="proprietario" placeholder="Nome do proprietário"></div>
+        </div>
         <div class="form-grid full">
-          <div><label>Descrição</label><textarea name="descricao" placeholder="Detalhes completos do imóvel..."></textarea></div>
+          <div><label>Descrição</label><textarea name="descricao" placeholder="Detalhes do imóvel..."></textarea></div>
         </div>
         
+        <!-- DROPZONE (ARRASTAR & SOLTAR FOTOS) -->
         <div class="form-grid full">
           <div>
-            <label>Fotos</label>
+            <label>Fotos novas (pode selecionar várias ou arrastar para cá)</label>
             <div id="dropzone" class="dropzone" onclick="document.getElementById('f-fotos').click()">
-              <p>📸 <strong>Clique ou arraste fotos aqui</strong></p>
-              <span id="fotos-qtd" style="font-size:12px;color:var(--ink-soft);">Nenhuma foto selecionada</span>
+              <div class="dropzone-content">
+                <span class="dropzone-icon">📁</span>
+                <p><strong>Clique para selecionar</strong> ou arraste as fotos até aqui</p>
+                <span id="fotos-qtd" class="dropzone-info">Nenhuma foto selecionada</span>
+              </div>
               <input name="fotos" id="f-fotos" type="file" accept="image/*" multiple style="display:none;">
             </div>
           </div>
         </div>
 
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+        <div class="check-row">
           <input type="checkbox" id="destaque_manual" name="destaque_manual">
-          <label for="destaque_manual" style="margin:0;">Forçar Destaque na Home</label>
+          <label style="margin:0;" for="destaque_manual">Forçar destaque na home (independente de visualizações)</label>
         </div>
-
         <button class="btn btn-green" type="submit" id="btn-salvar">Salvar imóvel</button>
-        <button class="btn btn-outline" type="button" id="btn-cancelar" style="display:none;" onclick="cancelarEdicao()">Cancelar edição</button>
+        <button class="btn btn-outline" type="button" id="btn-cancelar-edicao" style="display:none;" onclick="cancelarEdicao()">Cancelar edição</button>
       </form>
     </div>
 
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-      <h2>Imóveis cadastrados</h2>
+    <!-- PAINEL DE FILTROS E PESQUISA -->
+    <div class="tabela-topo">
+      <h2 style="margin-bottom:0;">Imóveis cadastrados</h2>
       <button class="btn btn-outline btn-sm" onclick="exportarExcel()">📊 Exportar XLSX</button>
     </div>
 
-    <!-- PAINEL DE FILTROS COM FILTRO ÚNICO DE MÊS/ANO -->
     <div class="filtros-box">
       <div class="filtros-grid">
         <div>
-          <label>Buscar (Código, Título, Proprietário ou Rua)</label>
+          <label>Buscar (Código, Título ou Proprietário)</label>
           <input type="text" id="filtro-termo" placeholder="Digite para buscar...">
         </div>
         <div>
@@ -169,12 +193,8 @@
           <select id="filtro-tipo">
             <option value="">Todos os tipos</option>
             <option value="Casa">Casa</option>
-            <option value="Apartamento">Apartamento</option>
-            <option value="Barracão">Barracão</option>
-            <option value="Ponto Comercial">Ponto Comercial</option>
-            <option value="Sítio/Fazenda">Sítio/Fazenda</option>
             <option value="Terreno">Terreno</option>
-            <option value="Área de Lazer">Área de Lazer</option>
+            <option value="Apartamento">Apartamento</option>
           </select>
         </div>
         <div>
@@ -186,8 +206,12 @@
           </select>
         </div>
         <div>
-          <label>Mês / Ano da Postagem</label>
-          <input type="month" id="filtro-mes-ano">
+          <label>Postado De</label>
+          <input type="date" id="filtro-data-de">
+        </div>
+        <div>
+          <label>Postado Até</label>
+          <input type="date" id="filtro-data-ate">
         </div>
       </div>
     </div>
@@ -195,7 +219,7 @@
     <table>
       <thead>
         <tr>
-          <th>Foto</th><th>Código / Prop.</th><th>Título / Rua</th><th>Tipo / Fin.</th><th>Área (Const/Terr)</th><th>Postado Em</th><th>Preço</th><th>Ações</th>
+          <th>Foto</th><th>Código / Proprietário</th><th>Título</th><th>Tipo / Finalidade</th><th>Data Postagem</th><th>Local</th><th>Preço</th><th>Views</th><th>Status</th><th>Ações</th>
         </tr>
       </thead>
       <tbody id="tabela-imoveis"></tbody>
@@ -209,14 +233,49 @@
 <script>
 let editandoId = null;
 let imoveisCache = [];
+let imoveisFiltrados = [];
+
+// ELEMENTOS DA DROPZONE
+const dropzone = document.getElementById("dropzone");
 const fileInput = document.getElementById("f-fotos");
+const fotosQtdText = document.getElementById("fotos-qtd");
 
-// MÁSCARA AUTOMÁTICA DE MOEDA NO CAMPO PREÇO
-aplicarMascaraMoeda(document.getElementById("f-preco"));
-
-fileInput.addEventListener("change", () => {
+function atualizarTextoFotos() {
   const count = fileInput.files ? fileInput.files.length : 0;
-  document.getElementById("fotos-qtd").textContent = count === 0 ? "Nenhuma foto selecionada" : `${count} foto(s) selecionada(s)`;
+  if (count === 0) {
+    fotosQtdText.textContent = "Nenhuma foto selecionada";
+  } else if (count === 1) {
+    fotosQtdText.textContent = "1 foto selecionada";
+  } else {
+    fotosQtdText.textContent = `${count} fotos selecionadas`;
+  }
+}
+
+fileInput.addEventListener("change", atualizarTextoFotos);
+
+['dragenter', 'dragover'].forEach(eventName => {
+  dropzone.addEventListener(eventName, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropzone.classList.add('dragover');
+  }, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+  dropzone.addEventListener(eventName, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropzone.classList.remove('dragover');
+  }, false);
+});
+
+dropzone.addEventListener("drop", (e) => {
+  const dt = e.dataTransfer;
+  const files = dt.files;
+  if (files && files.length > 0) {
+    fileInput.files = files;
+    atualizarTextoFotos();
+  }
 });
 
 async function checarSessao() {
@@ -225,32 +284,50 @@ async function checarSessao() {
     document.getElementById("tela-login").style.display = "none";
     document.getElementById("app").style.display = "block";
     carregarTabela();
-    carregarDatalistsAdmin();
   }
-}
-
-async function carregarDatalistsAdmin() {
-  const { data } = await sb.from("imoveis").select("cidade, bairro");
-  if (!data) return;
-  const cidades = [...new Set(data.map(d => d.cidade).filter(Boolean))];
-  const bairros = [...new Set(data.map(d => d.bairro).filter(Boolean))];
-  document.getElementById("dl-admin-cidades").innerHTML = cidades.map(c => `<option value="${c}">`).join("");
-  document.getElementById("dl-admin-bairros").innerHTML = bairros.map(b => `<option value="${b}">`).join("");
 }
 
 async function entrar() {
   const email = document.getElementById("login-email").value;
   const senha = document.getElementById("login-senha").value;
+  const erroEl = document.getElementById("login-erro");
+  erroEl.style.display = "none";
+
   const { error } = await sb.auth.signInWithPassword({ email, password: senha });
   if (error) {
-    document.getElementById("login-erro").textContent = "Login inválido.";
-    document.getElementById("login-erro").style.display = "block";
+    erroEl.textContent = "E-mail ou senha inválidos.";
+    erroEl.style.display = "block";
     return;
   }
   checarSessao();
 }
 
-async function sair() { await sb.auth.signOut(); location.reload(); }
+async function sair() {
+  await sb.auth.signOut();
+  location.reload();
+}
+
+function mostrarMsg(texto, tipo) {
+  const el = document.getElementById("form-msg");
+  el.textContent = texto;
+  el.className = "msg " + tipo;
+  el.style.display = "block";
+  setTimeout(() => { el.style.display = "none"; }, 4000);
+}
+
+async function uploadFotos(arquivos) {
+  const caminhos = [];
+  for (const arquivo of arquivos) {
+    const nome = `${Date.now()}-${Math.random().toString(36).slice(2)}-${arquivo.name}`;
+    const { error } = await sb.storage.from("fotos-imoveis").upload(nome, arquivo);
+    if (error) {
+      console.error(error);
+      continue;
+    }
+    caminhos.push(nome);
+  }
+  return caminhos;
+}
 
 async function salvarImovel(ev) {
   ev.preventDefault();
@@ -258,9 +335,12 @@ async function salvarImovel(ev) {
   const fd = new FormData(form);
   const btn = document.getElementById("btn-salvar");
   btn.disabled = true;
+  btn.textContent = "Salvando...";
 
   try {
-    const novasFotos = fileInput.files.length ? await uploadFotos(fileInput.files) : [];
+    const arquivos = fileInput.files;
+    const novasFotos = arquivos.length ? await uploadFotos(arquivos) : [];
+
     const payload = {
       titulo: fd.get("titulo"),
       codigo: fd.get("codigo") || null,
@@ -268,11 +348,8 @@ async function salvarImovel(ev) {
       finalidade: fd.get("finalidade"),
       cidade: fd.get("cidade") || null,
       bairro: fd.get("bairro") || null,
-      rua: fd.get("rua") || null,
-      numero_proprietario: fd.get("numero_proprietario") || null,
-      preco: parseMoedaParaNumero(fd.get("preco")),
-      area_construida_m2: fd.get("area_construida_m2") ? Number(fd.get("area_construida_m2")) : null,
-      area_terreno_m2: fd.get("area_terreno_m2") ? Number(fd.get("area_terreno_m2")) : null,
+      preco: fd.get("preco") ? Number(fd.get("preco")) : null,
+      area_m2: fd.get("area_m2") ? Number(fd.get("area_m2")) : null,
       quartos: fd.get("quartos") ? Number(fd.get("quartos")) : null,
       banheiros: fd.get("banheiros") ? Number(fd.get("banheiros")) : null,
       vagas: fd.get("vagas") ? Number(fd.get("vagas")) : null,
@@ -282,81 +359,28 @@ async function salvarImovel(ev) {
     };
 
     if (editandoId) {
-      const ex = imoveisCache.find(i => i.id === editandoId);
-      payload.fotos = [...(ex?.fotos || []), ...novasFotos];
-      await sb.from("imoveis").update(payload).eq("id", editandoId);
+      const existente = imoveisCache.find(i => i.id === editandoId);
+      payload.fotos = [...(existente?.fotos || []), ...novasFotos];
+      const { error } = await sb.from("imoveis").update(payload).eq("id", editandoId);
+      if (error) throw error;
+      mostrarMsg("Imóvel atualizado com sucesso.", "ok");
     } else {
       payload.fotos = novasFotos;
-      await sb.from("imoveis").insert(payload);
+      const { error } = await sb.from("imoveis").insert(payload);
+      if (error) throw error;
+      mostrarMsg("Imóvel cadastrado com sucesso.", "ok");
     }
 
     cancelarEdicao();
     carregarTabela();
   } catch (err) {
-    alert("Erro ao salvar: " + err.message);
+    console.error(err);
+    mostrarMsg("Erro ao salvar: " + (err.message || err), "erro");
   } finally {
     btn.disabled = false;
+    btn.textContent = "Salvar imóvel";
   }
   return false;
-}
-
-async function uploadFotos(arquivos) {
-  const caminhos = [];
-  for (const arq of arquivos) {
-    const nome = `${Date.now()}-${Math.random().toString(36).slice(2)}-${arq.name}`;
-    const { error } = await sb.storage.from("fotos-imoveis").upload(nome, arq);
-    if (!error) caminhos.push(nome);
-  }
-  return caminhos;
-}
-
-async function carregarTabela() {
-  const { data } = await sb.from("imoveis").select("*").order("criado_em", { ascending: false });
-  imoveisCache = data || [];
-  aplicarFiltros();
-}
-
-function aplicarFiltros() {
-  const termo = document.getElementById("filtro-termo").value.trim().toLowerCase();
-  const tipo = document.getElementById("filtro-tipo").value;
-  const status = document.getElementById("filtro-status").value;
-  const mesAno = document.getElementById("filtro-mes-ano").value; // Formato YYYY-MM
-
-  const filtrados = imoveisCache.filter(im => {
-    const buscaStr = `${im.codigo || ''} ${im.titulo || ''} ${im.proprietario || ''} ${im.rua || ''}`.toLowerCase();
-    if (termo && !buscaStr.includes(termo)) return false;
-    if (tipo && im.tipo !== tipo) return false;
-    if (status === "disp" && !im.disponivel) return false;
-    if (status === "vend" && im.disponivel) return false;
-    if (mesAno && im.criado_em && !im.criado_em.startsWith(mesAno)) return false;
-    return true;
-  });
-
-  renderizarTabela(filtrados);
-}
-
-function renderizarTabela(lista) {
-  const tbody = document.getElementById("tabela-imoveis");
-  tbody.innerHTML = lista.map(im => `
-    <tr>
-      <td><img class="thumb" src="${im.fotos && im.fotos[0] ? urlFoto(im.fotos[0]) : 'https://via.placeholder.com/56'}"></td>
-      <td>
-        <strong>${im.codigo || 'S/N'}</strong><br>
-        <span style="font-size:11px;color:var(--ink-soft);">👤 ${im.proprietario || 'N/I'} (${im.numero_proprietario || 'S/ Tel'})</span>
-      </td>
-      <td>
-        <strong>${im.titulo}</strong><br>
-        <span style="font-size:11px;color:var(--ink-soft);">${im.rua || ''} ${im.bairro || ''}</span>
-      </td>
-      <td>${im.tipo || '—'} / ${im.finalidade}</td>
-      <td>C: ${im.area_construida_m2 || '—'} m²<br>T: ${im.area_terreno_m2 || '—'} m²</td>
-      <td>${new Date(im.criado_em).toLocaleDateString('pt-BR')}</td>
-      <td>${fmtPreco(im.preco)}</td>
-      <td>
-        <button class="btn btn-outline btn-sm" onclick="editarImovel('${im.id}')">Editar</button>
-      </td>
-    </tr>
-  `).join("");
 }
 
 function editarImovel(id) {
@@ -366,30 +390,155 @@ function editarImovel(id) {
   const form = document.getElementById("form-imovel");
   form.titulo.value = im.titulo || "";
   form.codigo.value = im.codigo || "";
-  form.tipo.value = im.tipo || "Casa";
+  form.tipo.value = im.tipo || "Terreno";
   form.finalidade.value = im.finalidade || "Comprar";
   form.cidade.value = im.cidade || "";
   form.bairro.value = im.bairro || "";
-  form.rua.value = im.rua || "";
-  form.numero_proprietario.value = im.numero_proprietario || "";
-  form.preco.value = im.preco ? "R$ " + Number(im.preco).toLocaleString("pt-BR", {minimumFractionDigits: 2}) : "";
-  form.area_construida_m2.value = im.area_construida_m2 || "";
-  form.area_terreno_m2.value = im.area_terreno_m2 || "";
+  form.preco.value = im.preco ?? "";
+  form.area_m2.value = im.area_m2 ?? "";
+  form.quartos.value = im.quartos ?? "";
+  form.banheiros.value = im.banheiros ?? "";
+  form.vagas.value = im.vagas ?? "";
   form.proprietario.value = im.proprietario || "";
   form.descricao.value = im.descricao || "";
   document.getElementById("destaque_manual").checked = !!im.destaque_manual;
-  document.getElementById("btn-cancelar").style.display = "inline-block";
+  document.getElementById("titulo-form").textContent = "Editando: " + im.titulo;
+  document.getElementById("btn-cancelar-edicao").style.display = "inline-block";
+  atualizarTextoFotos();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function cancelarEdicao() {
   editandoId = null;
   document.getElementById("form-imovel").reset();
-  document.getElementById("btn-cancelar").style.display = "none";
+  document.getElementById("titulo-form").textContent = "Adicionar novo imóvel";
+  document.getElementById("btn-cancelar-edicao").style.display = "none";
+  atualizarTextoFotos();
 }
 
-["filtro-termo", "filtro-tipo", "filtro-status", "filtro-mes-ano"].forEach(id => {
+async function alternarDisponibilidade(id, disponivelAtual) {
+  const { error } = await sb.from("imoveis").update({ disponivel: !disponivelAtual }).eq("id", id);
+  if (error) { alert("Erro: " + error.message); return; }
+  carregarTabela();
+}
+
+async function excluirImovel(id) {
+  if (!confirm("Excluir este imóvel permanentemente? Essa ação não pode ser desfeita.")) return;
+  const im = imoveisCache.find(i => i.id === id);
+  if (im && im.fotos && im.fotos.length) {
+    await sb.storage.from("fotos-imoveis").remove(im.fotos);
+  }
+  const { error } = await sb.from("imoveis").delete().eq("id", id);
+  if (error) { alert("Erro: " + error.message); return; }
+  carregarTabela();
+}
+
+async function carregarTabela() {
+  const { data, error } = await sb.from("imoveis").select("*").order("criado_em", { ascending: false });
+  if (error) { console.error(error); return; }
+  imoveisCache = data;
+  aplicarFiltros();
+}
+
+function formatarData(isoStr) {
+  if (!isoStr) return "—";
+  const d = new Date(isoStr);
+  return d.toLocaleDateString("pt-BR");
+}
+
+function aplicarFiltros() {
+  const termo = document.getElementById("filtro-termo").value.trim().toLowerCase();
+  const tipo = document.getElementById("filtro-tipo").value;
+  const status = document.getElementById("filtro-status").value;
+  const dataDe = document.getElementById("filtro-data-de").value;
+  const dataAte = document.getElementById("filtro-data-ate").value;
+
+  imoveisFiltrados = imoveisCache.filter(im => {
+    const emCodigo = (im.codigo || "").toLowerCase().includes(termo);
+    const emTitulo = (im.titulo || "").toLowerCase().includes(termo);
+    const emProprietario = (im.proprietario || "").toLowerCase().includes(termo);
+    if (termo && !emCodigo && !emTitulo && !emProprietario) return false;
+
+    if (tipo && im.tipo !== tipo) return false;
+
+    if (status === "disp" && !im.disponivel) return false;
+    if (status === "vend" && im.disponivel) return false;
+
+    if (im.criado_em) {
+      const dataCriacao = im.criado_em.substring(0, 10);
+      if (dataDe && dataCriacao < dataDe) return false;
+      if (dataAte && dataCriacao > dataAte) return false;
+    }
+
+    return true;
+  });
+
+  renderizarTabela(imoveisFiltrados);
+}
+
+function renderizarTabela(lista) {
+  const tbody = document.getElementById("tabela-imoveis");
+
+  tbody.innerHTML = lista.map(im => `
+    <tr>
+      <td><img class="thumb" src="${im.fotos && im.fotos[0] ? urlFoto(im.fotos[0]) : 'https://via.placeholder.com/56x42?text=—'}"></td>
+      <td>
+        <span class="codigo-cell">${im.codigo || "—"}</span>
+        <span class="proprietario-tag">👤 ${im.proprietario || "Não informado"}</span>
+      </td>
+      <td>${im.titulo}</td>
+      <td><strong>${im.tipo || "—"}</strong> / ${im.finalidade || "—"}</td>
+      <td>${formatarData(im.criado_em)}</td>
+      <td>${[im.bairro, im.cidade].filter(Boolean).join(", ") || "—"}</td>
+      <td>${fmtPreco(im.preco)}</td>
+      <td>${im.visualizacoes || 0}</td>
+      <td><span class="status ${im.disponivel ? "disp" : "vend"}">${im.disponivel ? "Disponível" : "Vendido/Inativo"}</span></td>
+      <td class="acoes">
+        <button class="btn btn-outline btn-sm" onclick="editarImovel('${im.id}')">Editar</button>
+        <button class="btn btn-outline btn-sm" onclick="alternarDisponibilidade('${im.id}', ${im.disponivel})">
+          ${im.disponivel ? "Marcar vendido" : "Reativar"}
+        </button>
+        <button class="btn btn-red btn-sm" onclick="excluirImovel('${im.id}')">Excluir</button>
+      </td>
+    </tr>
+  `).join("") || '<tr><td colspan="10" style="color:#5C665F; padding:20px; text-align:center;">Nenhum imóvel encontrado com esses filtros.</td></tr>';
+}
+
+function exportarExcel() {
+  if (!imoveisFiltrados.length) {
+    alert("Nenhum imóvel para exportar.");
+    return;
+  }
+
+  const dadosExportar = imoveisFiltrados.map(im => ({
+    "Código": im.codigo || "—",
+    "Título": im.titulo || "—",
+    "Proprietário": im.proprietario || "—",
+    "Tipo": im.tipo || "—",
+    "Finalidade": im.finalidade || "—",
+    "Preço (R$)": im.preco || 0,
+    "Cidade": im.cidade || "—",
+    "Bairro": im.bairro || "—",
+    "Área (m²)": im.area_m2 || "—",
+    "Quartos": im.quartos || 0,
+    "Banheiros": im.banheiros || 0,
+    "Vagas": im.vagas || 0,
+    "Status": im.disponivel ? "Disponível" : "Vendido/Inativo",
+    "Visualizações": im.visualizacoes || 0,
+    "Data de Postagem": formatarData(im.criado_em)
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(dadosExportar);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Imóveis Filtrados");
+  
+  XLSX.writeFile(workbook, `Relatorio_Imoveis_${new Date().toISOString().slice(0, 10)}.xlsx`);
+}
+
+// Event Listeners para acionar a filtragem
+["filtro-termo", "filtro-tipo", "filtro-status", "filtro-data-de", "filtro-data-ate"].forEach(id => {
   document.getElementById(id).addEventListener("input", aplicarFiltros);
+  document.getElementById(id).addEventListener("change", aplicarFiltros);
 });
 
 checarSessao();
