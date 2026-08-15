@@ -473,14 +473,17 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="assets/config.js"></script>
+<script src="assets/site.js"></script>
 <script>
 /* ============================================================
-   PAULINO IMÓVEIS - LÓGICA OTIMIZADA
-   - Busca somente a página atual no Supabase
-   - Filtros são aplicados no banco
-   - Paginação de 12 imóveis
-   - Fotos carregadas sob demanda
-   - Filtro de preço corrigido
+   PAULINO IMÓVEIS - LÓGICA DA PÁGINA (index.html)
+   As funções compartilhadas (fmtPreco, urlFoto, cardHtml,
+   buscarImoveis, etc.) vêm todas de assets/site.js — fonte única,
+   sem duplicação — para manter o código leve e fácil de manter.
+   - Busca somente a página atual no Supabase (12 por vez)
+   - Filtros são aplicados no banco (Supabase), não no navegador
+   - Fotos carregadas sob demanda (só a capa carrega de imediato)
+   - Filtro de preço corrigido (nunca dividido por 100)
    ============================================================ */
 
 const TAMANHO_PAGINA = 12;
@@ -518,35 +521,6 @@ function formatarPrecoFiltro(valor) {
     : "";
 }
 
-function numeroPreco(valor) {
-  if (valor === null || valor === undefined || valor === "") {
-    return null;
-  }
-
-  if (typeof valor === "number") {
-    return Number.isFinite(valor) ? valor : null;
-  }
-
-  const texto = String(valor).trim();
-
-  // Banco normalmente deve fornecer "500000" ou 500000.
-  // Caso venha no formato brasileiro "500.000,00", converte corretamente.
-  if (texto.includes(",")) {
-    const normalizado = texto
-      .replace(/\./g, "")
-      .replace(",", ".")
-      .replace(/[^0-9.-]/g, "");
-
-    const numero = Number(normalizado);
-    return Number.isFinite(numero) ? numero : null;
-  }
-
-  const somenteNumeros = texto.replace(/[^0-9.-]/g, "");
-  const numero = Number(somenteNumeros);
-
-  return Number.isFinite(numero) ? numero : null;
-}
-
 function pegarFiltrosAtuais() {
   return {
     finalidade: valoresDropdown.finalidade,
@@ -558,319 +532,10 @@ function pegarFiltrosAtuais() {
   };
 }
 
-function fmtPreco(valor) {
-  const numero = numeroPreco(valor);
-
-  if (numero === null) {
-    return "Preço sob consulta";
-  }
-
-  return numero.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    maximumFractionDigits: 0
-  });
-}
-
-function urlFoto(url) {
-  if (!url) return "";
-
-  if (typeof url === "string") {
-    return url;
-  }
-
-  return "";
-}
-
-function rotuloFinalidade(finalidade) {
-  const valor = normalizar(finalidade);
-
-  if (valor === "alugar" || valor === "locacao" || valor === "locação") {
-    return {
-      texto: "Aluguel",
-      classe: "aluguel"
-    };
-  }
-
-  if (valor === "temporada") {
-    return {
-      texto: "Temporada",
-      classe: "temporada"
-    };
-  }
-
-  return {
-    texto: "Venda",
-    classe: "venda"
-  };
-}
-
-/* ============================================================
-   CONSULTA AO SUPABASE
-   ============================================================ */
-
-async function buscarImoveis(filtros = {}, pagina = 0, limite = TAMANHO_PAGINA) {
-  let query = sb
-    .from("imoveis")
-    .select(
-      "id,wordpress_id,codigo,titulo,tipo,finalidade,cidade,bairro,preco,area_construida_m2,area_terreno_m2,quartos,banheiros,vagas,fotos,destaque_manual,disponivel",
-      { count: "exact" }
-    )
-    .eq("disponivel", true);
-
-  if (filtros.finalidade && filtros.finalidade !== "Qualquer") {
-    query = query.eq("finalidade", filtros.finalidade);
-  }
-
-  if (filtros.tipo && filtros.tipo !== "Qualquer") {
-    query = query.eq("tipo", filtros.tipo);
-  }
-
-  if (filtros.cidade && filtros.cidade !== "Todas") {
-    query = query.eq("cidade", filtros.cidade);
-  }
-
-  if (filtros.bairro && filtros.bairro !== "Todos") {
-    query = query.eq("bairro", filtros.bairro);
-  }
-
-  /*
-    PREÇO:
-    - mínimo: >=
-    - máximo: <=
-    Assim R$ 200.000 pertence corretamente à faixa
-    que termina em R$ 200.000.
-  */
-  if (filtros.precoMin !== null && filtros.precoMin !== undefined) {
-    query = query.gte("preco", filtros.precoMin);
-  }
-
-  if (filtros.precoMax !== null && filtros.precoMax !== undefined) {
-    query = query.lte("preco", filtros.precoMax);
-  }
-
-  query = query
-    .order("criado_em", { ascending: false })
-    .range(pagina * limite, pagina * limite + limite - 1);
-
-  const { data, error, count } = await query;
-
-  if (error) {
-    console.error("Erro ao buscar imóveis:", error);
-    throw error;
-  }
-
-  return {
-    imoveis: data || [],
-    total: count || 0
-  };
-}
-
-/* ============================================================
-   CARD
-   ============================================================ */
-
-function cardHtml(im, destaque = false) {
-  const fotos = Array.isArray(im.fotos)
-    ? im.fotos.filter(Boolean)
-    : [];
-
-  const primeiraFoto = fotos.length ? urlFoto(fotos[0]) : "";
-  const fin = rotuloFinalidade(im.finalidade);
-
-  const areas = [];
-
-  if (im.area_construida_m2) {
-    areas.push(
-      `<span>🏠 ${im.area_construida_m2} m² construída</span>`
-    );
-  }
-
-  if (im.area_terreno_m2) {
-    areas.push(
-      `<span>🌿 ${im.area_terreno_m2} m² terreno</span>`
-    );
-  }
-
-  if (im.quartos) {
-    areas.push(`<span>🛏 ${im.quartos}</span>`);
-  }
-
-  if (im.vagas) {
-    areas.push(`<span>🚗 ${im.vagas}</span>`);
-  }
-
-  const fotosJson = JSON.stringify(fotos)
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;");
-
-  const temCarrossel = fotos.length > 1;
-
-  return `
-    <a class="card" href="imovel.html?id=${encodeURIComponent(im.id)}">
-
-      <div
-        class="card-photo"
-        data-fotos="${fotosJson}"
-        data-foto-index="0"
-      >
-
-        <div class="carousel-imgs">
-          ${
-            primeiraFoto
-              ? `<img
-                   src="${primeiraFoto}"
-                   loading="lazy"
-                   decoding="async"
-                   alt="${im.titulo || "Imóvel"}"
-                 >`
-              : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#7b847e;font-size:13px;">Sem foto</div>`
-          }
-        </div>
-
-        <div class="card-tags">
-          ${
-            im.destaque_manual
-              ? '<span class="tag-destaque">Destaque</span>'
-              : ""
-          }
-          <span class="tag-finalidade ${fin.classe}">
-            ${fin.texto}
-          </span>
-        </div>
-
-        ${
-          temCarrossel
-            ? `
-              <button
-                type="button"
-                class="carousel-btn prev"
-                aria-label="Foto anterior"
-                data-carousel="prev"
-              >‹</button>
-
-              <button
-                type="button"
-                class="carousel-btn next"
-                aria-label="Próxima foto"
-                data-carousel="next"
-              >›</button>
-
-              <div class="carousel-dots">
-                ${fotos
-                  .slice(0, Math.min(fotos.length, 8))
-                  .map(
-                    (_, i) =>
-                      `<span class="dot ${i === 0 ? "ativa" : ""}"></span>`
-                  )
-                  .join("")}
-              </div>
-            `
-            : ""
-        }
-
-      </div>
-
-      <div class="card-body">
-        <div class="card-price">${fmtPreco(im.preco)}</div>
-
-        <div class="card-code">
-          ${im.codigo || ""}
-        </div>
-
-        <div class="card-title">
-          ${im.titulo || ""}
-        </div>
-
-        <div class="card-place">
-          ${[im.bairro, im.cidade].filter(Boolean).join(", ")}
-        </div>
-
-        ${
-          areas.length
-            ? `<div class="card-specs">${areas.join("")}</div>`
-            : ""
-        }
-      </div>
-
-    </a>
-  `;
-}
-
-/* ============================================================
-   CARROSSEL SOB DEMANDA
-   ============================================================ */
-
-function trocarFoto(cardPhoto, direcao) {
-  let fotos = [];
-
-  try {
-    fotos = JSON.parse(
-      cardPhoto.getAttribute("data-fotos") || "[]"
-    );
-  } catch {
-    return;
-  }
-
-  if (fotos.length <= 1) return;
-
-  let indice = Number(
-    cardPhoto.getAttribute("data-foto-index") || 0
-  );
-
-  indice += direcao;
-
-  if (indice < 0) indice = fotos.length - 1;
-  if (indice >= fotos.length) indice = 0;
-
-  cardPhoto.setAttribute("data-foto-index", indice);
-
-  const container = cardPhoto.querySelector(".carousel-imgs");
-  if (!container) return;
-
-  const antiga = container.querySelector("img");
-
-  if (antiga) {
-    antiga.src = urlFoto(fotos[indice]);
-    antiga.alt = `Foto ${indice + 1}`;
-  } else {
-    container.innerHTML = `
-      <img
-        src="${urlFoto(fotos[indice])}"
-        loading="lazy"
-        decoding="async"
-        alt="Foto ${indice + 1}"
-      >
-    `;
-  }
-
-  cardPhoto
-    .querySelectorAll(".carousel-dots .dot")
-    .forEach((dot, i) => {
-      dot.classList.toggle("ativa", i === indice);
-    });
-}
-
-document.addEventListener("click", (e) => {
-  const botao = e.target.closest("[data-carousel]");
-
-  if (!botao) return;
-
-  e.preventDefault();
-  e.stopPropagation();
-
-  const cardPhoto = botao.closest(".card-photo");
-
-  if (!cardPhoto) return;
-
-  trocarFoto(
-    cardPhoto,
-    botao.dataset.carousel === "next" ? 1 : -1
-  );
-});
-
 /* ============================================================
    RENDERIZAÇÃO DOS RESULTADOS
+   (fmtPreco, urlFoto, rotuloFinalidade, cardHtml e buscarImoveis
+   vêm de assets/site.js)
    ============================================================ */
 
 async function renderizarResultados(reset = true) {
@@ -894,11 +559,11 @@ async function renderizarResultados(reset = true) {
   try {
     const filtros = pegarFiltrosAtuais();
 
-    const resultado = await buscarImoveis(
-      filtros,
-      paginaAtual,
-      TAMANHO_PAGINA
-    );
+    const resultado = await buscarImoveis({
+      ...filtros,
+      pagina: paginaAtual,
+      limite: TAMANHO_PAGINA
+    });
 
     const imoveis = resultado.imoveis;
 
@@ -1010,21 +675,7 @@ async function renderizarDestaques() {
     '<div class="empty-msg">Carregando...</div>';
 
   try {
-    let query = sb
-      .from("imoveis")
-      .select(
-        "id,codigo,titulo,tipo,finalidade,cidade,bairro,preco,area_construida_m2,area_terreno_m2,quartos,vagas,fotos,destaque_manual,disponivel"
-      )
-      .eq("disponivel", true)
-      .order("destaque_manual", { ascending: false })
-      .order("criado_em", { ascending: false })
-      .limit(3);
-
-    const { data, error } = await query;
-
-    if (error) throw error;
-
-    const imoveis = data || [];
+    const imoveis = await buscarImoveis({ ordenarPorViews: true, limite: 3 });
 
     grid.innerHTML = imoveis.length
       ? imoveis.map((im) => cardHtml(im, true)).join("")
