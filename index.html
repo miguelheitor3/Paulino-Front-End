@@ -123,11 +123,11 @@
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
   .card{display:block;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;transition:box-shadow .2s ease,transform .2s ease;cursor:pointer;}
   .card:hover{box-shadow:0 18px 40px rgba(12,24,18,.1);transform:translateY(-2px);}
-  .card-photo{position:relative;aspect-ratio:4/3;overflow:hidden;background:#eee;}
+  .card-photo{position:relative;aspect-ratio:4/3;overflow:hidden;background:#eee;contain:layout paint;}
 
   /* Carrossel de fotos dentro do card */
   .carousel-imgs{position:relative;width:100%;height:100%;}
-  .carousel-imgs img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s ease;}
+  .carousel-imgs img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;transition:opacity .25s ease;}
   .carousel-imgs img.ativa{opacity:1;}
   .carousel-btn{position:absolute;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.92);border:0;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;cursor:pointer;color:var(--ink);z-index:6;opacity:0;transition:opacity .15s ease,background .15s ease;}
   .card-photo:hover .carousel-btn{opacity:1;}
@@ -473,129 +473,1075 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="assets/config.js"></script>
-<script src="assets/site.js"></script>
 <script>
-  let filtroPrecoMin = "";
-  let filtroPrecoMax = "";
+/* ============================================================
+   PAULINO IMÓVEIS - LÓGICA OTIMIZADA
+   - Busca somente a página atual no Supabase
+   - Filtros são aplicados no banco
+   - Paginação de 12 imóveis
+   - Fotos carregadas sob demanda
+   - Filtro de preço corrigido
+   ============================================================ */
 
-  const valoresDropdown = { finalidade:"Qualquer", tipo:"Qualquer", cidade:"Todas", bairro:"Todos", preco:"" };
+const TAMANHO_PAGINA = 12;
 
-  function formatarPrecoFiltro(valor){
-    const dig=String(valor||"").replace(/\D/g,"");
-    return dig ? Number(dig).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}) : "";
-  }
-  function normalizar(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toLowerCase();}
+let paginaAtual = 0;
+let carregando = false;
+let temMaisImoveis = true;
 
-  function pegarFiltrosAtuais(){
-    return {finalidade:valoresDropdown.finalidade,tipo:valoresDropdown.tipo,cidade:valoresDropdown.cidade,bairro:valoresDropdown.bairro,
-      precoMin:filtroPrecoMin?Number(filtroPrecoMin):null,precoMax:filtroPrecoMax?Number(filtroPrecoMax):null};
-  }
-  async function renderizarResultados(){
-    const grid=document.getElementById("grid-resultados");
-    grid.innerHTML='<div class="empty-msg">Carregando...</div>';
-    const imoveis=await buscarImoveis(pegarFiltrosAtuais());
-    grid.innerHTML=imoveis.length?imoveis.map(im=>cardHtml(im,false)).join(""):'<div class="empty-msg">Nenhum imóvel encontrado com esses filtros. Tente ajustar a busca.</div>';
-  }
-  async function renderizarDestaques(){
-    const grid=document.getElementById("grid-destaques");
-    const imoveis=await buscarImoveis({ordenarPorViews:true,limite:3});
-    grid.innerHTML=imoveis.length?imoveis.map(im=>cardHtml(im,true)).join(""):'<div class="empty-msg">Nenhum imóvel em destaque no momento.</div>';
-  }
-  async function atualizarStatAtivos(){
-    const {count}=await sb.from("imoveis").select("*",{count:"exact",head:true}).eq("disponivel",true);
-    document.getElementById("stat-ativos").textContent=count??"0";
-  }
-  async function carregarFotoCapa(){
-    const heroImg=document.getElementById("hero-foto"), heroBadge=document.getElementById("hero-badge"), heroLink=document.getElementById("hero-photo-link");
-    const {data}=await sb.from("imoveis").select("*").eq("disponivel",true).order("criado_em",{ascending:false}).limit(10);
-    const maisRecente=(data||[]).find(im=>im.fotos&&im.fotos.length);
-    if(!maisRecente){heroImg.closest(".hero-photo").style.display="none";return;}
-    heroLink.href=`imovel.html?id=${maisRecente.id}`; heroImg.src=urlFoto(maisRecente.fotos[0]); heroBadge.style.display="flex";
-  }
+let filtroPrecoMin = "";
+let filtroPrecoMax = "";
 
-  function popularDropdown(menuId,valores,padrao){
-    const menu=document.getElementById(menuId), campo=menu.closest(".field");
-    menu.innerHTML=`<div class="dropdown-opcao selecionada" data-value="${padrao}">${padrao}</div>`+
-      valores.map(v=>`<div class="dropdown-opcao" data-value="${String(v).replace(/"/g,"&quot;")}">${v}</div>`).join("");
-    campo.querySelector(".dropdown-valor").textContent=padrao; valoresDropdown[campo.dataset.campo]=padrao;
-  }
-  async function popularCidadeEBairro(){
-    const {data}=await sb.from("imoveis").select("cidade,bairro").eq("disponivel",true);
-    const cidades=[...new Set((data||[]).map(r=>r.cidade).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
-    popularDropdown("menu-cidade",cidades,"Todas");
-    popularDropdown("menu-bairro",[], "Todos");
-    const cidadeMenu=document.getElementById("menu-cidade"), bairroMenu=document.getElementById("menu-bairro");
-    // Campo de busca dentro dos dropdowns: filtra as cidades/bairros já cadastrados.
-    cidadeMenu.insertAdjacentHTML("afterbegin",'<input class="busca-localidade" id="busca-cidade" placeholder="Digite a cidade...">');
-    bairroMenu.insertAdjacentHTML("afterbegin",'<input class="busca-localidade" id="busca-bairro" placeholder="Digite o bairro...">');
-    const filtrar=(input,menu)=>{
-      const q=normalizar(input.value);
-      menu.querySelectorAll(".dropdown-opcao").forEach(o=>o.style.display=normalizar(o.textContent).includes(q)?"":"none");
-    };
-    document.getElementById("busca-cidade").addEventListener("input",e=>filtrar(e.target,cidadeMenu));
-    document.getElementById("busca-bairro").addEventListener("input",e=>filtrar(e.target,bairroMenu));
+const valoresDropdown = {
+  finalidade: "Qualquer",
+  tipo: "Qualquer",
+  cidade: "Todas",
+  bairro: "Todos",
+  preco: ""
+};
 
-    function atualizarBairros(){
-      const cidade=valoresDropdown.cidade;
-      const bairros=[...new Set((data||[]).filter(r=>cidade==="Todas"||normalizar(r.cidade)===normalizar(cidade)).map(r=>r.bairro).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
-      popularDropdown("menu-bairro",bairros,"Todos");
-      bairroMenu.insertAdjacentHTML("afterbegin",'<input class="busca-localidade" id="busca-bairro" placeholder="Digite o bairro...">');
-      document.getElementById("busca-bairro").addEventListener("input",e=>filtrar(e.target,bairroMenu));
-    }
-    cidadeMenu.addEventListener("click",e=>{if(e.target.closest(".dropdown-opcao")) setTimeout(atualizarBairros,0);});
+function normalizar(valor) {
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function formatarPrecoFiltro(valor) {
+  const digitos = String(valor || "").replace(/\D/g, "");
+  return digitos
+    ? Number(digitos).toLocaleString("pt-BR", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      })
+    : "";
+}
+
+function numeroPreco(valor) {
+  if (valor === null || valor === undefined || valor === "") {
+    return null;
   }
 
-  function selecionarOpcao(campoEl,opcaoEl){
-    const campo=campoEl.dataset.campo, valor=opcaoEl.dataset.value;
-    if(campo==="preco"){
-      filtroPrecoMin=opcaoEl.dataset.min||""; filtroPrecoMax=opcaoEl.dataset.max||"";
-    } else valoresDropdown[campo]=valor;
-    campoEl.querySelector(".dropdown-valor").textContent=opcaoEl.textContent;
-    campoEl.querySelectorAll(".dropdown-opcao").forEach(o=>o.classList.remove("selecionada"));
-    opcaoEl.classList.add("selecionada");
-    if(campo!=="preco" || !campoEl.querySelector(".preco-custom")) campoEl.classList.remove("aberto");
+  if (typeof valor === "number") {
+    return Number.isFinite(valor) ? valor : null;
   }
-  function fecharTodosDropdowns(exceto){document.querySelectorAll(".field.dropdown.aberto").forEach(el=>{if(el!==exceto)el.classList.remove("aberto")});}
 
-  document.querySelectorAll(".field.dropdown").forEach(campo=>{
-    const botao=campo.querySelector(".dropdown-btn");
-    botao.addEventListener("click",e=>{e.stopPropagation();const aberto=campo.classList.contains("aberto");fecharTodosDropdowns();campo.classList.toggle("aberto",!aberto);});
-    campo.querySelector(".dropdown-menu").addEventListener("click",e=>{
-      const opcao=e.target.closest(".dropdown-opcao"); if(!opcao)return; selecionarOpcao(campo,opcao);
-    });
-  });
-  document.addEventListener("click",()=>fecharTodosDropdowns());
+  const texto = String(valor).trim();
 
-  function aplicarPrecoPersonalizado(){
-    const min=document.getElementById("preco-min").value.replace(/\D/g,""), max=document.getElementById("preco-max").value.replace(/\D/g,"");
-    filtroPrecoMin=min?String(Number(min)/100):""; filtroPrecoMax=max?String(Number(max)/100):"";
-    const texto=(min||max)?`${min?"R$ "+formatarPrecoFiltro(min):"Sem mín."} – ${max?"R$ "+formatarPrecoFiltro(max):"Sem máx."}`:"Qualquer preço";
-    const campo=document.querySelector('[data-campo="preco"]'); campo.querySelector(".dropdown-valor").textContent=texto; campo.classList.remove("aberto");
-    renderizarResultados();
+  // Banco normalmente deve fornecer "500000" ou 500000.
+  // Caso venha no formato brasileiro "500.000,00", converte corretamente.
+  if (texto.includes(",")) {
+    const normalizado = texto
+      .replace(/\./g, "")
+      .replace(",", ".")
+      .replace(/[^0-9.-]/g, "");
+
+    const numero = Number(normalizado);
+    return Number.isFinite(numero) ? numero : null;
   }
-  document.getElementById("aplicar-preco").addEventListener("click",e=>{e.stopPropagation();aplicarPrecoPersonalizado();});
-  ["preco-min","preco-max"].forEach(id=>document.getElementById(id).addEventListener("input",e=>e.target.value=formatarPrecoFiltro(e.target.value)));
 
-  document.getElementById("btn-buscar").addEventListener("click",()=>{document.getElementById("resultados").scrollIntoView({behavior:"smooth"});renderizarResultados();});
+  const somenteNumeros = texto.replace(/[^0-9.-]/g, "");
+  const numero = Number(somenteNumeros);
 
-  // Cards da home: áreas construídas e de terreno ficam claramente separadas.
-  window.cardHtml=function(im){
-    const fotos=(im.fotos&&im.fotos.length?im.fotos:[null]).map(urlFoto);
-    const fin=rotuloFinalidade(im.finalidade);
-    const areas=[];
-    if(im.area_construida_m2) areas.push(`<span>🏠 ${im.area_construida_m2} m² construída</span>`);
-    if(im.area_terreno_m2) areas.push(`<span>🌿 ${im.area_terreno_m2} m² terreno</span>`);
-    if(im.quartos) areas.push(`<span>🛏 ${im.quartos}</span>`);
-    if(im.vagas) areas.push(`<span>🚗 ${im.vagas}</span>`);
-    return `<a class="card" href="imovel.html?id=${im.id}">
-      <div class="card-photo"><div class="carousel-imgs">${fotos.map((f,i)=>`<img src="${f||""}" class="${i===0?"ativa":""}" alt="${im.titulo}">`).join("")}</div>
-      <div class="card-tags">${im.destaque_manual?'<span class="tag-destaque">Destaque</span>':""}<span class="tag-finalidade ${fin.classe}">${fin.texto}</span></div></div>
-      <div class="card-body"><div class="card-price">${fmtPreco(im.preco)}</div><div class="card-code">${im.codigo||""}</div>
-      <div class="card-title">${im.titulo}</div><div class="card-place">${[im.bairro,im.cidade].filter(Boolean).join(", ")}</div>
-      ${areas.length?`<div class="card-specs">${areas.join("")}</div>`:""}</div></a>`;
+  return Number.isFinite(numero) ? numero : null;
+}
+
+function pegarFiltrosAtuais() {
+  return {
+    finalidade: valoresDropdown.finalidade,
+    tipo: valoresDropdown.tipo,
+    cidade: valoresDropdown.cidade,
+    bairro: valoresDropdown.bairro,
+    precoMin: filtroPrecoMin !== "" ? Number(filtroPrecoMin) : null,
+    precoMax: filtroPrecoMax !== "" ? Number(filtroPrecoMax) : null
   };
+}
 
-  (async function init(){await popularCidadeEBairro();await Promise.all([renderizarDestaques(),renderizarResultados(),atualizarStatAtivos(),carregarFotoCapa()]);})();
+function fmtPreco(valor) {
+  const numero = numeroPreco(valor);
+
+  if (numero === null) {
+    return "Preço sob consulta";
+  }
+
+  return numero.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    maximumFractionDigits: 0
+  });
+}
+
+function urlFoto(url) {
+  if (!url) return "";
+
+  if (typeof url === "string") {
+    return url;
+  }
+
+  return "";
+}
+
+function rotuloFinalidade(finalidade) {
+  const valor = normalizar(finalidade);
+
+  if (valor === "alugar" || valor === "locacao" || valor === "locação") {
+    return {
+      texto: "Aluguel",
+      classe: "aluguel"
+    };
+  }
+
+  if (valor === "temporada") {
+    return {
+      texto: "Temporada",
+      classe: "temporada"
+    };
+  }
+
+  return {
+    texto: "Venda",
+    classe: "venda"
+  };
+}
+
+/* ============================================================
+   CONSULTA AO SUPABASE
+   ============================================================ */
+
+async function buscarImoveis(filtros = {}, pagina = 0, limite = TAMANHO_PAGINA) {
+  let query = sb
+    .from("imoveis")
+    .select(
+      "id,wordpress_id,codigo,titulo,tipo,finalidade,cidade,bairro,preco,area_construida_m2,area_terreno_m2,quartos,banheiros,vagas,fotos,destaque_manual,disponivel",
+      { count: "exact" }
+    )
+    .eq("disponivel", true);
+
+  if (filtros.finalidade && filtros.finalidade !== "Qualquer") {
+    query = query.eq("finalidade", filtros.finalidade);
+  }
+
+  if (filtros.tipo && filtros.tipo !== "Qualquer") {
+    query = query.eq("tipo", filtros.tipo);
+  }
+
+  if (filtros.cidade && filtros.cidade !== "Todas") {
+    query = query.eq("cidade", filtros.cidade);
+  }
+
+  if (filtros.bairro && filtros.bairro !== "Todos") {
+    query = query.eq("bairro", filtros.bairro);
+  }
+
+  /*
+    PREÇO:
+    - mínimo: >=
+    - máximo: <=
+    Assim R$ 200.000 pertence corretamente à faixa
+    que termina em R$ 200.000.
+  */
+  if (filtros.precoMin !== null && filtros.precoMin !== undefined) {
+    query = query.gte("preco", filtros.precoMin);
+  }
+
+  if (filtros.precoMax !== null && filtros.precoMax !== undefined) {
+    query = query.lte("preco", filtros.precoMax);
+  }
+
+  query = query
+    .order("criado_em", { ascending: false })
+    .range(pagina * limite, pagina * limite + limite - 1);
+
+  const { data, error, count } = await query;
+
+  if (error) {
+    console.error("Erro ao buscar imóveis:", error);
+    throw error;
+  }
+
+  return {
+    imoveis: data || [],
+    total: count || 0
+  };
+}
+
+/* ============================================================
+   CARD
+   ============================================================ */
+
+function cardHtml(im, destaque = false) {
+  const fotos = Array.isArray(im.fotos)
+    ? im.fotos.filter(Boolean)
+    : [];
+
+  const primeiraFoto = fotos.length ? urlFoto(fotos[0]) : "";
+  const fin = rotuloFinalidade(im.finalidade);
+
+  const areas = [];
+
+  if (im.area_construida_m2) {
+    areas.push(
+      `<span>🏠 ${im.area_construida_m2} m² construída</span>`
+    );
+  }
+
+  if (im.area_terreno_m2) {
+    areas.push(
+      `<span>🌿 ${im.area_terreno_m2} m² terreno</span>`
+    );
+  }
+
+  if (im.quartos) {
+    areas.push(`<span>🛏 ${im.quartos}</span>`);
+  }
+
+  if (im.vagas) {
+    areas.push(`<span>🚗 ${im.vagas}</span>`);
+  }
+
+  const fotosJson = JSON.stringify(fotos)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;");
+
+  const temCarrossel = fotos.length > 1;
+
+  return `
+    <a class="card" href="imovel.html?id=${encodeURIComponent(im.id)}">
+
+      <div
+        class="card-photo"
+        data-fotos="${fotosJson}"
+        data-foto-index="0"
+      >
+
+        <div class="carousel-imgs">
+          ${
+            primeiraFoto
+              ? `<img
+                   src="${primeiraFoto}"
+                   loading="lazy"
+                   decoding="async"
+                   alt="${im.titulo || "Imóvel"}"
+                 >`
+              : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#7b847e;font-size:13px;">Sem foto</div>`
+          }
+        </div>
+
+        <div class="card-tags">
+          ${
+            im.destaque_manual
+              ? '<span class="tag-destaque">Destaque</span>'
+              : ""
+          }
+          <span class="tag-finalidade ${fin.classe}">
+            ${fin.texto}
+          </span>
+        </div>
+
+        ${
+          temCarrossel
+            ? `
+              <button
+                type="button"
+                class="carousel-btn prev"
+                aria-label="Foto anterior"
+                data-carousel="prev"
+              >‹</button>
+
+              <button
+                type="button"
+                class="carousel-btn next"
+                aria-label="Próxima foto"
+                data-carousel="next"
+              >›</button>
+
+              <div class="carousel-dots">
+                ${fotos
+                  .slice(0, Math.min(fotos.length, 8))
+                  .map(
+                    (_, i) =>
+                      `<span class="dot ${i === 0 ? "ativa" : ""}"></span>`
+                  )
+                  .join("")}
+              </div>
+            `
+            : ""
+        }
+
+      </div>
+
+      <div class="card-body">
+        <div class="card-price">${fmtPreco(im.preco)}</div>
+
+        <div class="card-code">
+          ${im.codigo || ""}
+        </div>
+
+        <div class="card-title">
+          ${im.titulo || ""}
+        </div>
+
+        <div class="card-place">
+          ${[im.bairro, im.cidade].filter(Boolean).join(", ")}
+        </div>
+
+        ${
+          areas.length
+            ? `<div class="card-specs">${areas.join("")}</div>`
+            : ""
+        }
+      </div>
+
+    </a>
+  `;
+}
+
+/* ============================================================
+   CARROSSEL SOB DEMANDA
+   ============================================================ */
+
+function trocarFoto(cardPhoto, direcao) {
+  let fotos = [];
+
+  try {
+    fotos = JSON.parse(
+      cardPhoto.getAttribute("data-fotos") || "[]"
+    );
+  } catch {
+    return;
+  }
+
+  if (fotos.length <= 1) return;
+
+  let indice = Number(
+    cardPhoto.getAttribute("data-foto-index") || 0
+  );
+
+  indice += direcao;
+
+  if (indice < 0) indice = fotos.length - 1;
+  if (indice >= fotos.length) indice = 0;
+
+  cardPhoto.setAttribute("data-foto-index", indice);
+
+  const container = cardPhoto.querySelector(".carousel-imgs");
+  if (!container) return;
+
+  const antiga = container.querySelector("img");
+
+  if (antiga) {
+    antiga.src = urlFoto(fotos[indice]);
+    antiga.alt = `Foto ${indice + 1}`;
+  } else {
+    container.innerHTML = `
+      <img
+        src="${urlFoto(fotos[indice])}"
+        loading="lazy"
+        decoding="async"
+        alt="Foto ${indice + 1}"
+      >
+    `;
+  }
+
+  cardPhoto
+    .querySelectorAll(".carousel-dots .dot")
+    .forEach((dot, i) => {
+      dot.classList.toggle("ativa", i === indice);
+    });
+}
+
+document.addEventListener("click", (e) => {
+  const botao = e.target.closest("[data-carousel]");
+
+  if (!botao) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  const cardPhoto = botao.closest(".card-photo");
+
+  if (!cardPhoto) return;
+
+  trocarFoto(
+    cardPhoto,
+    botao.dataset.carousel === "next" ? 1 : -1
+  );
+});
+
+/* ============================================================
+   RENDERIZAÇÃO DOS RESULTADOS
+   ============================================================ */
+
+async function renderizarResultados(reset = true) {
+  if (carregando) return;
+
+  const grid = document.getElementById("grid-resultados");
+
+  if (!grid) return;
+
+  if (reset) {
+    paginaAtual = 0;
+    temMaisImoveis = true;
+    grid.innerHTML =
+      '<div class="empty-msg">Carregando imóveis...</div>';
+  }
+
+  if (!temMaisImoveis && !reset) return;
+
+  carregando = true;
+
+  try {
+    const filtros = pegarFiltrosAtuais();
+
+    const resultado = await buscarImoveis(
+      filtros,
+      paginaAtual,
+      TAMANHO_PAGINA
+    );
+
+    const imoveis = resultado.imoveis;
+
+    if (reset) {
+      grid.innerHTML = "";
+    }
+
+    if (!imoveis.length && paginaAtual === 0) {
+      grid.innerHTML =
+        '<div class="empty-msg">Nenhum imóvel encontrado com esses filtros. Tente ajustar a busca.</div>';
+
+      atualizarBotaoCarregarMais(false);
+      atualizarTituloResultados(0);
+
+      return;
+    }
+
+    grid.insertAdjacentHTML(
+      "beforeend",
+      imoveis.map((im) => cardHtml(im, false)).join("")
+    );
+
+    paginaAtual += 1;
+
+    temMaisImoveis =
+      paginaAtual * TAMANHO_PAGINA < resultado.total;
+
+    atualizarBotaoCarregarMais(temMaisImoveis);
+    atualizarTituloResultados(resultado.total);
+
+  } catch (erro) {
+    console.error(erro);
+
+    if (reset) {
+      grid.innerHTML =
+        '<div class="empty-msg">Não foi possível carregar os imóveis. Tente novamente.</div>';
+    }
+
+    atualizarBotaoCarregarMais(false);
+
+  } finally {
+    carregando = false;
+  }
+}
+
+function atualizarTituloResultados(total) {
+  const titulo = document.getElementById("titulo-resultados");
+
+  if (!titulo) return;
+
+  titulo.textContent =
+    total === 1
+      ? "1 imóvel encontrado"
+      : `${total} imóveis encontrados`;
+}
+
+function atualizarBotaoCarregarMais(mostrar) {
+  let botao = document.getElementById("btn-carregar-mais");
+
+  if (!mostrar) {
+    if (botao) botao.remove();
+    return;
+  }
+
+  if (!botao) {
+    botao = document.createElement("button");
+    botao.id = "btn-carregar-mais";
+    botao.type = "button";
+    botao.textContent = "Carregar mais imóveis";
+
+    botao.style.cssText = `
+      display:block;
+      margin:32px auto 0;
+      padding:13px 24px;
+      border:1px solid var(--green);
+      border-radius:8px;
+      background:#fff;
+      color:var(--green);
+      font-size:13.5px;
+      font-weight:700;
+      cursor:pointer;
+    `;
+
+    botao.addEventListener("click", () => {
+      renderizarResultados(false);
+    });
+
+    document
+      .getElementById("grid-resultados")
+      .parentElement
+      .appendChild(botao);
+  }
+
+  botao.textContent = carregando
+    ? "Carregando..."
+    : "Carregar mais imóveis";
+}
+
+/* ============================================================
+   DESTAQUES
+   ============================================================ */
+
+async function renderizarDestaques() {
+  const grid = document.getElementById("grid-destaques");
+
+  if (!grid) return;
+
+  grid.innerHTML =
+    '<div class="empty-msg">Carregando...</div>';
+
+  try {
+    let query = sb
+      .from("imoveis")
+      .select(
+        "id,codigo,titulo,tipo,finalidade,cidade,bairro,preco,area_construida_m2,area_terreno_m2,quartos,vagas,fotos,destaque_manual,disponivel"
+      )
+      .eq("disponivel", true)
+      .order("destaque_manual", { ascending: false })
+      .order("criado_em", { ascending: false })
+      .limit(3);
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    const imoveis = data || [];
+
+    grid.innerHTML = imoveis.length
+      ? imoveis.map((im) => cardHtml(im, true)).join("")
+      : '<div class="empty-msg">Nenhum imóvel em destaque no momento.</div>';
+
+  } catch (erro) {
+    console.error("Erro nos destaques:", erro);
+
+    grid.innerHTML =
+      '<div class="empty-msg">Não foi possível carregar os destaques.</div>';
+  }
+}
+
+/* ============================================================
+   CONTADOR DE ATIVOS
+   ============================================================ */
+
+async function atualizarStatAtivos() {
+  try {
+    const { count, error } = await sb
+      .from("imoveis")
+      .select("id", {
+        count: "exact",
+        head: true
+      })
+      .eq("disponivel", true);
+
+    if (error) throw error;
+
+    document.getElementById("stat-ativos").textContent =
+      count ?? "0";
+
+  } catch (erro) {
+    console.error("Erro no contador:", erro);
+    document.getElementById("stat-ativos").textContent = "—";
+  }
+}
+
+/* ============================================================
+   FOTO HERO
+   ============================================================ */
+
+async function carregarFotoCapa() {
+  const heroImg = document.getElementById("hero-foto");
+  const heroBadge = document.getElementById("hero-badge");
+  const heroLink = document.getElementById("hero-photo-link");
+
+  try {
+    const { data, error } = await sb
+      .from("imoveis")
+      .select("id,titulo,fotos")
+      .eq("disponivel", true)
+      .not("fotos", "is", null)
+      .order("criado_em", { ascending: false })
+      .limit(10);
+
+    if (error) throw error;
+
+    const maisRecente = (data || []).find(
+      (im) =>
+        Array.isArray(im.fotos) &&
+        im.fotos.length > 0
+    );
+
+    if (!maisRecente) {
+      heroImg.closest(".hero-photo").style.display =
+        "none";
+      return;
+    }
+
+    heroLink.href =
+      `imovel.html?id=${encodeURIComponent(maisRecente.id)}`;
+
+    heroImg.src = urlFoto(maisRecente.fotos[0]);
+    heroImg.alt =
+      maisRecente.titulo || "Imóvel em destaque";
+
+    heroImg.loading = "eager";
+    heroImg.decoding = "async";
+
+    heroBadge.style.display = "flex";
+
+  } catch (erro) {
+    console.error("Erro na foto de capa:", erro);
+  }
+}
+
+/* ============================================================
+   DROPDOWNS
+   ============================================================ */
+
+function popularDropdown(menuId, valores, padrao) {
+  const menu = document.getElementById(menuId);
+
+  if (!menu) return;
+
+  const campo = menu.closest(".field");
+
+  menu.innerHTML =
+    `<div class="dropdown-opcao selecionada" data-value="${padrao}">${padrao}</div>` +
+    valores
+      .map(
+        (v) =>
+          `<div class="dropdown-opcao" data-value="${String(v).replace(/"/g, "&quot;")}">${v}</div>`
+      )
+      .join("");
+
+  campo.querySelector(".dropdown-valor").textContent =
+    padrao;
+
+  valoresDropdown[campo.dataset.campo] = padrao;
+}
+
+async function popularCidadeEBairro() {
+  try {
+    const { data, error } = await sb
+      .from("imoveis")
+      .select("cidade,bairro")
+      .eq("disponivel", true);
+
+    if (error) throw error;
+
+    const registros = data || [];
+
+    const cidades = [
+      ...new Set(
+        registros
+          .map((r) => r.cidade)
+          .filter(Boolean)
+      )
+    ].sort((a, b) =>
+      a.localeCompare(b, "pt-BR")
+    );
+
+    popularDropdown(
+      "menu-cidade",
+      cidades,
+      "Todas"
+    );
+
+    atualizarBairros(registros);
+
+    const cidadeMenu =
+      document.getElementById("menu-cidade");
+
+    const bairroMenu =
+      document.getElementById("menu-bairro");
+
+    configurarBuscaLocalidade(
+      cidadeMenu,
+      "busca-cidade",
+      "Digite a cidade..."
+    );
+
+    configurarBuscaLocalidade(
+      bairroMenu,
+      "busca-bairro",
+      "Digite o bairro..."
+    );
+
+    cidadeMenu.addEventListener("click", (e) => {
+      if (
+        e.target.closest(".dropdown-opcao")
+      ) {
+        setTimeout(() => {
+          atualizarBairros(registros);
+        }, 0);
+      }
+    });
+
+  } catch (erro) {
+    console.error(
+      "Erro carregando cidades/bairros:",
+      erro
+    );
+  }
+}
+
+function atualizarBairros(registros) {
+  const cidade = valoresDropdown.cidade;
+
+  const bairros = [
+    ...new Set(
+      registros
+        .filter(
+          (r) =>
+            cidade === "Todas" ||
+            normalizar(r.cidade) ===
+              normalizar(cidade)
+        )
+        .map((r) => r.bairro)
+        .filter(Boolean)
+    )
+  ].sort((a, b) =>
+    a.localeCompare(b, "pt-BR")
+  );
+
+  popularDropdown(
+    "menu-bairro",
+    bairros,
+    "Todos"
+  );
+
+  configurarBuscaLocalidade(
+    document.getElementById("menu-bairro"),
+    "busca-bairro",
+    "Digite o bairro..."
+  );
+}
+
+function configurarBuscaLocalidade(
+  menu,
+  inputId,
+  placeholder
+) {
+  if (!menu) return;
+
+  menu.querySelectorAll(".busca-localidade")
+    .forEach((el) => el.remove());
+
+  menu.insertAdjacentHTML(
+    "afterbegin",
+    `<input class="busca-localidade" id="${inputId}" placeholder="${placeholder}" autocomplete="off">`
+  );
+
+  const input =
+    document.getElementById(inputId);
+
+  input.addEventListener("click", (e) => {
+    e.stopPropagation();
+  });
+
+  input.addEventListener("input", () => {
+    const busca = normalizar(input.value);
+
+    menu
+      .querySelectorAll(".dropdown-opcao")
+      .forEach((opcao) => {
+        opcao.style.display =
+          normalizar(opcao.textContent).includes(
+            busca
+          )
+            ? ""
+            : "none";
+      });
+  });
+}
+
+/* ============================================================
+   SELEÇÃO DOS FILTROS
+   ============================================================ */
+
+function selecionarOpcao(campoEl, opcaoEl) {
+  const campo = campoEl.dataset.campo;
+  const valor = opcaoEl.dataset.value;
+
+  if (campo === "preco") {
+    filtroPrecoMin =
+      opcaoEl.dataset.min || "";
+
+    filtroPrecoMax =
+      opcaoEl.dataset.max || "";
+  } else {
+    valoresDropdown[campo] = valor;
+  }
+
+  campoEl.querySelector(
+    ".dropdown-valor"
+  ).textContent = opcaoEl.textContent;
+
+  campoEl
+    .querySelectorAll(".dropdown-opcao")
+    .forEach((o) =>
+      o.classList.remove("selecionada")
+    );
+
+  opcaoEl.classList.add("selecionada");
+
+  /*
+    Se for preço personalizado, mantém aberto.
+    Nas opções normais, fecha.
+  */
+  if (
+    campo !== "preco" ||
+    !campoEl.querySelector(".preco-custom")
+  ) {
+    campoEl.classList.remove("aberto");
+  }
+
+  /*
+    Se o usuário escolher uma cidade,
+    os bairros serão atualizados.
+  */
+  if (campo === "cidade") {
+    valoresDropdown.bairro = "Todos";
+  }
+}
+
+function fecharTodosDropdowns(exceto) {
+  document
+    .querySelectorAll(
+      ".field.dropdown.aberto"
+    )
+    .forEach((el) => {
+      if (el !== exceto) {
+        el.classList.remove("aberto");
+      }
+    });
+}
+
+document
+  .querySelectorAll(".field.dropdown")
+  .forEach((campo) => {
+    const botao =
+      campo.querySelector(".dropdown-btn");
+
+    botao.addEventListener("click", (e) => {
+      e.stopPropagation();
+
+      const aberto =
+        campo.classList.contains("aberto");
+
+      fecharTodosDropdowns();
+
+      campo.classList.toggle(
+        "aberto",
+        !aberto
+      );
+    });
+
+    campo
+      .querySelector(".dropdown-menu")
+      .addEventListener("click", (e) => {
+        const opcao =
+          e.target.closest(
+            ".dropdown-opcao"
+          );
+
+        if (!opcao) return;
+
+        selecionarOpcao(
+          campo,
+          opcao
+        );
+      });
+  });
+
+document.addEventListener("click", () => {
+  fecharTodosDropdowns();
+});
+
+/* ============================================================
+   PREÇO PERSONALIZADO
+   ============================================================ */
+
+function aplicarPrecoPersonalizado() {
+  const inputMin =
+    document.getElementById("preco-min");
+
+  const inputMax =
+    document.getElementById("preco-max");
+
+  /*
+    IMPORTANTE:
+    NÃO divide por 100.
+    Se o usuário digitar 500000,
+    o filtro deve ser 500000.
+  */
+
+  const min = inputMin.value
+    .replace(/\D/g, "");
+
+  const max = inputMax.value
+    .replace(/\D/g, "");
+
+  filtroPrecoMin = min
+    ? String(Number(min))
+    : "";
+
+  filtroPrecoMax = max
+    ? String(Number(max))
+    : "";
+
+  const texto =
+    min || max
+      ? `${min ? "R$ " + formatarPrecoFiltro(min) : "Sem mín."} – ${max ? "R$ " + formatarPrecoFiltro(max) : "Sem máx."}`
+      : "Qualquer preço";
+
+  const campo =
+    document.querySelector(
+      '[data-campo="preco"]'
+    );
+
+  campo.querySelector(
+    ".dropdown-valor"
+  ).textContent = texto;
+
+  campo.classList.remove("aberto");
+
+  renderizarResultados(true);
+}
+
+document
+  .getElementById("aplicar-preco")
+  .addEventListener("click", (e) => {
+    e.stopPropagation();
+    aplicarPrecoPersonalizado();
+  });
+
+["preco-min", "preco-max"].forEach(
+  (id) => {
+    document
+      .getElementById(id)
+      .addEventListener(
+        "input",
+        (e) => {
+          const numeros =
+            e.target.value.replace(
+              /\D/g,
+              ""
+            );
+
+          e.target.value =
+            formatarPrecoFiltro(
+              numeros
+            );
+        }
+      );
+  }
+);
+
+/* ============================================================
+   BOTÃO BUSCAR
+   ============================================================ */
+
+document
+  .getElementById("btn-buscar")
+  .addEventListener("click", async () => {
+    document
+      .getElementById("resultados")
+      .scrollIntoView({
+        behavior: "smooth"
+      });
+
+    await renderizarResultados(true);
+  });
+
+/* ============================================================
+   PILLS DE PREÇO
+   ============================================================ */
+
+document
+  .querySelectorAll(
+    "#pills-preco .pill"
+  )
+  .forEach((pill) => {
+    pill.addEventListener(
+      "click",
+      async () => {
+        document
+          .querySelectorAll(
+            "#pills-preco .pill"
+          )
+          .forEach((p) =>
+            p.classList.remove(
+              "active"
+            )
+          );
+
+        pill.classList.add("active");
+
+        filtroPrecoMin =
+          pill.dataset.min || "";
+
+        filtroPrecoMax =
+          pill.dataset.max || "";
+
+        const campo =
+          document.querySelector(
+            '[data-campo="preco"]'
+          );
+
+        campo.querySelector(
+          ".dropdown-valor"
+        ).textContent =
+          pill.dataset.min ||
+          pill.dataset.max
+            ? pill.textContent
+            : "Qualquer preço";
+
+        await renderizarResultados(true);
+      }
+    );
+  });
+
+/* ============================================================
+   INICIALIZAÇÃO
+   ============================================================ */
+
+(async function init() {
+  try {
+    await popularCidadeEBairro();
+
+    await Promise.all([
+      renderizarDestaques(),
+      renderizarResultados(true),
+      atualizarStatAtivos(),
+      carregarFotoCapa()
+    ]);
+
+  } catch (erro) {
+    console.error(
+      "Erro inicializando o site:",
+      erro
+    );
+  }
+})();
 </script>
 </body>
 </html>
