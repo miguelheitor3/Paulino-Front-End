@@ -23,10 +23,6 @@
     --line:#E3E7E2;
   }
 
-  /* =========================================================
-     RESET
-  ========================================================= */
-
   *{
     box-sizing:border-box;
     margin:0;
@@ -69,11 +65,6 @@
     padding-left:32px;
     padding-right:32px;
   }
-
-
-  /* =========================================================
-     HEADER
-  ========================================================= */
 
   header{
     background:var(--green-dark);
@@ -144,24 +135,40 @@
   }
 
   .btn-green{
-    background:var(--red);
-    color:#fff;
+    background:#fff;
+    color:var(--green-dark);
     font-size:13.5px;
-    font-weight:600;
+    font-weight:700;
     padding:12px 22px;
-    border-radius:6px;
-    transition:background .15s ease;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,.9);
+    transition:background .15s ease,transform .15s ease,box-shadow .15s ease;
+    box-shadow:0 1px 2px rgba(0,0,0,.12);
     white-space:nowrap;
   }
 
   .btn-green:hover{
-    background:#a81723;
+    background:var(--green-tint);
+    box-shadow:0 3px 10px rgba(0,0,0,.16);
+    transform:translateY(-1px);
   }
 
+  .btn-outline-header{
+    background:transparent;
+    color:#fff;
+    font-size:13.5px;
+    font-weight:600;
+    padding:11px 20px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,.32);
+    transition:background .15s ease,border-color .15s ease;
+    white-space:nowrap;
+  }
 
-  /* =========================================================
-     VOLTAR
-  ========================================================= */
+  .btn-outline-header:hover{
+    background:rgba(255,255,255,.08);
+    border-color:rgba(255,255,255,.55);
+  }
 
   .voltar{
     display:inline-flex;
@@ -178,11 +185,6 @@
     text-decoration:underline;
   }
 
-
-  /* =========================================================
-     LAYOUT PRINCIPAL
-  ========================================================= */
-
   .detalhe{
     padding-top:20px;
     padding-bottom:88px;
@@ -195,109 +197,55 @@
     align-items:start;
   }
 
-  /*
-    IMPORTANTE:
-
-    min-width:0 impede que conteúdo interno,
-    principalmente imagens ou textos muito grandes,
-    force a coluna do CSS Grid a aumentar.
-  */
-
   .detalhe-grid > div{
     min-width:0;
   }
-
-
-  /* =========================================================
-     GALERIA
-  ========================================================= */
-
-  /*
-    A caixa da galeria possui altura explícita.
-
-    Isso é mais seguro do que depender somente de aspect-ratio.
-  */
 
   .foto-principal{
     position:relative;
     width:100%;
     height:auto;
     aspect-ratio:16 / 10;
-
     min-height:0;
-
     border-radius:14px;
     overflow:hidden;
-
     background:#eee;
-
     isolation:isolate;
   }
 
-  /*
-    A imagem NÃO participa do fluxo normal da página.
-
-    Isso é o ponto mais importante da correção.
-  */
-
   .foto-principal > #foto-principal-img{
     position:absolute;
-
     inset:0;
-
     width:100% !important;
     height:100% !important;
-
     max-width:none !important;
     max-height:none !important;
-
     min-width:0;
     min-height:0;
-
     object-fit:cover;
     object-position:center;
-
     display:block;
-
     z-index:1;
   }
 
-
-  /* =========================================================
-     CONTROLES DA GALERIA
-  ========================================================= */
-
   .foto-nav{
     position:absolute;
-
     top:50%;
-
     transform:translateY(-50%);
-
     width:40px;
     height:40px;
-
     border-radius:50%;
-
     background:rgba(255,255,255,.94);
-
     border:0;
-
     font-size:20px;
     line-height:1;
-
     cursor:pointer;
-
     color:var(--ink);
-
     box-shadow:0 4px 14px rgba(12,24,18,.14);
-
     z-index:5;
-
     display:flex;
     align-items:center;
     justify-content:center;
-
     transition:
       background .15s ease,
       transform .15s ease;
@@ -315,58 +263,37 @@
     right:16px;
   }
 
-
   .foto-contador{
     position:absolute;
-
     bottom:16px;
     right:16px;
-
     background:rgba(18,24,21,.68);
-
     color:#fff;
-
     font-size:12px;
     font-weight:600;
-
     padding:5px 11px;
-
     border-radius:100px;
-
     z-index:5;
   }
 
-
-  /* =========================================================
-     TAGS
-  ========================================================= */
-
   .tags-galeria{
     position:absolute;
-
     top:16px;
     left:16px;
-
     display:flex;
     flex-wrap:wrap;
     gap:8px;
-
     z-index:5;
   }
 
   .tag-pill{
     color:#fff;
-
     font-size:11px;
     font-weight:700;
-
     letter-spacing:.03em;
     text-transform:uppercase;
-
     padding:6px 12px;
-
     border-radius:6px;
-
     white-space:nowrap;
   }
 
@@ -386,53 +313,31 @@
     background:var(--red);
   }
 
-
-  /* =========================================================
-     MINIATURAS
-  ========================================================= */
-
   .miniaturas{
     display:flex;
-
     gap:8px;
-
     margin-top:10px;
-
     overflow-x:auto;
-
     overflow-y:hidden;
-
     padding-bottom:4px;
-
     min-height:64px;
-
     max-width:100%;
-
     scrollbar-width:thin;
   }
 
   .miniaturas img{
     width:84px !important;
     height:60px !important;
-
     min-width:84px;
     max-width:84px;
-
     min-height:60px;
     max-height:60px;
-
     object-fit:cover;
-
     border-radius:8px;
-
     cursor:pointer;
-
     flex:0 0 84px;
-
     opacity:.5;
-
     border:2px solid transparent;
-
     transition:
       opacity .15s ease,
       border-color .15s ease;
@@ -443,207 +348,125 @@
     border-color:var(--green);
   }
 
-
-  /* =========================================================
-     TÍTULO / INFORMAÇÕES
-  ========================================================= */
-
   .titulo-bloco{
     margin-top:28px;
   }
 
   .codigo-badge{
     display:inline-block;
-
     font-size:11px;
     font-weight:700;
-
     color:var(--ink-soft);
-
     background:var(--offwhite);
-
     padding:4px 10px;
-
     border-radius:6px;
-
     margin-bottom:10px;
-
     letter-spacing:.02em;
   }
 
   h1{
     font-family:'Archivo',sans-serif;
-
     font-weight:800;
-
     font-size:26px;
-
     line-height:1.25;
-
     margin-bottom:8px;
-
     overflow-wrap:anywhere;
   }
 
   .local{
     color:var(--ink-soft);
-
     font-size:14.5px;
-
     margin-bottom:20px;
-
     overflow-wrap:anywhere;
   }
 
-
-  /* =========================================================
-     SPECS
-  ========================================================= */
-
   .specs-grid{
     display:grid;
-
     grid-template-columns:
       repeat(auto-fit,minmax(110px,1fr));
-
     gap:1px;
-
     background:var(--line);
-
     border:1px solid var(--line);
-
     border-radius:12px;
-
     overflow:hidden;
-
     margin-bottom:32px;
   }
 
   .spec-item{
     background:#fff;
-
     padding:16px;
-
     text-align:center;
   }
 
   .spec-item .valor{
     font-family:'Archivo',sans-serif;
-
     font-weight:800;
-
     font-size:18px;
-
     color:var(--green);
   }
 
   .spec-item .rotulo{
     font-size:11px;
-
     color:var(--ink-soft);
-
     margin-top:3px;
-
     text-transform:uppercase;
-
     letter-spacing:.03em;
   }
 
-
-  /* =========================================================
-     DESCRIÇÃO
-  ========================================================= */
-
   .desc-titulo{
     font-family:'Archivo',sans-serif;
-
     font-weight:700;
-
     font-size:17px;
-
     margin-bottom:12px;
   }
 
   .desc{
     font-size:15px;
-
     line-height:1.75;
-
     color:var(--ink-soft);
-
     white-space:pre-wrap;
-
     overflow-wrap:anywhere;
   }
 
-
-  /* =========================================================
-     CARD LATERAL
-  ========================================================= */
-
   .card-preco{
     position:sticky;
-
     top:24px;
-
     border:1px solid var(--line);
-
     border-radius:14px;
-
     padding:26px;
-
     background:#fff;
-
     box-shadow:
       0 18px 44px rgba(12,24,18,.08);
   }
 
   .card-preco .preco{
     font-family:'Archivo',sans-serif;
-
     font-weight:800;
-
     font-size:28px;
-
     color:var(--ink);
-
     margin-bottom:4px;
-
     overflow-wrap:anywhere;
   }
 
   .card-preco .preco-sub{
     font-size:12.5px;
-
     color:var(--ink-soft);
-
     margin-bottom:22px;
   }
 
   .btn-whats{
     display:flex;
-
     align-items:center;
     justify-content:center;
-
     gap:8px;
-
     width:100%;
-
     background:var(--green);
-
     color:#fff;
-
     font-weight:600;
-
     font-size:14.5px;
-
     padding:15px;
-
     border-radius:9px;
-
     margin-bottom:10px;
-
     transition:background .15s ease;
   }
 
@@ -653,64 +476,42 @@
 
   .btn-tel{
     display:flex;
-
     align-items:center;
     justify-content:center;
-
     gap:8px;
-
     width:100%;
-
     background:var(--offwhite);
-
     color:var(--ink);
-
     font-weight:600;
-
     font-size:14.5px;
-
     padding:15px;
-
     border-radius:9px;
-
     margin-bottom:22px;
   }
 
   .card-preco hr{
     border:0;
-
     border-top:1px solid var(--line);
-
     margin-bottom:18px;
   }
 
   .agente{
     display:flex;
-
     align-items:center;
-
     gap:12px;
   }
 
   .agente-avatar{
     width:44px;
     height:44px;
-
     border-radius:50%;
-
     background:var(--green-tint);
-
     display:flex;
-
     align-items:center;
     justify-content:center;
-
     font-family:'Archivo',sans-serif;
-
     font-weight:800;
-
     color:var(--green);
-
     flex-shrink:0;
   }
 
@@ -725,11 +526,6 @@
     margin-top:1px;
   }
 
-
-  /* =========================================================
-     SKELETON
-  ========================================================= */
-
   .skeleton{
     background:
       linear-gradient(
@@ -738,106 +534,68 @@
         #f6f6f6 50%,
         #eee 75%
       );
-
     background-size:200% 100%;
-
     animation:skeleton-pulse 1.5s infinite;
   }
 
   @keyframes skeleton-pulse{
-
     0%{
       background-position:200% 0;
     }
-
     100%{
       background-position:-200% 0;
     }
-
   }
-
-
-  /* =========================================================
-     ESTADO
-  ========================================================= */
 
   .estado{
     padding:80px 0;
-
     text-align:center;
-
     color:var(--ink-soft);
-
     font-size:14.5px;
   }
 
-
-  /* =========================================================
-     FOOTER
-  ========================================================= */
-
   footer{
     background:var(--green-dark);
-
     color:rgba(255,255,255,.7);
-
     padding:56px 0 28px;
-
     margin-top:40px;
   }
 
   .footer-grid{
     display:grid;
-
     grid-template-columns:
       1.4fr 1fr 1fr 1fr;
-
     gap:32px;
-
     margin-bottom:44px;
   }
 
   .footer-col h4{
     color:#fff;
-
     font-size:13px;
-
     font-weight:600;
-
     margin-bottom:16px;
-
     letter-spacing:.02em;
   }
 
   .footer-col a{
     display:block;
-
     font-size:13px;
-
     margin-bottom:10px;
-
     color:rgba(255,255,255,.65);
   }
 
   .footer-logo{
     display:flex;
-
     align-items:center;
-
     gap:10px;
-
     margin-bottom:16px;
   }
 
   .footer-logo-chip{
     background:#fff;
-
     border-radius:10px;
-
     padding:8px 16px;
-
     display:inline-flex;
-
     align-items:center;
   }
 
@@ -847,36 +605,21 @@
 
   .footer-desc{
     font-size:13px;
-
     color:rgba(255,255,255,.55);
-
     max-width:280px;
-
     line-height:1.6;
   }
 
   .footer-bottom{
     border-top:1px solid rgba(255,255,255,.14);
-
     padding-top:22px;
-
     display:flex;
-
     justify-content:space-between;
-
     font-size:12px;
-
     color:rgba(255,255,255,.45);
-
     flex-wrap:wrap;
-
     gap:10px;
   }
-
-
-  /* =========================================================
-     TABLET
-  ========================================================= */
 
   @media (max-width:960px){
 
@@ -901,12 +644,11 @@
       grid-template-columns:1fr 1fr;
     }
 
+    .header-phone,.btn-outline-header{
+      display:none;
+    }
+
   }
-
-
-  /* =========================================================
-     CELULAR
-  ========================================================= */
 
   @media (max-width:560px){
 
@@ -945,11 +687,6 @@
       padding-top:16px;
       padding-bottom:60px;
     }
-
-    /*
-      No celular mantemos a proporção,
-      mas com uma altura mínima controlada.
-    */
 
     .foto-principal{
       width:100%;
@@ -1004,11 +741,6 @@
 
   }
 
-
-  /* =========================================================
-     CELULAR MUITO PEQUENO
-  ========================================================= */
-
   @media (max-width:380px){
 
     .wrap{
@@ -1032,10 +764,6 @@
 
 <body>
 
-
-<!-- =========================================================
-     HEADER
-========================================================= -->
 
 <header>
 
@@ -1061,24 +789,24 @@
 
     <nav>
 
-      <a href="index.html#resultados">
+      <a href="index.html?finalidade=Comprar#resultados">
         Comprar
       </a>
 
-      <a href="index.html#resultados">
+      <a href="index.html?finalidade=Alugar#resultados">
         Alugar
       </a>
 
-      <a href="index.html#resultados">
+      <a href="index.html?tipo=Terreno#resultados">
         Terrenos
       </a>
 
-      <a href="#">
+      <a
+        href="https://wa.me/5535998848963?text=Ol%C3%A1%2C%20gostaria%20de%20negociar%20um%20im%C3%B3vel."
+        target="_blank"
+        rel="noopener"
+      >
         Negociar imóvel
-      </a>
-
-      <a href="anunciar.html">
-        Anunciar imóvel
       </a>
 
       <a
@@ -1098,6 +826,10 @@
         (35) 3266-1985
       </span>
 
+      <a class="btn-outline-header" href="anunciar.html">
+        Anunciar imóvel
+      </a>
+
       <a
         class="btn-green"
         href="https://wa.me/5535998848963"
@@ -1114,10 +846,6 @@
 </header>
 
 
-<!-- =========================================================
-     VOLTAR
-========================================================= -->
-
 <div class="wrap">
 
   <a class="voltar" href="index.html">
@@ -1127,13 +855,7 @@
 </div>
 
 
-<!-- =========================================================
-     CONTEÚDO
-========================================================= -->
-
 <div class="wrap" id="conteudo">
-
-  <!-- Skeleton inicial -->
 
   <div class="detalhe">
 
@@ -1204,10 +926,6 @@
 
 </div>
 
-
-<!-- =========================================================
-     FOOTER
-========================================================= -->
 
 <footer>
 
@@ -1347,10 +1065,6 @@
 </footer>
 
 
-<!-- =========================================================
-     SUPABASE
-========================================================= -->
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
 <script src="assets/config.js"></script>
@@ -1358,21 +1072,12 @@
 <script src="assets/site.js"></script>
 
 
-<!-- =========================================================
-     LÓGICA DA PÁGINA
-========================================================= -->
-
 <script>
 
 const params = new URLSearchParams(location.search);
 
 const id = params.get("id");
 
-
-/* =========================================================
-   ESCAPA HTML
-   Evita que título/descrição quebrem o HTML.
-========================================================= */
 
 function escapeHtml(valor){
 
@@ -1390,10 +1095,6 @@ function escapeHtml(valor){
 }
 
 
-/* =========================================================
-   IMAGEM SEGURA
-========================================================= */
-
 function imagemSegura(url){
 
   if(!url){
@@ -1405,18 +1106,10 @@ function imagemSegura(url){
 }
 
 
-/* =========================================================
-   CARREGAR IMÓVEL
-========================================================= */
-
 async function carregar(){
 
   const el = document.getElementById("conteudo");
 
-
-  /* ---------------------------------------------------------
-     Sem ID
-  --------------------------------------------------------- */
 
   if(!id){
 
@@ -1430,10 +1123,6 @@ async function carregar(){
   }
 
 
-  /* ---------------------------------------------------------
-     Busca no Supabase
-  --------------------------------------------------------- */
-
   const {
     data: imovel,
     error
@@ -1444,10 +1133,6 @@ async function carregar(){
     .eq("disponivel",true)
     .single();
 
-
-  /* ---------------------------------------------------------
-     Imóvel não encontrado
-  --------------------------------------------------------- */
 
   if(error || !imovel){
 
@@ -1480,10 +1165,6 @@ async function carregar(){
   }
 
 
-  /* ---------------------------------------------------------
-     Incrementa visualização
-  --------------------------------------------------------- */
-
   sb
     .rpc(
       "incrementar_visualizacao",
@@ -1495,17 +1176,9 @@ async function carregar(){
     .catch(() => {});
 
 
-  /* ---------------------------------------------------------
-     Título
-  --------------------------------------------------------- */
-
   document.title =
     `${imovel.titulo} — Paulino Imóveis`;
 
-
-  /* ---------------------------------------------------------
-     FOTOS
-  --------------------------------------------------------- */
 
   let fotos = [];
 
@@ -1521,11 +1194,6 @@ async function carregar(){
   }
 
 
-  /*
-    Se não houver fotos, usamos um array com null
-    para manter a estrutura da galeria.
-  */
-
   if(!fotos.length){
 
     fotos = [null];
@@ -1533,17 +1201,9 @@ async function carregar(){
   }
 
 
-  /* ---------------------------------------------------------
-     FINALIDADE
-  --------------------------------------------------------- */
-
   const fin =
     rotuloFinalidade(imovel.finalidade);
 
-
-  /* ---------------------------------------------------------
-     ESPECIFICAÇÕES
-  --------------------------------------------------------- */
 
   const specsList = [];
 
@@ -1629,10 +1289,6 @@ async function carregar(){
   }
 
 
-  /* ---------------------------------------------------------
-     WHATSAPP
-  --------------------------------------------------------- */
-
   const numeroWhats =
     imovel.finalidade === "Alugar" ||
     imovel.finalidade === "Temporada"
@@ -1656,10 +1312,6 @@ async function carregar(){
     }`;
 
 
-  /* ---------------------------------------------------------
-     HTML
-  --------------------------------------------------------- */
-
   el.innerHTML = `
 
     <div class="detalhe">
@@ -1667,19 +1319,11 @@ async function carregar(){
       <div class="detalhe-grid">
 
 
-        <!-- ================================================
-             COLUNA PRINCIPAL
-        ================================================= -->
-
         <div>
 
 
-          <!-- GALERIA -->
-
           <div class="foto-principal">
 
-
-            <!-- TAGS -->
 
             <div class="tags-galeria">
 
@@ -1704,8 +1348,6 @@ async function carregar(){
 
             </div>
 
-
-            <!-- NAVEGAÇÃO -->
 
             ${
               fotos.length > 1
@@ -1742,8 +1384,6 @@ async function carregar(){
                 : ""
             }
 
-
-            <!-- IMAGEM PRINCIPAL -->
 
             ${
               fotos[0]
@@ -1786,8 +1426,6 @@ async function carregar(){
           </div>
 
 
-          <!-- MINIATURAS -->
-
           ${
             fotos.length > 1
 
@@ -1826,8 +1464,6 @@ async function carregar(){
               : ""
           }
 
-
-          <!-- TÍTULO -->
 
           <div class="titulo-bloco">
 
@@ -1873,8 +1509,6 @@ async function carregar(){
           </div>
 
 
-          <!-- ESPECIFICAÇÕES -->
-
           ${
             specsList.length
 
@@ -1912,8 +1546,6 @@ async function carregar(){
           }
 
 
-          <!-- DESCRIÇÃO -->
-
           <div class="desc-titulo">
             Sobre o imóvel
           </div>
@@ -1934,10 +1566,6 @@ async function carregar(){
 
         </div>
 
-
-        <!-- ================================================
-             COLUNA LATERAL
-        ================================================= -->
 
         <div>
 
@@ -2020,10 +1648,6 @@ async function carregar(){
 
   `;
 
-
-  /* =========================================================
-     GALERIA INTERATIVA
-  ========================================================= */
 
   if(fotos.length > 1){
 
@@ -2146,10 +1770,6 @@ async function carregar(){
     );
 
 
-    /*
-      Navegação pelo teclado
-    */
-
     document.addEventListener(
       "keydown",
       event => {
@@ -2173,10 +1793,6 @@ async function carregar(){
 
 }
 
-
-/* =========================================================
-   INICIALIZA
-========================================================= */
 
 carregar()
   .catch(error => {
