@@ -1009,6 +1009,11 @@ document
     campo
       .querySelector(".dropdown-menu")
       .addEventListener("click", (e) => {
+        // Evita que cliques dentro do menu (inputs de preço, busca de
+        // cidade/bairro, botão "Aplicar faixa" etc.) borbulhem até o
+        // listener global e fechem o dropdown antes da hora.
+        e.stopPropagation();
+
         const opcao =
           e.target.closest(
             ".dropdown-opcao"
