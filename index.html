@@ -665,7 +665,7 @@ function atualizarBotaoCarregarMais(mostrar) {
   }
 
   botao.textContent = carregando
-    ? "Carregando..."
+    ? "Mostrar Mais"
     : "Carregar mais imóveis";
 }
 
@@ -679,7 +679,7 @@ async function renderizarDestaques() {
   if (!grid) return;
 
   grid.innerHTML =
-    '<div class="empty-msg">Carregando...</div>';
+    '<div class="empty-msg">Mostrar Mais</div>';
 
   try {
     const imoveis = await buscarImoveis({ ordenarPorViews: true, limite: 3 });
