@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -265,6 +264,63 @@ textarea{
 
 .msg.erro{
   color:var(--red);
+}
+
+/* ============================================================
+   FOTOS EXISTENTES (edição)
+   ============================================================ */
+
+.fotos-existentes{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.foto-existente{
+  position:relative;
+  width:84px;
+  height:64px;
+  border-radius:8px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  flex-shrink:0;
+}
+
+.foto-existente img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.foto-existente button{
+  position:absolute;
+  top:3px;
+  right:3px;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  border:0;
+  background:rgba(18,24,21,.75);
+  color:#fff;
+  font-size:13px;
+  line-height:1;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+  transition:background .15s ease;
+}
+
+.foto-existente button:hover{
+  background:var(--red);
+}
+
+.fotos-existentes-info{
+  font-size:12px;
+  color:var(--ink-soft);
+  margin-bottom:10px;
 }
 
 /* ============================================================
@@ -816,7 +872,37 @@ tr:last-child td{
 
 
       <!-- ========================================================
-           FOTOS
+           FOTOS ATUAIS (somente ao editar)
+           ======================================================== -->
+
+      <div
+        class="form-grid full"
+        id="bloco-fotos-existentes"
+        style="display:none;"
+      >
+
+        <div>
+
+          <label>
+            Fotos cadastradas
+          </label>
+
+          <div class="fotos-existentes-info">
+            Clique no × para remover uma foto. A remoção só é aplicada ao salvar o imóvel.
+          </div>
+
+          <div
+            id="fotos-existentes"
+            class="fotos-existentes"
+          ></div>
+
+        </div>
+
+      </div>
+
+
+      <!-- ========================================================
+           FOTOS NOVAS
            ======================================================== -->
 
       <div class="form-grid full">
@@ -1097,6 +1183,10 @@ let carregandoTabela = false;
 
 let cidadesCarregadas = false;
 
+let fotosParaManter = [];
+
+let fotosParaExcluirDoStorage = [];
+
 
 /* ==============================================================
    ELEMENTOS
@@ -1122,6 +1212,82 @@ const fotosQtdText =
 
 const precoInput =
   document.getElementById("f-preco");
+
+
+/* ==============================================================
+   FOTOS EXISTENTES (edição)
+   ============================================================== */
+
+function renderizarFotosExistentes() {
+
+  const bloco =
+    document.getElementById(
+      "bloco-fotos-existentes"
+    );
+
+  const container =
+    document.getElementById(
+      "fotos-existentes"
+    );
+
+  if (!fotosParaManter.length) {
+
+    bloco.style.display = "none";
+    container.innerHTML = "";
+
+    return;
+  }
+
+  bloco.style.display = "block";
+
+  container.innerHTML =
+    fotosParaManter
+      .map(
+        (foto, index) => `
+          <div class="foto-existente">
+
+            <img
+              src="${escapeHtml(urlFoto(foto))}"
+              alt="Foto ${index + 1}"
+              onerror="this.src='https://via.placeholder.com/84x64?text=—';"
+            >
+
+            <button
+              type="button"
+              title="Remover foto"
+              onclick="removerFotoExistente(${index})"
+            >
+              ×
+            </button>
+
+          </div>
+        `
+      )
+      .join("");
+
+}
+
+
+function removerFotoExistente(index) {
+
+  const [removida] =
+    fotosParaManter.splice(index, 1);
+
+  if (
+    removida &&
+    !String(removida).startsWith("http://") &&
+    !String(removida).startsWith("https://")
+  ) {
+
+    fotosParaExcluirDoStorage.push(
+      removida
+    );
+
+  }
+
+  renderizarFotosExistentes();
+
+}
 
 
 /* ==============================================================
@@ -1670,10 +1836,8 @@ async function salvarImovel(ev) {
         throw new Error("Imóvel não encontrado no cache.");
       }
 
-      // Mantém as fotos antigas
-      let fotosExistentes = Array.isArray(existente.fotos)
-        ? [...existente.fotos]
-        : [];
+      // Mantém apenas as fotos que não foram removidas na edição
+      let fotosExistentes = [...fotosParaManter];
 
       // Primeiro atualiza os dados
       const { error: updateError } = await sb
@@ -1683,6 +1847,22 @@ async function salvarImovel(ev) {
 
       if (updateError) {
         throw updateError;
+      }
+
+      // Remove do Storage as fotos que o usuário excluiu nesta edição
+      if (fotosParaExcluirDoStorage.length > 0) {
+
+        const { error: removerError } = await sb.storage
+          .from("fotos-imoveis")
+          .remove(fotosParaExcluirDoStorage);
+
+        if (removerError) {
+          console.warn(
+            "Não foi possível remover algumas fotos do Storage:",
+            removerError
+          );
+        }
+
       }
 
       // Faz upload das novas fotos dentro da pasta do imóvel
@@ -1700,16 +1880,18 @@ async function salvarImovel(ev) {
           ...novasFotos
         ];
 
-        const { error: fotosError } = await sb
-          .from("imoveis")
-          .update({
-            fotos: fotosExistentes
-          })
-          .eq("id", editandoId);
+      }
 
-        if (fotosError) {
-          throw fotosError;
-        }
+      // Atualiza a lista final de fotos (removidas e/ou adicionadas)
+      const { error: fotosError } = await sb
+        .from("imoveis")
+        .update({
+          fotos: fotosExistentes
+        })
+        .eq("id", editandoId);
+
+      if (fotosError) {
+        throw fotosError;
       }
 
       mostrarMsg(
@@ -1912,6 +2094,15 @@ function editarImovel(id) {
 
   atualizarTextoFotos();
 
+  fotosParaManter =
+    Array.isArray(im.fotos)
+      ? [...im.fotos]
+      : [];
+
+  fotosParaExcluirDoStorage = [];
+
+  renderizarFotosExistentes();
+
   carregarBairros();
 
   window.scrollTo({
@@ -1947,6 +2138,11 @@ function cancelarEdicao() {
     "";
 
   atualizarTextoFotos();
+
+  fotosParaManter = [];
+  fotosParaExcluirDoStorage = [];
+
+  renderizarFotosExistentes();
 
 }
 
