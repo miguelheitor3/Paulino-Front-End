@@ -36,8 +36,11 @@
   nav a{font-size:14px;font-weight:500;color:rgba(255,255,255,.9);}
   .header-right{display:flex;align-items:center;gap:20px;}
   .header-phone{font-size:13.5px;color:rgba(255,255,255,.75);}
-  .btn-green{background:var(--red);color:#fff;font-size:13.5px;font-weight:600;padding:12px 22px;border-radius:6px;transition:background .15s ease;}
-  .btn-green:hover{background:#a81723;}
+  .btn-green{background:#fff;color:var(--green-dark);font-size:13.5px;font-weight:700;padding:12px 22px;border-radius:8px;border:1px solid rgba(255,255,255,.9);transition:background .15s ease,transform .15s ease,box-shadow .15s ease;box-shadow:0 1px 2px rgba(0,0,0,.12);}
+  .btn-green:hover{background:var(--green-tint);box-shadow:0 3px 10px rgba(0,0,0,.16);transform:translateY(-1px);}
+  .btn-outline-header{background:transparent;color:#fff;font-size:13.5px;font-weight:600;padding:11px 20px;border-radius:8px;border:1px solid rgba(255,255,255,.32);transition:background .15s ease,border-color .15s ease;white-space:nowrap;}
+  .btn-outline-header:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.55);}
+  nav a{cursor:pointer;}
 
   /* HERO */
   .hero{background:var(--offwhite);padding:64px 0 0;}
@@ -163,8 +166,10 @@
 
   /* FAQ */
   .faq{padding-bottom:96px;}
-  .faq-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:56px;}
+  .faq-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:56px;align-items:start;}
+  .faq-head{position:sticky;top:28px;}
   .faq-head h2{font-family:'Archivo',sans-serif;font-weight:700;font-size:28px;line-height:1.25;margin-top:12px;}
+  @media(max-width:900px){.faq-head{position:static;}}
   .faq-item{padding:22px 0;border-bottom:1px solid var(--line);}
   .faq-item h3{font-size:15px;font-weight:600;margin-bottom:8px;}
   .faq-item p{font-size:13.5px;color:var(--ink-soft);line-height:1.65;}
@@ -190,6 +195,7 @@
     .faq-grid{grid-template-columns:1fr;}
     .footer-grid{grid-template-columns:1fr 1fr;}
     nav{display:none;}
+    .header-phone,.btn-outline-header{display:none;}
   }
   @media (max-width:560px){
     .grid{grid-template-columns:1fr;}
@@ -230,13 +236,14 @@
       <div class="logo-sub">CRECI 37888<br>Três Pontas–MG</div>
     </div>
     <nav>
-      <a href="#resultados">Comprar</a>
-      <a href="#resultados">Alugar</a>
-      <a href="#resultados">Terrenos</a>
-      <a href="#">Negociar imóvel</a>
+      <a href="#resultados" data-nav-finalidade="Comprar">Comprar</a>
+      <a href="#resultados" data-nav-finalidade="Alugar">Alugar</a>
+      <a href="#resultados" data-nav-tipo="Terreno">Terrenos</a>
+      <a href="https://wa.me/5535998848963?text=Ol%C3%A1%2C%20gostaria%20de%20negociar%20um%20im%C3%B3vel." target="_blank" rel="noopener">Negociar imóvel</a>
     </nav>
     <div class="header-right">
       <span class="header-phone">(35) 3266-1985</span>
+      <a class="btn-outline-header" href="anunciar.html">Anunciar imóvel</a>
       <a class="btn-green" href="https://wa.me/5535998848963" target="_blank" rel="noopener">Falar no WhatsApp</a>
     </div>
   </div>
@@ -1111,6 +1118,55 @@ document
       );
   }
 );
+
+/* ============================================================
+   NAV DO HEADER (Comprar / Alugar / Terrenos)
+   ============================================================ */
+
+function selecionarValorDropdownPorCampo(campo, valor) {
+  const campoEl = document.querySelector(
+    `.field.dropdown[data-campo="${campo}"]`
+  );
+  if (!campoEl) return;
+
+  const opcaoEl = campoEl.querySelector(
+    `.dropdown-opcao[data-value="${valor}"]`
+  );
+  if (!opcaoEl) return;
+
+  selecionarOpcao(campoEl, opcaoEl);
+}
+
+document.querySelectorAll("nav a[data-nav-finalidade]").forEach((link) => {
+  link.addEventListener("click", async (e) => {
+    e.preventDefault();
+
+    selecionarValorDropdownPorCampo(
+      "finalidade",
+      link.dataset.navFinalidade
+    );
+
+    document
+      .getElementById("resultados")
+      .scrollIntoView({ behavior: "smooth" });
+
+    await renderizarResultados(true);
+  });
+});
+
+document.querySelectorAll("nav a[data-nav-tipo]").forEach((link) => {
+  link.addEventListener("click", async (e) => {
+    e.preventDefault();
+
+    selecionarValorDropdownPorCampo("tipo", link.dataset.navTipo);
+
+    document
+      .getElementById("resultados")
+      .scrollIntoView({ behavior: "smooth" });
+
+    await renderizarResultados(true);
+  });
+});
 
 /* ============================================================
    BOTÃO BUSCAR
