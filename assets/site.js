@@ -141,11 +141,18 @@
     const titulo = escapeHtml(im.titulo || "Imóvel");
     const temCarrossel = fotos.length > 1;
 
+    // Specs simplificados, sem emojis: área do terreno e área construída
+    // juntas (terreno primeiro), depois quartos, banheiros e vagas abreviados.
     const specs = [];
-    if (im.area_construida_m2) specs.push(`<span>🏠 ${escapeHtml(im.area_construida_m2)} m² construída</span>`);
-    if (im.area_terreno_m2) specs.push(`<span>🌿 ${escapeHtml(im.area_terreno_m2)} m² terreno</span>`);
-    if (im.quartos) specs.push(`<span>🛏 ${escapeHtml(im.quartos)}</span>`);
-    if (im.vagas) specs.push(`<span>🚗 ${escapeHtml(im.vagas)}</span>`);
+
+    const areas = [];
+    if (im.area_terreno_m2) areas.push(`${escapeHtml(im.area_terreno_m2)} m² terreno`);
+    if (im.area_construida_m2) areas.push(`${escapeHtml(im.area_construida_m2)} m² constr.`);
+    if (areas.length) specs.push(`<span>${areas.join(" / ")}</span>`);
+
+    if (im.quartos) specs.push(`<span>${escapeHtml(im.quartos)} qts</span>`);
+    if (im.banheiros) specs.push(`<span>${escapeHtml(im.banheiros)} ban</span>`);
+    if (im.vagas) specs.push(`<span>${escapeHtml(im.vagas)} vg</span>`);
 
     // data-fotos guarda os caminhos originais (não as URLs já resolvidas) para
     // resolver a próxima/anterior foto só quando o usuário realmente clicar.
