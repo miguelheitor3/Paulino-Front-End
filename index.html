@@ -1236,9 +1236,31 @@ document
    INICIALIZAÇÃO
    ============================================================ */
 
+function aplicarFiltrosDaUrl() {
+  const params = new URLSearchParams(location.search);
+  const finalidade = params.get("finalidade");
+  const tipo = params.get("tipo");
+
+  let aplicado = false;
+
+  if (finalidade) {
+    selecionarValorDropdownPorCampo("finalidade", finalidade);
+    aplicado = true;
+  }
+
+  if (tipo) {
+    selecionarValorDropdownPorCampo("tipo", tipo);
+    aplicado = true;
+  }
+
+  return aplicado;
+}
+
 (async function init() {
   try {
     await popularCidadeEBairro();
+
+    const filtroDaUrlAplicado = aplicarFiltrosDaUrl();
 
     await Promise.all([
       renderizarDestaques(),
@@ -1246,6 +1268,12 @@ document
       atualizarStatAtivos(),
       carregarFotoCapa()
     ]);
+
+    if (filtroDaUrlAplicado) {
+      document
+        .getElementById("resultados")
+        .scrollIntoView({ behavior: "smooth" });
+    }
 
   } catch (erro) {
     console.error(
