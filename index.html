@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -97,7 +95,7 @@
   .hero-photo{position:relative;}
   .hero-photo img {
       width: 100%;
-      aspect-ratio: 4/3.2;
+      aspect-ratio: 3 / 2;
       object-fit: cover;
       border-radius: 16px;
       box-shadow: 
@@ -320,7 +318,7 @@
       </div>
       <div class="hero-photo">
         <a id="hero-photo-link" href="#" style="display: block; text-decoration: none;">
-          <img id="hero-foto" src="" alt="Imóvel em destaque" style="background:var(--green-tint);aspect-ratio:4/3.2;cursor:pointer;">
+          <img id="hero-foto" src="" alt="Imóvel em destaque" style="background:var(--green-tint);aspect-ratio:3/2;cursor:pointer;">
           <div class="hero-badge" id="hero-badge" style="display:none; cursor:pointer;">
             <span class="dot"></span>
             <span id="hero-badge-texto">Destaque da imobiliária</span>
@@ -557,45 +555,101 @@
 const authBackdrop=document.getElementById("auth-backdrop");
 const authMsg=document.getElementById("auth-msg");
 const authBtn=document.getElementById("btn-login-header");
-function authOpen(){authBackdrop.classList.add("aberto");authBackdrop.setAttribute("aria-hidden","false");authMsg.style.display="none";}
-function authClose(){authBackdrop.classList.remove("aberto");authBackdrop.setAttribute("aria-hidden","true");}
-function authError(msg){authMsg.textContent=msg;authMsg.style.display="block";}
 const btnCapaFixa=document.getElementById("btn-capa-fixa");
 const capaFixaTexto=document.getElementById("capa-fixa-texto");
 
+/* ============================================================
+   CAPA FIXA — CONFIGURAÇÃO GLOBAL NO SUPABASE
+   A configuração fica no banco, e não no localStorage.
+   Assim, depois de ativada, a capa fixa continua para todos
+   os visitantes mesmo após logout, atualização ou em outro PC.
+   ============================================================ */
+
+let capaFixaGlobal = false;
+
 function atualizarVisualCapaFixa(ativo){
   if(!btnCapaFixa) return;
-  btnCapaFixa.classList.toggle("ativo",ativo);
-  btnCapaFixa.setAttribute("aria-pressed",ativo ? "true" : "false");
-  capaFixaTexto.textContent=ativo ? "Capa fixa: ligada" : "Capa fixa: desligada";
+  btnCapaFixa.classList.toggle("ativo", ativo);
+  btnCapaFixa.setAttribute("aria-pressed", ativo ? "true" : "false");
+  capaFixaTexto.textContent = ativo ? "Capa fixa: ligada" : "Capa fixa: desligada";
+}
+
+async function carregarConfiguracaoCapaFixa(){
+  try{
+    const { data, error } = await sb
+      .from("site_configuracoes")
+      .select("valor")
+      .eq("chave", "capa_fixa")
+      .maybeSingle();
+
+    if(error) throw error;
+
+    capaFixaGlobal = data?.valor === true;
+    return capaFixaGlobal;
+  }catch(error){
+    console.error("Erro ao carregar configuração da capa fixa:", error);
+    capaFixaGlobal = false;
+    return false;
+  }
+}
+
+async function salvarConfiguracaoCapaFixa(ativo){
+  const { error } = await sb
+    .from("site_configuracoes")
+    .upsert(
+      { chave: "capa_fixa", valor: ativo, updated_at: new Date().toISOString() },
+      { onConflict: "chave" }
+    );
+
+  if(error) throw error;
+  capaFixaGlobal = ativo;
 }
 
 async function atualizarLoginHeader(){
   const {data}=await sb.auth.getSession();
   const autenticado=!!data?.session;
 
+  /* A configuração é global: qualquer visitante pode ver o estado atual. */
+  await carregarConfiguracaoCapaFixa();
+
   if(autenticado){
     authBtn.textContent="Sair";
     authBtn.classList.add("auth-session");
     btnCapaFixa.classList.add("visivel");
-    atualizarVisualCapaFixa(localStorage.getItem("paulino_hero_fixo")==="true");
+    atualizarVisualCapaFixa(capaFixaGlobal);
   }else{
     authBtn.textContent="Entrar";
     authBtn.classList.remove("auth-session");
     btnCapaFixa.classList.remove("visivel");
-    atualizarVisualCapaFixa(false);
-    localStorage.removeItem("paulino_hero_fixo");
   }
+}
+
+function authOpen(){
+  authBackdrop.classList.add("aberto");
+  authBackdrop.setAttribute("aria-hidden","false");
+  authMsg.style.display="none";
+}
+
+function authClose(){
+  authBackdrop.classList.remove("aberto");
+  authBackdrop.setAttribute("aria-hidden","true");
+}
+
+function authError(msg){
+  authMsg.textContent=msg;
+  authMsg.style.display="block";
 }
 
 authBtn.addEventListener("click",async()=>{
   const {data}=await sb.auth.getSession();
+
   if(data?.session){
     await sb.auth.signOut();
-    atualizarLoginHeader();
-    carregarFotoCapa();
+    await atualizarLoginHeader();
+    await carregarFotoCapa();
     return;
   }
+
   authOpen();
   document.getElementById("auth-email").focus();
 });
@@ -604,18 +658,83 @@ btnCapaFixa.addEventListener("click",async()=>{
   const {data}=await sb.auth.getSession();
   if(!data?.session) return;
 
-  const novoEstado=localStorage.getItem("paulino_hero_fixo")!=="true";
-  localStorage.setItem("paulino_hero_fixo",String(novoEstado));
-  atualizarVisualCapaFixa(novoEstado);
-  await carregarFotoCapa();
+  const novoEstado=!capaFixaGlobal;
+  const textoOriginal=capaFixaTexto.textContent;
+  btnCapaFixa.disabled=true;
+  capaFixaTexto.textContent="Salvando...";
+
+  try{
+    await salvarConfiguracaoCapaFixa(novoEstado);
+    atualizarVisualCapaFixa(novoEstado);
+    await carregarFotoCapa();
+  }catch(error){
+    console.error("Erro ao salvar capa fixa:", error);
+    atualizarVisualCapaFixa(capaFixaGlobal);
+    capaFixaTexto.textContent=textoOriginal;
+    alert("Não foi possível salvar a configuração da capa. Verifique a tabela site_configuracoes no Supabase.");
+  }finally{
+    btnCapaFixa.disabled=false;
+  }
 });
+
 document.getElementById("auth-cancel").addEventListener("click",authClose);
 authBackdrop.addEventListener("click",e=>{if(e.target===authBackdrop)authClose();});
-document.getElementById("auth-submit").addEventListener("click",async()=>{const email=document.getElementById("auth-email").value.trim();const password=document.getElementById("auth-password").value;if(!email||!password){authError("Informe o e-mail e a senha.");return;}const b=document.getElementById("auth-submit");b.disabled=true;b.textContent="Entrando...";const {error}=await sb.auth.signInWithPassword({email,password});b.disabled=false;b.textContent="Entrar";if(error){authError("E-mail ou senha inválidos.");return;}authClose();atualizarLoginHeader();});
+
+document.getElementById("auth-submit").addEventListener("click",async()=>{
+  const email=document.getElementById("auth-email").value.trim();
+  const password=document.getElementById("auth-password").value;
+
+  if(!email||!password){
+    authError("Informe o e-mail e a senha.");
+    return;
+  }
+
+  const b=document.getElementById("auth-submit");
+  b.disabled=true;
+  b.textContent="Entrando...";
+
+  const {error}=await sb.auth.signInWithPassword({email,password});
+
+  b.disabled=false;
+  b.textContent="Entrar";
+
+  if(error){
+    authError("E-mail ou senha inválidos.");
+    return;
+  }
+
+  authClose();
+  await atualizarLoginHeader();
+  await carregarFotoCapa();
+});
+
 sb.auth.onAuthStateChange(()=>setTimeout(async()=>{
   await atualizarLoginHeader();
   await carregarFotoCapa();
 },0));
+
+/* ============================================================
+   SINCRONIZAÇÃO ENTRE VISITANTES
+   Se o projeto estiver com Realtime habilitado para a tabela,
+   outras abas abertas recebem a alteração automaticamente.
+   ============================================================ */
+try{
+  sb.channel("capa-fixa-global")
+    .on(
+      "postgres_changes",
+      {event:"*", schema:"public", table:"site_configuracoes", filter:"chave=eq.capa_fixa"},
+      async()=>{
+        await carregarConfiguracaoCapaFixa();
+        await carregarFotoCapa();
+        const {data}=await sb.auth.getSession();
+        if(data?.session) atualizarVisualCapaFixa(capaFixaGlobal);
+      }
+    )
+    .subscribe();
+}catch(error){
+  console.warn("Realtime da capa fixa não disponível:", error);
+}
+
 atualizarLoginHeader();
 </script>
 <script>
@@ -869,9 +988,7 @@ async function carregarFotoCapa() {
   const badgeTexto = document.getElementById("hero-badge-texto");
 
   try {
-    const { data: sessionData } = await sb.auth.getSession();
-    const autenticado = !!sessionData?.session;
-    const capaFixa = autenticado && localStorage.getItem("paulino_hero_fixo") === "true";
+    const capaFixa = await carregarConfiguracaoCapaFixa();
 
     if (capaFixa) {
       heroLink.href = "#";
