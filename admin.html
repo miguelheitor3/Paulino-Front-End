@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -373,6 +374,10 @@ textarea{
   margin-bottom:20px;
 }
 
+.local-grid{
+  grid-template-columns:1.1fr 1fr 1fr 1.5fr;
+}
+
 .filtros-grid{
   display:grid;
   grid-template-columns:2fr 1fr 1fr 1.2fr;
@@ -495,6 +500,10 @@ tr:last-child td{
     grid-template-columns:1fr 1fr;
   }
 
+  .local-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
 }
 
 @media(max-width:600px){
@@ -508,7 +517,8 @@ tr:last-child td{
   }
 
   .form-grid,
-  .filtros-grid{
+  .filtros-grid,
+  .local-grid{
     grid-template-columns:1fr;
   }
 
@@ -583,13 +593,10 @@ tr:last-child td{
       Painel de imóveis
     </h1>
 
-    <button
-      class="btn btn-outline"
-      id="btn-sair"
-      type="button"
-    >
-      Sair
-    </button>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <a class="btn btn-outline" href="index.html">← Voltar ao site</a>
+      <button class="btn btn-outline" id="btn-sair" type="button">Sair</button>
+    </div>
 
   </div>
 
@@ -626,7 +633,7 @@ tr:last-child td{
           <input
             name="titulo"
             required
-            placeholder="Terreno no Bairro X"
+            placeholder="Preencha o título do imóvel"
           >
         </div>
 
@@ -944,7 +951,7 @@ tr:last-child td{
               name="fotos"
               id="f-fotos"
               type="file"
-              accept="image/*"
+              accept=".jpg,.jpeg,.png,.webp,.gif,.bmp,.avif,.heic,.heif,image/*"
               multiple
               style="display:none;"
             >
@@ -1700,47 +1707,64 @@ function gerarNomeArquivo(
 }
 
 
+async function prepararImagemParaUpload(arquivo) {
+  const tipo = (arquivo.type || "").toLowerCase();
+  const nome = arquivo.name || "foto";
+  const ext = nome.includes(".") ? nome.split(".").pop().toLowerCase() : "";
+  const suportadosDiretos = ["image/jpeg", "image/jpg"];
+
+  if (suportadosDiretos.includes(tipo) || ["jpg", "jpeg"].includes(ext)) {
+    return { arquivo, extensao: "jpg" };
+  }
+
+  if (["heic", "heif"].includes(ext) || ["image/heic", "image/heif"].includes(tipo)) {
+    throw new Error(`A foto "${nome}" está em HEIC/HEIF. Converta para JPG ou PNG antes de enviar.`);
+  }
+
+  if (!tipo.startsWith("image/") && !["png", "webp", "gif", "bmp", "avif"].includes(ext)) {
+    throw new Error(`Formato não reconhecido: ${nome}. Use JPG, PNG ou WebP.`);
+  }
+
+  try {
+    const bitmap = await createImageBitmap(arquivo);
+    const max = 2400;
+    const escala = Math.min(1, max / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(bitmap.width * escala));
+    canvas.height = Math.max(1, Math.round(bitmap.height * escala));
+    const ctx = canvas.getContext("2d", { alpha: false });
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close?.();
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", 0.88));
+    if (!blob) throw new Error("Não foi possível converter a imagem para JPG.");
+    const base = nome.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_") || "foto";
+    return { arquivo: new File([blob], `${base}.jpg`, { type: "image/jpeg" }), extensao: "jpg" };
+  } catch (erro) {
+    console.error("Falha ao preparar imagem:", nome, erro);
+    throw new Error(`Não foi possível processar "${nome}". Prefira JPG, PNG ou WebP.`);
+  }
+}
+
 async function uploadFotos(arquivos, imovelId) {
   const caminhos = [];
+  if (!arquivos || !arquivos.length) return caminhos;
 
-  if (!arquivos || !arquivos.length) {
-    return caminhos;
-  }
+  for (const original of arquivos) {
+    const preparado = await prepararImagemParaUpload(original);
+    const arquivo = preparado.arquivo;
+    const nomeArquivo = `${Date.now()}-${Math.random().toString(36).slice(2)}-${arquivo.name}`;
+    const caminho = `${imovelId}/${nomeArquivo}`;
 
-  for (const arquivo of arquivos) {
-    try {
-      // Sanitiza o nome original
-      const nomeOriginal = arquivo.name
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9._-]/g, "_");
+    const { error } = await sb.storage
+      .from("fotos-imoveis")
+      .upload(caminho, arquivo, { cacheControl: "3600", upsert: false, contentType: "image/jpeg" });
 
-      // Cada imóvel possui sua própria "pasta"
-      const nomeArquivo =
-        `${Date.now()}-${Math.random().toString(36).slice(2)}-${nomeOriginal}`;
-
-      const caminho = `${imovelId}/${nomeArquivo}`;
-
-      const { error } = await sb.storage
-        .from("fotos-imoveis")
-        .upload(caminho, arquivo, {
-          cacheControl: "3600",
-          upsert: false
-        });
-
-      if (error) {
-        console.error("Erro ao enviar foto:", error);
-        throw error;
-      }
-
-      caminhos.push(caminho);
-
-    } catch (error) {
-      console.error("Falha no upload da foto:", arquivo.name, error);
-      throw error;
+    if (error) {
+      console.error("Erro ao enviar foto:", original.name, error);
+      throw new Error(`Não foi possível enviar "${original.name}": ${error.message || "erro no Storage"}`);
     }
+    caminhos.push(caminho);
   }
-
   return caminhos;
 }
 
@@ -1816,6 +1840,9 @@ async function salvarImovel(ev) {
 
       descricao:
         fd.get("descricao")?.trim() || null,
+
+      observacoes_internas:
+        fd.get("observacoes_internas")?.trim() || null,
 
       destaque_manual:
         document.getElementById("destaque_manual").checked
@@ -2073,6 +2100,11 @@ function editarImovel(id) {
 
   form.descricao.value =
     im.descricao || "";
+
+  if (form.observacoes_internas) {
+    form.observacoes_internas.value =
+      im.observacoes_internas || "";
+  }
 
   document.getElementById(
     "destaque_manual"
