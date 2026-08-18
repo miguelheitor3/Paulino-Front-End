@@ -956,19 +956,8 @@
 <div class="modal-backdrop" id="editor-backdrop" aria-hidden="true">
   <div class="editor-modal" role="dialog" aria-modal="true" aria-labelledby="editor-titulo">
     <h2 id="editor-titulo">Editar imóvel</h2>
-    <p class="editor-help">Use o mesmo e-mail e senha do Supabase usados no painel. As alterações são gravadas no mesmo imóvel e passam a valer em todas as páginas.</p>
+    <p class="editor-help">Você está autenticado. As alterações são gravadas no mesmo imóvel e passam a valer em todas as páginas.</p>
 
-    <div id="editor-login">
-      <div class="editor-grid">
-        <div class="full"><label for="editor-email">E-mail</label><input id="editor-email" type="email" autocomplete="username"></div>
-        <div class="full"><label for="editor-senha">Senha</label><input id="editor-senha" type="password" autocomplete="current-password"></div>
-      </div>
-      <div class="editor-msg" id="editor-login-msg"></div>
-      <div class="editor-footer">
-        <button type="button" class="editor-cancel" id="editor-fechar-login">Cancelar</button>
-        <button type="button" class="editor-save" id="editor-entrar">Entrar e editar</button>
-      </div>
-    </div>
 
     <form id="editor-form" style="display:none;">
       <div class="editor-grid">
@@ -1872,63 +1861,19 @@ async function carregar(){
    EDIÇÃO DIRETA DO IMÓVEL — usa o mesmo Supabase Auth do admin
    ============================================================ */
 const editorBackdrop = document.getElementById("editor-backdrop");
-const editorLogin = document.getElementById("editor-login");
 const editorForm = document.getElementById("editor-form");
-const editorLoginMsg = document.getElementById("editor-login-msg");
 const editorSaveMsg = document.getElementById("editor-save-msg");
-
-function abrirEditor(){
-  editorBackdrop.classList.add("aberto");
-  editorBackdrop.setAttribute("aria-hidden","false");
-  atualizarEditorPorSessao();
-}
-function fecharEditor(){
-  editorBackdrop.classList.remove("aberto");
-  editorBackdrop.setAttribute("aria-hidden","true");
-  editorLoginMsg.style.display="none";
-  editorSaveMsg.style.display="none";
-}
+function abrirEditor(){editorBackdrop.classList.add("aberto");editorBackdrop.setAttribute("aria-hidden","false");preencherEditor();}
+function fecharEditor(){editorBackdrop.classList.remove("aberto");editorBackdrop.setAttribute("aria-hidden","true");editorSaveMsg.style.display="none";}
 function mostrarEditorMensagem(el,msg){el.textContent=msg;el.style.display="block";}
 function preencherEditor(){
-  if(!imovelAtual) return;
-  const f=editorForm;
-  f.titulo.value=imovelAtual.titulo||"";
-  f.codigo.value=imovelAtual.codigo||"";
-  f.tipo.value=imovelAtual.tipo||"Casa";
-  f.finalidade.value=imovelAtual.finalidade||"Comprar";
-  f.cidade.value=imovelAtual.cidade||"";
-  f.bairro.value=imovelAtual.bairro||"";
-  f.rua.value=imovelAtual.rua||"";
-  f.preco.value=imovelAtual.preco!=null ? Number(imovelAtual.preco).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}) : "";
-  f.area_construida_m2.value=imovelAtual.area_construida_m2??"";
-  f.area_terreno_m2.value=imovelAtual.area_terreno_m2??"";
-  f.quartos.value=imovelAtual.quartos??"";
-  f.banheiros.value=imovelAtual.banheiros??"";
-  f.vagas.value=imovelAtual.vagas??"";
-  f.descricao.value=imovelAtual.descricao||"";
+  if(!imovelAtual)return; const f=editorForm;
+  f.titulo.value=imovelAtual.titulo||""; f.codigo.value=imovelAtual.codigo||""; f.tipo.value=imovelAtual.tipo||"Casa"; f.finalidade.value=imovelAtual.finalidade||"Comprar";
+  f.cidade.value=imovelAtual.cidade||""; f.bairro.value=imovelAtual.bairro||""; f.rua.value=imovelAtual.rua||"";
+  f.preco.value=imovelAtual.preco!=null?Number(imovelAtual.preco).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}):"";
+  f.area_construida_m2.value=imovelAtual.area_construida_m2??""; f.area_terreno_m2.value=imovelAtual.area_terreno_m2??""; f.quartos.value=imovelAtual.quartos??""; f.banheiros.value=imovelAtual.banheiros??""; f.vagas.value=imovelAtual.vagas??""; f.descricao.value=imovelAtual.descricao||"";
 }
-async function atualizarEditorPorSessao(){
-  const {data}=await sb.auth.getSession();
-  if(data?.session){
-    editorLogin.style.display="none";
-    editorForm.style.display="block";
-    preencherEditor();
-  }else{
-    editorLogin.style.display="block";
-    editorForm.style.display="none";
-    document.getElementById("editor-email").focus();
-  }
-}
-async function entrarEditor(){
-  const email=document.getElementById("editor-email").value.trim();
-  const senha=document.getElementById("editor-senha").value;
-  if(!email||!senha){mostrarEditorMensagem(editorLoginMsg,"Informe o e-mail e a senha.");return;}
-  const btn=document.getElementById("editor-entrar"); btn.disabled=true; btn.textContent="Entrando...";
-  const {error}=await sb.auth.signInWithPassword({email,password:senha});
-  btn.disabled=false; btn.textContent="Entrar e editar";
-  if(error){mostrarEditorMensagem(editorLoginMsg,"E-mail ou senha inválidos.");return;}
-  await atualizarEditorPorSessao();
-}
+function parsePrecoEditor(v){const limpo=String(v||"").replace(/\./g,"").replace(",",".").trim();const n=Number(limpo);return Number.isFinite(n)?n:null;}
 function parsePrecoEditor(v){
   const limpo=String(v||"").replace(/\./g,"").replace(",",".").trim();
   const n=Number(limpo); return Number.isFinite(n)?n:null;
@@ -1983,19 +1928,16 @@ async function salvarEdicaoDireta(ev){
   }catch(e){console.error(e);mostrarEditorMensagem(editorSaveMsg,e?.message||"Não foi possível salvar as alterações.");}
   finally{btn.disabled=false;btn.textContent="Salvar alterações";}
 }
-function atualizarBotaoEdicao(){
-  const btn=document.getElementById("btn-editar-imovel"); if(!btn)return;
-  sb.auth.getSession().then(({data})=>{btn.textContent=data?.session?"Editar imóvel":"Entrar para editar";});
+async function atualizarBotaoEdicao(){
+  const area=document.getElementById("editor-actions"); const btn=document.getElementById("btn-editar-imovel"); if(!area||!btn)return;
+  const {data}=await sb.auth.getSession();
+  area.style.display=data?.session?"block":"none";
 }
-
-document.addEventListener("click",e=>{
-  if(e.target.id==="btn-editar-imovel") abrirEditor();
-  if(e.target.id==="editor-fechar-login"||e.target.id==="editor-cancelar") fecharEditor();
-});
-document.getElementById("editor-entrar").addEventListener("click",entrarEditor);
+document.addEventListener("click",e=>{if(e.target.id==="btn-editar-imovel")abrirEditor();if(e.target.id==="editor-cancelar")fecharEditor();});
 document.getElementById("editor-form").addEventListener("submit",salvarEdicaoDireta);
 document.getElementById("editor-backdrop").addEventListener("click",e=>{if(e.target===editorBackdrop)fecharEditor();});
 sb.auth.onAuthStateChange(()=>setTimeout(atualizarBotaoEdicao,0));
+atualizarBotaoEdicao();
 
 
 carregar()
