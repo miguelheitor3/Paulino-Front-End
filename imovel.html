@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -67,8 +68,8 @@
   }
 
   header{
-    background:var(--green-dark);
-    border-bottom:1px solid rgba(255,255,255,.08);
+    background:#fff;
+    border-bottom:5px solid var(--green);
   }
 
   .header-inner{
@@ -76,8 +77,8 @@
     align-items:center;
     justify-content:space-between;
     gap:24px;
-    padding-top:20px;
-    padding-bottom:20px;
+    padding-top:18px;
+    padding-bottom:18px;
   }
 
   .logo{
@@ -95,7 +96,7 @@
 
   .logo-sub{
     font-size:10px;
-    color:rgba(255,255,255,.55);
+    color:var(--ink-soft);
     letter-spacing:.04em;
     line-height:1.4;
     margin-top:2px;
@@ -112,7 +113,7 @@
   nav a{
     font-size:14px;
     font-weight:500;
-    color:rgba(255,255,255,.9);
+    color:var(--ink-soft);
     white-space:nowrap;
     transition:opacity .15s ease;
   }
@@ -130,13 +131,13 @@
 
   .header-phone{
     font-size:13.5px;
-    color:rgba(255,255,255,.75);
+    color:var(--ink-soft);
     white-space:nowrap;
   }
 
   .btn-green{
-    background:#fff;
-    color:var(--green-dark);
+    background:var(--green);
+    color:#fff;
     font-size:13.5px;
     font-weight:700;
     padding:12px 22px;
@@ -154,8 +155,8 @@
   }
 
   .btn-outline-header{
-    background:transparent;
-    color:#fff;
+    background:#fff;
+    color:var(--green);
     font-size:13.5px;
     font-weight:600;
     padding:11px 20px;
@@ -166,8 +167,8 @@
   }
 
   .btn-outline-header:hover{
-    background:rgba(255,255,255,.08);
-    border-color:rgba(255,255,255,.55);
+    background:var(--green-tint);
+    border-color:var(--green);
   }
 
   .voltar{
@@ -605,7 +606,7 @@
 
   .footer-desc{
     font-size:13px;
-    color:rgba(255,255,255,.55);
+    color:var(--ink-soft);
     max-width:280px;
     line-height:1.6;
   }
@@ -758,6 +759,30 @@
     }
 
   }
+
+  .editor-actions{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+  .btn-editor{border:1px solid var(--line);background:#fff;color:var(--green);padding:9px 14px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer}
+  .btn-editor:hover{background:var(--green-tint);border-color:var(--green)}
+  .modal-backdrop{position:fixed;inset:0;background:rgba(8,43,32,.38);display:none;align-items:center;justify-content:center;padding:20px;z-index:1000}
+  .modal-backdrop.aberto{display:flex}
+  .editor-modal{width:min(760px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;border:1px solid var(--line);box-shadow:0 24px 70px rgba(0,0,0,.2);padding:24px}
+  .editor-modal h2{font-family:'Archivo',sans-serif;font-size:21px;margin-bottom:6px}
+  .editor-help{font-size:12.5px;color:var(--ink-soft);margin-bottom:18px;line-height:1.5}
+  .editor-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .editor-grid .full{grid-column:1/-1}
+  .editor-grid label{display:block;font-size:11.5px;font-weight:800;color:var(--ink-soft);margin-bottom:5px}
+  .editor-grid input,.editor-grid select,.editor-grid textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:14px Inter;background:#fff}
+  .editor-grid textarea{min-height:110px;resize:vertical}
+  .editor-grid input:focus,.editor-grid select:focus,.editor-grid textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(12,59,44,.08)}
+  .editor-files{padding:12px;border:1px dashed var(--line);border-radius:10px;background:#fafbfa}
+  .editor-files small{display:block;color:var(--ink-soft);font-size:11.5px;margin-top:6px;line-height:1.45}
+  .editor-msg{font-size:13px;margin:10px 0;color:var(--red);display:none}
+  .editor-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;flex-wrap:wrap}
+  .editor-footer button{border:0;border-radius:8px;padding:10px 15px;font-weight:700;cursor:pointer}
+  .editor-cancel{background:#fff;color:var(--ink);border:1px solid var(--line)!important}
+  .editor-save{background:var(--green);color:#fff}
+  .login-link{font-size:12px;color:var(--green);font-weight:700;cursor:pointer}
+  @media(max-width:650px){.editor-grid{grid-template-columns:1fr}.editor-grid .full{grid-column:auto}.editor-modal{padding:18px}}
 
 </style>
 </head>
@@ -927,6 +952,51 @@
 </div>
 
 
+
+<div class="modal-backdrop" id="editor-backdrop" aria-hidden="true">
+  <div class="editor-modal" role="dialog" aria-modal="true" aria-labelledby="editor-titulo">
+    <h2 id="editor-titulo">Editar imóvel</h2>
+    <p class="editor-help">Use o mesmo e-mail e senha do Supabase usados no painel. As alterações são gravadas no mesmo imóvel e passam a valer em todas as páginas.</p>
+
+    <div id="editor-login">
+      <div class="editor-grid">
+        <div class="full"><label for="editor-email">E-mail</label><input id="editor-email" type="email" autocomplete="username"></div>
+        <div class="full"><label for="editor-senha">Senha</label><input id="editor-senha" type="password" autocomplete="current-password"></div>
+      </div>
+      <div class="editor-msg" id="editor-login-msg"></div>
+      <div class="editor-footer">
+        <button type="button" class="editor-cancel" id="editor-fechar-login">Cancelar</button>
+        <button type="button" class="editor-save" id="editor-entrar">Entrar e editar</button>
+      </div>
+    </div>
+
+    <form id="editor-form" style="display:none;">
+      <div class="editor-grid">
+        <div><label>Título</label><input name="titulo" required></div>
+        <div><label>Código</label><input name="codigo"></div>
+        <div><label>Tipo</label><select name="tipo"><option>Casa</option><option>Apartamento</option><option>Barracão</option><option>Ponto Comercial</option><option>Sítio/Fazenda</option><option>Terreno</option><option>Área de Lazer</option></select></div>
+        <div><label>Finalidade</label><select name="finalidade"><option>Comprar</option><option>Alugar</option><option>Temporada</option></select></div>
+        <div><label>Cidade</label><input name="cidade"></div>
+        <div><label>Bairro</label><input name="bairro"></div>
+        <div class="full"><label>Rua do imóvel</label><input name="rua"></div>
+        <div><label>Preço (R$)</label><input name="preco" inputmode="decimal"></div>
+        <div><label>Área construída (m²)</label><input name="area_construida_m2" type="number" step="0.01"></div>
+        <div><label>Área do terreno (m²)</label><input name="area_terreno_m2" type="number" step="0.01"></div>
+        <div><label>Quartos</label><input name="quartos" type="number"></div>
+        <div><label>Banheiros</label><input name="banheiros" type="number"></div>
+        <div><label>Vagas</label><input name="vagas" type="number"></div>
+        <div class="full"><label>Descrição</label><textarea name="descricao"></textarea></div>
+        <div class="full editor-files"><label for="editor-fotos">Adicionar novas fotos</label><input id="editor-fotos" name="fotos" type="file" accept=".jpg,.jpeg,.png,.webp,.gif,.bmp,.avif,.heic,.heif,image/*" multiple><small>As novas fotos são adicionadas às atuais. JPG, PNG e WebP são convertidos para JPG quando o navegador conseguir processá-los. HEIC/HEIF deve ser convertido antes do envio.</small></div>
+      </div>
+      <div class="editor-msg" id="editor-save-msg"></div>
+      <div class="editor-footer">
+        <button type="button" class="editor-cancel" id="editor-cancelar">Cancelar</button>
+        <button type="submit" class="editor-save" id="editor-salvar">Salvar alterações</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <footer>
 
   <div class="wrap">
@@ -1077,6 +1147,7 @@
 const params = new URLSearchParams(location.search);
 
 const id = params.get("id");
+let imovelAtual = null;
 
 
 function escapeHtml(valor){
@@ -1165,6 +1236,8 @@ async function carregar(){
   }
 
 
+  imovelAtual = imovel;
+
   sb
     .rpc(
       "incrementar_visualizacao",
@@ -1188,7 +1261,8 @@ async function carregar(){
   ){
 
     fotos = imovel.fotos
-      .map(imagemSegura)
+      .filter(Boolean)
+      .map(urlFoto)
       .filter(Boolean);
 
   }
@@ -1792,6 +1866,136 @@ async function carregar(){
   }
 
 }
+
+
+/* ============================================================
+   EDIÇÃO DIRETA DO IMÓVEL — usa o mesmo Supabase Auth do admin
+   ============================================================ */
+const editorBackdrop = document.getElementById("editor-backdrop");
+const editorLogin = document.getElementById("editor-login");
+const editorForm = document.getElementById("editor-form");
+const editorLoginMsg = document.getElementById("editor-login-msg");
+const editorSaveMsg = document.getElementById("editor-save-msg");
+
+function abrirEditor(){
+  editorBackdrop.classList.add("aberto");
+  editorBackdrop.setAttribute("aria-hidden","false");
+  atualizarEditorPorSessao();
+}
+function fecharEditor(){
+  editorBackdrop.classList.remove("aberto");
+  editorBackdrop.setAttribute("aria-hidden","true");
+  editorLoginMsg.style.display="none";
+  editorSaveMsg.style.display="none";
+}
+function mostrarEditorMensagem(el,msg){el.textContent=msg;el.style.display="block";}
+function preencherEditor(){
+  if(!imovelAtual) return;
+  const f=editorForm;
+  f.titulo.value=imovelAtual.titulo||"";
+  f.codigo.value=imovelAtual.codigo||"";
+  f.tipo.value=imovelAtual.tipo||"Casa";
+  f.finalidade.value=imovelAtual.finalidade||"Comprar";
+  f.cidade.value=imovelAtual.cidade||"";
+  f.bairro.value=imovelAtual.bairro||"";
+  f.rua.value=imovelAtual.rua||"";
+  f.preco.value=imovelAtual.preco!=null ? Number(imovelAtual.preco).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}) : "";
+  f.area_construida_m2.value=imovelAtual.area_construida_m2??"";
+  f.area_terreno_m2.value=imovelAtual.area_terreno_m2??"";
+  f.quartos.value=imovelAtual.quartos??"";
+  f.banheiros.value=imovelAtual.banheiros??"";
+  f.vagas.value=imovelAtual.vagas??"";
+  f.descricao.value=imovelAtual.descricao||"";
+}
+async function atualizarEditorPorSessao(){
+  const {data}=await sb.auth.getSession();
+  if(data?.session){
+    editorLogin.style.display="none";
+    editorForm.style.display="block";
+    preencherEditor();
+  }else{
+    editorLogin.style.display="block";
+    editorForm.style.display="none";
+    document.getElementById("editor-email").focus();
+  }
+}
+async function entrarEditor(){
+  const email=document.getElementById("editor-email").value.trim();
+  const senha=document.getElementById("editor-senha").value;
+  if(!email||!senha){mostrarEditorMensagem(editorLoginMsg,"Informe o e-mail e a senha.");return;}
+  const btn=document.getElementById("editor-entrar"); btn.disabled=true; btn.textContent="Entrando...";
+  const {error}=await sb.auth.signInWithPassword({email,password:senha});
+  btn.disabled=false; btn.textContent="Entrar e editar";
+  if(error){mostrarEditorMensagem(editorLoginMsg,"E-mail ou senha inválidos.");return;}
+  await atualizarEditorPorSessao();
+}
+function parsePrecoEditor(v){
+  const limpo=String(v||"").replace(/\./g,"").replace(",",".").trim();
+  const n=Number(limpo); return Number.isFinite(n)?n:null;
+}
+async function prepararFotoEditor(arquivo){
+  const ext=(arquivo.name||"").split(".").pop().toLowerCase();
+  if(["heic","heif"].includes(ext)||["image/heic","image/heif"].includes((arquivo.type||"").toLowerCase())) throw new Error(`"${arquivo.name}" está em HEIC/HEIF. Converta para JPG ou PNG.`);
+  if(["image/jpeg","image/jpg"].includes((arquivo.type||"").toLowerCase())||["jpg","jpeg"].includes(ext)) return arquivo;
+  try{
+    const bitmap=await createImageBitmap(arquivo), max=2400, escala=Math.min(1,max/Math.max(bitmap.width,bitmap.height));
+    const c=document.createElement("canvas"); c.width=Math.max(1,Math.round(bitmap.width*escala)); c.height=Math.max(1,Math.round(bitmap.height*escala));
+    c.getContext("2d",{alpha:false}).drawImage(bitmap,0,0,c.width,c.height); bitmap.close?.();
+    const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",.88)); if(!blob) throw new Error();
+    const base=(arquivo.name||"foto").replace(/\.[^.]+$/," ").trim().replace(/[^a-zA-Z0-9_-]/g,"_")||"foto";
+    return new File([blob],`${base}.jpg`,{type:"image/jpeg"});
+  }catch(e){throw new Error(`Não foi possível processar "${arquivo.name}". Prefira JPG, PNG ou WebP.`)}
+}
+async function uploadFotosEditor(arquivos){
+  const paths=[];
+  for(const original of arquivos){
+    const arquivo=await prepararFotoEditor(original);
+    const caminho=`${id}/${Date.now()}-${Math.random().toString(36).slice(2)}-${arquivo.name}`;
+    const {error}=await sb.storage.from("fotos-imoveis").upload(caminho,arquivo,{cacheControl:"3600",upsert:false,contentType:"image/jpeg"});
+    if(error) throw new Error(`Falha ao enviar ${original.name}: ${error.message||"erro no Storage"}`);
+    paths.push(caminho);
+  }
+  return paths;
+}
+async function salvarEdicaoDireta(ev){
+  ev.preventDefault(); if(!imovelAtual) return;
+  const btn=document.getElementById("editor-salvar"); btn.disabled=true; btn.textContent="Salvando..."; editorSaveMsg.style.display="none";
+  try{
+    const fd=new FormData(editorForm);
+    const payload={
+      titulo:fd.get("titulo")?.trim()||"", codigo:fd.get("codigo")?.trim()||null, tipo:fd.get("tipo")||null, finalidade:fd.get("finalidade")||null,
+      cidade:fd.get("cidade")?.trim()||null, bairro:fd.get("bairro")?.trim()||null, rua:fd.get("rua")?.trim()||null,
+      preco:parsePrecoEditor(fd.get("preco")),
+      area_construida_m2:fd.get("area_construida_m2")?Number(fd.get("area_construida_m2")):null,
+      area_terreno_m2:fd.get("area_terreno_m2")?Number(fd.get("area_terreno_m2")):null,
+      quartos:fd.get("quartos")?Number(fd.get("quartos")):null, banheiros:fd.get("banheiros")?Number(fd.get("banheiros")):null, vagas:fd.get("vagas")?Number(fd.get("vagas")):null,
+      descricao:fd.get("descricao")?.trim()||null
+    };
+    const {error}=await sb.from("imoveis").update(payload).eq("id",id); if(error) throw error;
+    const arquivos=[...(document.getElementById("editor-fotos").files||[])];
+    if(arquivos.length){
+      btn.textContent="Enviando fotos...";
+      const novas=await uploadFotosEditor(arquivos);
+      const fotosAtuais=Array.isArray(imovelAtual.fotos)?imovelAtual.fotos.filter(Boolean):[];
+      const {error:fotoError}=await sb.from("imoveis").update({fotos:[...fotosAtuais,...novas]}).eq("id",id); if(fotoError) throw fotoError;
+    }
+    fecharEditor(); await carregar();
+  }catch(e){console.error(e);mostrarEditorMensagem(editorSaveMsg,e?.message||"Não foi possível salvar as alterações.");}
+  finally{btn.disabled=false;btn.textContent="Salvar alterações";}
+}
+function atualizarBotaoEdicao(){
+  const btn=document.getElementById("btn-editar-imovel"); if(!btn)return;
+  sb.auth.getSession().then(({data})=>{btn.textContent=data?.session?"Editar imóvel":"Entrar para editar";});
+}
+
+document.addEventListener("click",e=>{
+  if(e.target.id==="btn-editar-imovel") abrirEditor();
+  if(e.target.id==="editor-fechar-login"||e.target.id==="editor-cancelar") fecharEditor();
+});
+document.getElementById("editor-entrar").addEventListener("click",entrarEditor);
+document.getElementById("editor-form").addEventListener("submit",salvarEdicaoDireta);
+document.getElementById("editor-backdrop").addEventListener("click",e=>{if(e.target===editorBackdrop)fecharEditor();});
+sb.auth.onAuthStateChange(()=>setTimeout(atualizarBotaoEdicao,0));
 
 
 carregar()
