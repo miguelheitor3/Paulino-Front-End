@@ -366,6 +366,8 @@ textarea{
    FILTROS
    ============================================================ */
 
+.resultado-filtro{margin:14px 0 18px;padding:14px 18px;border:1px solid #CFE0D5;background:#E8EFEA;border-radius:12px;color:#0C3B2C;font-size:14px;box-shadow:0 5px 18px rgba(12,59,44,.06)}
+.resultado-filtro strong{font:800 22px Archivo;margin-right:6px;}
 .filtros-box{
   background:#fff;
   border:1px solid var(--line);
@@ -717,6 +719,11 @@ tr:last-child td{
 
         </div>
 
+        <div>
+          <label>Rua do imóvel</label>
+          <input name="rua" placeholder="Rua, Avenida, número...">
+        </div>
+
       </div>
 
 
@@ -818,47 +825,24 @@ tr:last-child td{
       <div class="form-grid">
 
         <div>
-
-          <label>
-            Proprietário (Interno)
-          </label>
-
-          <input
-            name="proprietario"
-            placeholder="Nome do proprietário"
-          >
-
+          <label>Proprietário (Interno)</label>
+          <input name="proprietario" placeholder="Nome do proprietário">
         </div>
 
         <div>
-
-          <label>
-            Nº do proprietário (WhatsApp/telefone)
-          </label>
-
-          <input
-            name="proprietario_telefone"
-            type="tel"
-            placeholder="(35) 99999-9999"
-          >
-
-        </div>
-
-        <div>
-
-          <label>
-            Rua do imóvel
-          </label>
-
-          <input
-            name="rua"
-            placeholder="Rua, Avenida..."
-          >
-
+          <label>Nº do proprietário (WhatsApp/telefone)</label>
+          <input name="proprietario_telefone" type="tel" placeholder="(35) 99999-9999">
         </div>
 
       </div>
 
+
+      <div class="form-grid full">
+        <div>
+          <label>Observações internas</label>
+          <textarea name="observacoes_internas" placeholder="Anotações da imobiliária. Não aparecem para o cliente final."></textarea>
+        </div>
+      </div>
 
       <div class="form-grid full">
 
@@ -1109,6 +1093,10 @@ tr:last-child td{
 
     </div>
 
+  </div>
+
+  <div class="resultado-filtro" id="resultado-filtro" aria-live="polite">
+    <strong id="resultado-filtro-numero">0</strong> imóveis disponíveis nas condições selecionadas
   </div>
 
 
@@ -2598,9 +2586,10 @@ function aplicarFiltros() {
       }
     );
 
-  renderizarTabela(
-    imoveisFiltrados
-  );
+  const disponiveis = imoveisFiltrados.filter(im => Boolean(im.disponivel));
+  const contador = document.getElementById("resultado-filtro-numero");
+  if (contador) contador.textContent = disponiveis.length.toLocaleString("pt-BR");
+  renderizarTabela(imoveisFiltrados);
 
 }
 
