@@ -44,6 +44,32 @@
   .btn-outline-header:hover{background:var(--green-tint);border-color:var(--green);}
   .btn-login-header{background:#fff;color:var(--green);border:1px solid var(--green);font:600 13.5px Inter;padding:10px 16px;border-radius:8px;cursor:pointer;white-space:nowrap;}
   .btn-login-header:hover{background:var(--green-tint);}
+  .hero-fixed-toggle{
+    display:none;
+    align-items:center;
+    gap:9px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink-soft);
+    padding:8px 11px;
+    border-radius:8px;
+    font:600 12px Inter;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:background .15s ease,border-color .15s ease,color .15s ease;
+  }
+  .hero-fixed-toggle.visivel{display:flex;}
+  .hero-fixed-toggle:hover{background:var(--green-tint);border-color:var(--green);color:var(--green);}
+  .hero-fixed-toggle .toggle-dot{
+    width:28px;height:16px;border-radius:20px;background:#CBD2CE;position:relative;transition:background .15s ease;flex-shrink:0;
+  }
+  .hero-fixed-toggle .toggle-dot::after{
+    content:"";position:absolute;width:12px;height:12px;left:2px;top:2px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .15s ease;
+  }
+  .hero-fixed-toggle.ativo{border-color:var(--green);color:var(--green);background:var(--green-tint);}
+  .hero-fixed-toggle.ativo .toggle-dot{background:var(--green);}
+  .hero-fixed-toggle.ativo .toggle-dot::after{transform:translateX(12px);}
+  @media(max-width:960px){.hero-fixed-toggle{display:none!important;}}
   .auth-backdrop{position:fixed;inset:0;background:rgba(8,43,32,.38);display:none;align-items:center;justify-content:center;padding:20px;z-index:2000;}
   .auth-backdrop.aberto{display:flex;}
   .auth-modal{width:min(420px,100%);background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px;box-shadow:0 24px 70px rgba(0,0,0,.2);}
@@ -271,6 +297,9 @@
       <span class="header-phone">(35) 3266-1985</span>
       <a class="btn-outline-header" href="anunciar.html">Anunciar imóvel</a>
       <button class="btn-login-header" id="btn-login-header" type="button">Entrar</button>
+      <button class="hero-fixed-toggle" id="btn-capa-fixa" type="button" aria-pressed="false" title="Alternar capa fixa">
+        <span class="toggle-dot"></span><span id="capa-fixa-texto">Capa fixa</span>
+      </button>
       <a class="btn-green" href="https://wa.me/5535998848963" target="_blank" rel="noopener">Falar no WhatsApp</a>
     </div>
   </div>
@@ -294,7 +323,7 @@
           <img id="hero-foto" src="" alt="Imóvel em destaque" style="background:var(--green-tint);aspect-ratio:4/3.2;cursor:pointer;">
           <div class="hero-badge" id="hero-badge" style="display:none; cursor:pointer;">
             <span class="dot"></span>
-            <span id="hero-badge-texto">Último imóvel adicionado</span>
+            <span id="hero-badge-texto">Destaque da imobiliária</span>
           </div>
         </a>
       </div>
@@ -476,7 +505,7 @@
 <div class="auth-backdrop" id="auth-backdrop" aria-hidden="true">
   <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
     <h2 id="auth-title">Entrar</h2>
-    <p>Use o mesmo e-mail e senha cadastrados no Supabase. Depois de entrar, os imóveis poderão ser editados diretamente na página do imóvel.</p>
+    <p>Entre para acessar os recursos exclusivos da administração.</p>
     <label for="auth-email">E-mail</label>
     <input id="auth-email" type="email" autocomplete="username">
     <label for="auth-password">Senha</label>
@@ -531,12 +560,62 @@ const authBtn=document.getElementById("btn-login-header");
 function authOpen(){authBackdrop.classList.add("aberto");authBackdrop.setAttribute("aria-hidden","false");authMsg.style.display="none";}
 function authClose(){authBackdrop.classList.remove("aberto");authBackdrop.setAttribute("aria-hidden","true");}
 function authError(msg){authMsg.textContent=msg;authMsg.style.display="block";}
-async function atualizarLoginHeader(){const {data}=await sb.auth.getSession();if(data?.session){authBtn.textContent="Sair";authBtn.classList.add("auth-session");}else{authBtn.textContent="Entrar";authBtn.classList.remove("auth-session");}}
-authBtn.addEventListener("click",async()=>{const {data}=await sb.auth.getSession();if(data?.session){await sb.auth.signOut();atualizarLoginHeader();return;}authOpen();document.getElementById("auth-email").focus();});
+const btnCapaFixa=document.getElementById("btn-capa-fixa");
+const capaFixaTexto=document.getElementById("capa-fixa-texto");
+
+function atualizarVisualCapaFixa(ativo){
+  if(!btnCapaFixa) return;
+  btnCapaFixa.classList.toggle("ativo",ativo);
+  btnCapaFixa.setAttribute("aria-pressed",ativo ? "true" : "false");
+  capaFixaTexto.textContent=ativo ? "Capa fixa: ligada" : "Capa fixa: desligada";
+}
+
+async function atualizarLoginHeader(){
+  const {data}=await sb.auth.getSession();
+  const autenticado=!!data?.session;
+
+  if(autenticado){
+    authBtn.textContent="Sair";
+    authBtn.classList.add("auth-session");
+    btnCapaFixa.classList.add("visivel");
+    atualizarVisualCapaFixa(localStorage.getItem("paulino_hero_fixo")==="true");
+  }else{
+    authBtn.textContent="Entrar";
+    authBtn.classList.remove("auth-session");
+    btnCapaFixa.classList.remove("visivel");
+    atualizarVisualCapaFixa(false);
+    localStorage.removeItem("paulino_hero_fixo");
+  }
+}
+
+authBtn.addEventListener("click",async()=>{
+  const {data}=await sb.auth.getSession();
+  if(data?.session){
+    await sb.auth.signOut();
+    atualizarLoginHeader();
+    carregarFotoCapa();
+    return;
+  }
+  authOpen();
+  document.getElementById("auth-email").focus();
+});
+
+btnCapaFixa.addEventListener("click",async()=>{
+  const {data}=await sb.auth.getSession();
+  if(!data?.session) return;
+
+  const novoEstado=localStorage.getItem("paulino_hero_fixo")!=="true";
+  localStorage.setItem("paulino_hero_fixo",String(novoEstado));
+  atualizarVisualCapaFixa(novoEstado);
+  await carregarFotoCapa();
+});
 document.getElementById("auth-cancel").addEventListener("click",authClose);
 authBackdrop.addEventListener("click",e=>{if(e.target===authBackdrop)authClose();});
 document.getElementById("auth-submit").addEventListener("click",async()=>{const email=document.getElementById("auth-email").value.trim();const password=document.getElementById("auth-password").value;if(!email||!password){authError("Informe o e-mail e a senha.");return;}const b=document.getElementById("auth-submit");b.disabled=true;b.textContent="Entrando...";const {error}=await sb.auth.signInWithPassword({email,password});b.disabled=false;b.textContent="Entrar";if(error){authError("E-mail ou senha inválidos.");return;}authClose();atualizarLoginHeader();});
-sb.auth.onAuthStateChange(()=>setTimeout(atualizarLoginHeader,0));
+sb.auth.onAuthStateChange(()=>setTimeout(async()=>{
+  await atualizarLoginHeader();
+  await carregarFotoCapa();
+},0));
 atualizarLoginHeader();
 </script>
 <script>
@@ -787,8 +866,29 @@ async function carregarFotoCapa() {
   const heroImg = document.getElementById("hero-foto");
   const heroBadge = document.getElementById("hero-badge");
   const heroLink = document.getElementById("hero-photo-link");
+  const badgeTexto = document.getElementById("hero-badge-texto");
 
   try {
+    const { data: sessionData } = await sb.auth.getSession();
+    const autenticado = !!sessionData?.session;
+    const capaFixa = autenticado && localStorage.getItem("paulino_hero_fixo") === "true";
+
+    if (capaFixa) {
+      heroLink.href = "#";
+      heroLink.onclick = (e) => e.preventDefault();
+
+      heroImg.src = "assets/hero.jpg";
+      heroImg.alt = "Imagem institucional da Paulino Imóveis";
+      heroImg.loading = "eager";
+      heroImg.decoding = "async";
+
+      badgeTexto.textContent = "Destaque da imobiliária";
+      heroBadge.style.display = "flex";
+      return;
+    }
+
+    heroLink.onclick = null;
+
     const { data, error } = await sb
       .from("imoveis")
       .select("id,titulo,fotos")
@@ -800,29 +900,28 @@ async function carregarFotoCapa() {
     if (error) throw error;
 
     const maisRecente = (data || []).find(
-      (im) =>
-        Array.isArray(im.fotos) &&
-        im.fotos.length > 0
+      (im) => Array.isArray(im.fotos) && im.fotos.length > 0
     );
 
     if (!maisRecente) {
-      heroImg.closest(".hero-photo").style.display =
-        "none";
+      heroImg.src = "assets/hero.jpg";
+      heroImg.alt = "Paulino Imóveis";
+      heroLink.href = "#";
+      heroLink.onclick = (e) => e.preventDefault();
+      badgeTexto.textContent = "Paulino Imóveis";
+      heroBadge.style.display = "flex";
       return;
     }
 
-    heroLink.href =
-      `imovel.html?id=${encodeURIComponent(maisRecente.id)}`;
+    heroLink.href = `imovel.html?id=${encodeURIComponent(maisRecente.id)}`;
 
     heroImg.src = urlFoto(maisRecente.fotos[0]);
-    heroImg.alt =
-      maisRecente.titulo || "Imóvel em destaque";
-
+    heroImg.alt = maisRecente.titulo || "Imóvel em destaque";
     heroImg.loading = "eager";
     heroImg.decoding = "async";
 
+    badgeTexto.textContent = "Último imóvel adicionado";
     heroBadge.style.display = "flex";
-
   } catch (erro) {
     console.error("Erro na foto de capa:", erro);
   }
