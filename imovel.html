@@ -1870,80 +1870,154 @@ async function carregar(){
 const editorBackdrop = document.getElementById("editor-backdrop");
 const editorForm = document.getElementById("editor-form");
 const editorSaveMsg = document.getElementById("editor-save-msg");
-function abrirEditor(){editorBackdrop.classList.add("aberto");editorBackdrop.setAttribute("aria-hidden","false");preencherEditor();}
-function fecharEditor(){editorBackdrop.classList.remove("aberto");editorBackdrop.setAttribute("aria-hidden","true");editorSaveMsg.style.display="none";}
-function mostrarEditorMensagem(el,msg){el.textContent=msg;el.style.display="block";}
+
+function abrirEditor(){
+  editorBackdrop.classList.add("aberto");
+  editorBackdrop.setAttribute("aria-hidden","false");
+  preencherEditor();
+}
+
+function fecharEditor(){
+  editorBackdrop.classList.remove("aberto");
+  editorBackdrop.setAttribute("aria-hidden","true");
+  editorSaveMsg.style.display="none";
+}
+
+function mostrarEditorMensagem(el,msg){
+  el.textContent=msg;
+  el.style.display="block";
+}
+
 function preencherEditor(){
-  if(!imovelAtual)return; const f=editorForm;
-  f.titulo.value=imovelAtual.titulo||""; f.codigo.value=imovelAtual.codigo||""; f.tipo.value=imovelAtual.tipo||"Casa"; f.finalidade.value=imovelAtual.finalidade||"Comprar";
-  f.cidade.value=imovelAtual.cidade||""; f.bairro.value=imovelAtual.bairro||""; f.rua.value=imovelAtual.rua||"";
-  f.preco.value=imovelAtual.preco!=null?Number(imovelAtual.preco).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}):"";
-  f.area_construida_m2.value=imovelAtual.area_construida_m2??""; f.area_terreno_m2.value=imovelAtual.area_terreno_m2??""; f.quartos.value=imovelAtual.quartos??""; f.banheiros.value=imovelAtual.banheiros??""; f.vagas.value=imovelAtual.vagas??""; f.descricao.value=imovelAtual.descricao||"";
+  if(!imovelAtual) return;
+  const f = editorForm;
+  f.titulo.value = imovelAtual.titulo || "";
+  f.codigo.value = imovelAtual.codigo || "";
+  f.tipo.value = imovelAtual.tipo || "Casa";
+  f.finalidade.value = imovelAtual.finalidade || "Comprar";
+  f.cidade.value = imovelAtual.cidade || "";
+  f.bairro.value = imovelAtual.bairro || "";
+  f.rua.value = imovelAtual.rua || "";
+  f.preco.value = imovelAtual.preco != null ? Number(imovelAtual.preco).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}) : "";
+  f.area_construida_m2.value = imovelAtual.area_construida_m2 ?? "";
+  f.area_terreno_m2.value = imovelAtual.area_terreno_m2 ?? "";
+  f.quartos.value = imovelAtual.quartos ?? "";
+  f.banheiros.value = imovelAtual.banheiros ?? "";
+  f.vagas.value = imovelAtual.vagas ?? "";
+  f.descricao.value = imovelAtual.descricao || "";
 }
-function parsePrecoEditor(v){const limpo=String(v||"").replace(/\./g,"").replace(",",".").trim();const n=Number(limpo);return Number.isFinite(n)?n:null;}
+
 function parsePrecoEditor(v){
-  const limpo=String(v||"").replace(/\./g,"").replace(",",".").trim();
-  const n=Number(limpo); return Number.isFinite(n)?n:null;
+  const limpo = String(v || "").replace(/\./g,"").replace(",",".").trim();
+  const n = Number(limpo);
+  return Number.isFinite(n) ? n : null;
 }
+
 async function prepararFotoEditor(arquivo){
-  const ext=(arquivo.name||"").split(".").pop().toLowerCase();
-  if(["heic","heif"].includes(ext)||["image/heic","image/heif"].includes((arquivo.type||"").toLowerCase())) throw new Error(`"${arquivo.name}" está em HEIC/HEIF. Converta para JPG ou PNG.`);
-  if(["image/jpeg","image/jpg"].includes((arquivo.type||"").toLowerCase())||["jpg","jpeg"].includes(ext)) return arquivo;
+  const ext = (arquivo.name || "").split(".").pop().toLowerCase();
+  if(["heic","heif"].includes(ext) || ["image/heic","image/heif"].includes((arquivo.type||"").toLowerCase())) {
+    throw new Error(`"${arquivo.name}" está em HEIC/HEIF. Converta para JPG ou PNG.`);
+  }
+  if(["image/jpeg","image/jpg"].includes((arquivo.type||"").toLowerCase()) || ["jpg","jpeg"].includes(ext)) {
+    return arquivo;
+  }
   try{
-    const bitmap=await createImageBitmap(arquivo), max=2400, escala=Math.min(1,max/Math.max(bitmap.width,bitmap.height));
-    const c=document.createElement("canvas"); c.width=Math.max(1,Math.round(bitmap.width*escala)); c.height=Math.max(1,Math.round(bitmap.height*escala));
-    c.getContext("2d",{alpha:false}).drawImage(bitmap,0,0,c.width,c.height); bitmap.close?.();
-    const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",.88)); if(!blob) throw new Error();
-    const base=(arquivo.name||"foto").replace(/\.[^.]+$/," ").trim().replace(/[^a-zA-Z0-9_-]/g,"_")||"foto";
-    return new File([blob],`${base}.jpg`,{type:"image/jpeg"});
-  }catch(e){throw new Error(`Não foi possível processar "${arquivo.name}". Prefira JPG, PNG ou WebP.`)}
+    const bitmap = await createImageBitmap(arquivo), max = 2400, escala = Math.min(1, max / Math.max(bitmap.width, bitmap.height));
+    const c = document.createElement("canvas");
+    c.width = Math.max(1, Math.round(bitmap.width * escala));
+    c.height = Math.max(1, Math.round(bitmap.height * escala));
+    c.getContext("2d",{alpha:false}).drawImage(bitmap,0,0,c.width,c.height);
+    bitmap.close?.();
+    const blob = await new Promise(r => c.toBlob(r, "image/jpeg", .88));
+    if(!blob) throw new Error();
+    const base = (arquivo.name || "foto").replace(/\.[^.]+$/," ").trim().replace(/[^a-zA-Z0-9_-]/g,"_") || "foto";
+    return new File([blob], `${base}.jpg`, {type:"image/jpeg"});
+  }catch(e){
+    throw new Error(`Não foi possível processar "${arquivo.name}". Prefira JPG, PNG ou WebP.`);
+  }
 }
+
 async function uploadFotosEditor(arquivos){
-  const paths=[];
+  const paths = [];
   for(const original of arquivos){
-    const arquivo=await prepararFotoEditor(original);
-    const caminho=`${id}/${Date.now()}-${Math.random().toString(36).slice(2)}-${arquivo.name}`;
-    const {error}=await sb.storage.from("fotos-imoveis").upload(caminho,arquivo,{cacheControl:"3600",upsert:false,contentType:"image/jpeg"});
-    if(error) throw new Error(`Falha ao enviar ${original.name}: ${error.message||"erro no Storage"}`);
+    const arquivo = await prepararFotoEditor(original);
+    const caminho = `${id}/${Date.now()}-${Math.random().toString(36).slice(2)}-${arquivo.name}`;
+    const {error} = await sb.storage.from("fotos-imoveis").upload(caminho, arquivo, {cacheControl:"3600", upsert:false, contentType:"image/jpeg"});
+    if(error) throw new Error(`Falha ao enviar ${original.name}: ${error.message || "erro no Storage"}`);
     paths.push(caminho);
   }
   return paths;
 }
+
 async function salvarEdicaoDireta(ev){
-  ev.preventDefault(); if(!imovelAtual) return;
-  const btn=document.getElementById("editor-salvar"); btn.disabled=true; btn.textContent="Salvando..."; editorSaveMsg.style.display="none";
+  ev.preventDefault();
+  if(!imovelAtual) return;
+  const btn = document.getElementById("editor-salvar");
+  btn.disabled = true;
+  btn.textContent = "Salvando...";
+  editorSaveMsg.style.display = "none";
+
   try{
-    const fd=new FormData(editorForm);
-    const payload={
-      titulo:fd.get("titulo")?.trim()||"", codigo:fd.get("codigo")?.trim()||null, tipo:fd.get("tipo")||null, finalidade:fd.get("finalidade")||null,
-      cidade:fd.get("cidade")?.trim()||null, bairro:fd.get("bairro")?.trim()||null, rua:fd.get("rua")?.trim()||null,
-      preco:parsePrecoEditor(fd.get("preco")),
-      area_construida_m2:fd.get("area_construida_m2")?Number(fd.get("area_construida_m2")):null,
-      area_terreno_m2:fd.get("area_terreno_m2")?Number(fd.get("area_terreno_m2")):null,
-      quartos:fd.get("quartos")?Number(fd.get("quartos")):null, banheiros:fd.get("banheiros")?Number(fd.get("banheiros")):null, vagas:fd.get("vagas")?Number(fd.get("vagas")):null,
-      descricao:fd.get("descricao")?.trim()||null
+    const fd = new FormData(editorForm);
+    const payload = {
+      titulo: fd.get("titulo")?.trim() || "",
+      codigo: fd.get("codigo")?.trim() || null,
+      tipo: fd.get("tipo") || null,
+      finalidade: fd.get("finalidade") || null,
+      cidade: fd.get("cidade")?.trim() || null,
+      bairro: fd.get("bairro")?.trim() || null,
+      rua: fd.get("rua")?.trim() || null,
+      preco: parsePrecoEditor(fd.get("preco")),
+      area_construida_m2: fd.get("area_construida_m2") ? Number(fd.get("area_construida_m2")) : null,
+      area_terreno_m2: fd.get("area_terreno_m2") ? Number(fd.get("area_terreno_m2")) : null,
+      quartos: fd.get("quartos") ? Number(fd.get("quartos")) : null,
+      banheiros: fd.get("banheiros") ? Number(fd.get("banheiros")) : null,
+      vagas: fd.get("vagas") ? Number(fd.get("vagas")) : null,
+      descricao: fd.get("descricao")?.trim() || null
     };
-    const {error}=await sb.from("imoveis").update(payload).eq("id",id); if(error) throw error;
-    const arquivos=[...(document.getElementById("editor-fotos").files||[])];
+
+    const {error} = await sb.from("imoveis").update(payload).eq("id",id);
+    if(error) throw error;
+
+    const arquivos = [...(document.getElementById("editor-fotos").files || [])];
     if(arquivos.length){
-      btn.textContent="Enviando fotos...";
-      const novas=await uploadFotosEditor(arquivos);
-      const fotosAtuais=Array.isArray(imovelAtual.fotos)?imovelAtual.fotos.filter(Boolean):[];
-      const {error:fotoError}=await sb.from("imoveis").update({fotos:[...fotosAtuais,...novas]}).eq("id",id); if(fotoError) throw fotoError;
+      btn.textContent = "Enviando fotos...";
+      const novas = await uploadFotosEditor(arquivos);
+      const fotosAtuais = Array.isArray(imovelAtual.fotos) ? imovelAtual.fotos.filter(Boolean) : [];
+      const {error: fotoError} = await sb.from("imoveis").update({fotos:[...fotosAtuais, ...novas]}).eq("id",id);
+      if(fotoError) throw fotoError;
     }
-    fecharEditor(); await carregar();
-  }catch(e){console.error(e);mostrarEditorMensagem(editorSaveMsg,e?.message||"Não foi possível salvar as alterações.");}
-  finally{btn.disabled=false;btn.textContent="Salvar alterações";}
+
+    fecharEditor();
+    await carregar();
+  }catch(e){
+    console.error(e);
+    mostrarEditorMensagem(editorSaveMsg, e?.message || "Não foi possível salvar as alterações.");
+  }finally{
+    btn.disabled = false;
+    btn.textContent = "Salvar alterações";
+  }
 }
+
 async function atualizarBotaoEdicao(){
-  const area=document.getElementById("editor-actions"); const btn=document.getElementById("btn-editar-imovel"); if(!area||!btn)return;
-  const {data}=await sb.auth.getSession();
-  area.style.display=data?.session?"block":"none";
+  const area = document.getElementById("editor-actions");
+  const btn = document.getElementById("btn-editar-imovel");
+  if(!area || !btn) return;
+  const {data} = await sb.auth.getSession();
+  area.style.display = data?.session ? "block" : "none";
 }
-document.addEventListener("click",e=>{if(e.target.id==="btn-editar-imovel")abrirEditor();if(e.target.id==="editor-cancelar")fecharEditor();});
-document.getElementById("editor-form").addEventListener("submit",salvarEdicaoDireta);
-document.getElementById("editor-backdrop").addEventListener("click",e=>{if(e.target===editorBackdrop)fecharEditor();});
-sb.auth.onAuthStateChange(()=>setTimeout(atualizarBotaoEdicao,0));
+
+document.addEventListener("click", e => {
+  if(e.target.id === "btn-editar-imovel") abrirEditor();
+  if(e.target.id === "editor-cancelar") fecharEditor();
+});
+
+document.getElementById("editor-form").addEventListener("submit", salvarEdicaoDireta);
+document.getElementById("editor-backdrop").addEventListener("click", e => {
+  if(e.target === editorBackdrop) fecharEditor();
+});
+
+sb.auth.onAuthStateChange(() => setTimeout(atualizarBotaoEdicao, 0));
 
 
 carregar()
