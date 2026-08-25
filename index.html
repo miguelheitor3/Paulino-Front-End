@@ -93,15 +93,21 @@
   .stat-num{font-family:'Archivo',sans-serif;font-weight:800;font-size:26px;color:var(--green);}
   .stat-label{font-size:12px;color:var(--ink-soft);margin-top:2px;}
   .hero-photo{position:relative;}
-  .hero-photo img {
-      width: 100%;
-      aspect-ratio: 3 / 2;
-      object-fit: cover;
-      border-radius: 16px;
-      box-shadow: 
+  .hero-media {
+      display:block;
+      width:100%;
+      aspect-ratio:3 / 2;
+      object-fit:cover;
+      border-radius:16px;
+      background:var(--green-tint);
+      box-shadow:
         0 20px 40px -10px rgba(12, 59, 44, 0.22),
         0 10px 20px -5px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition:transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+  .hero-video {
+      pointer-events:none;
     }
     
   .hero-badge{position:absolute;bottom:20px;left:20px;background:#fff;padding:12px 18px;border-radius:10px;box-shadow:0 12px 30px rgba(12,59,44,.16);display:flex;align-items:center;gap:10px;}
@@ -127,7 +133,7 @@
     display: block;
   }
   
-  #hero-photo-link:hover img {
+  #hero-photo-link:hover .hero-media {
     transform: translateY(-4px);
     box-shadow: 
       0 28px 50px -10px rgba(12, 59, 44, 0.28),
@@ -317,8 +323,11 @@
         </div>
       </div>
       <div class="hero-photo">
-        <a id="hero-photo-link" href="#" style="display: block; text-decoration: none;">
-          <img id="hero-foto" src="" alt="Imóvel em destaque" style="background:var(--green-tint);aspect-ratio:3/2;cursor:pointer;">
+        <a id="hero-photo-link" href="#" style="display:block;text-decoration:none;">
+          <img id="hero-foto" class="hero-media" src="" alt="Imóvel em destaque" style="cursor:pointer;">
+          <video id="hero-video" class="hero-media hero-video" autoplay muted loop playsinline preload="auto" style="display:none;cursor:default;">
+            <source src="assets/hero.mp4" type="video/mp4">
+          </video>
           <div class="hero-badge" id="hero-badge" style="display:none; cursor:pointer;">
             <span class="dot"></span>
             <span id="hero-badge-texto">Destaque da imobiliária</span>
@@ -983,28 +992,47 @@ async function atualizarStatAtivos() {
 
 async function carregarFotoCapa() {
   const heroImg = document.getElementById("hero-foto");
+  const heroVideo = document.getElementById("hero-video");
   const heroBadge = document.getElementById("hero-badge");
   const heroLink = document.getElementById("hero-photo-link");
   const badgeTexto = document.getElementById("hero-badge-texto");
+
+  function mostrarImagem(src, alt, href = "#", bloquearLink = false) {
+    heroVideo.pause();
+    heroVideo.style.display = "none";
+    heroImg.style.display = "block";
+    heroImg.src = src;
+    heroImg.alt = alt;
+    heroImg.loading = "eager";
+    heroImg.decoding = "async";
+    heroLink.href = href;
+    heroLink.onclick = bloquearLink ? (e) => e.preventDefault() : null;
+  }
+
+  function mostrarVideo() {
+    heroImg.style.display = "none";
+    heroVideo.style.display = "block";
+    heroLink.href = "#";
+    heroLink.onclick = (e) => e.preventDefault();
+
+    heroVideo.currentTime = 0;
+    const tentativa = heroVideo.play();
+    if (tentativa && typeof tentativa.catch === "function") {
+      tentativa.catch((erro) => {
+        console.warn("Não foi possível iniciar o vídeo automaticamente:", erro);
+      });
+    }
+  }
 
   try {
     const capaFixa = await carregarConfiguracaoCapaFixa();
 
     if (capaFixa) {
-      heroLink.href = "#";
-      heroLink.onclick = (e) => e.preventDefault();
-
-      heroImg.src = "assets/hero.mp4";
-      heroImg.alt = "Imagem institucional da Paulino Imóveis";
-      heroImg.loading = "eager";
-      heroImg.decoding = "async";
-
+      mostrarVideo();
       badgeTexto.textContent = "Destaque da imobiliária";
       heroBadge.style.display = "flex";
       return;
     }
-
-    heroLink.onclick = null;
 
     const { data, error } = await sb
       .from("imoveis")
@@ -1021,26 +1049,26 @@ async function carregarFotoCapa() {
     );
 
     if (!maisRecente) {
-      heroImg.src = "assets/hero.jpg";
-      heroImg.alt = "Paulino Imóveis";
-      heroLink.href = "#";
-      heroLink.onclick = (e) => e.preventDefault();
+      mostrarImagem("assets/hero.jpg", "Paulino Imóveis", "#", true);
       badgeTexto.textContent = "Paulino Imóveis";
       heroBadge.style.display = "flex";
       return;
     }
 
-    heroLink.href = `imovel.html?id=${encodeURIComponent(maisRecente.id)}`;
-
-    heroImg.src = urlFoto(maisRecente.fotos[0]);
-    heroImg.alt = maisRecente.titulo || "Imóvel em destaque";
-    heroImg.loading = "eager";
-    heroImg.decoding = "async";
+    mostrarImagem(
+      urlFoto(maisRecente.fotos[0]),
+      maisRecente.titulo || "Imóvel em destaque",
+      `imovel.html?id=${encodeURIComponent(maisRecente.id)}`,
+      false
+    );
 
     badgeTexto.textContent = "Último imóvel adicionado";
     heroBadge.style.display = "flex";
   } catch (erro) {
     console.error("Erro na foto de capa:", erro);
+    mostrarImagem("assets/hero.jpg", "Paulino Imóveis", "#", true);
+    badgeTexto.textContent = "Paulino Imóveis";
+    heroBadge.style.display = "flex";
   }
 }
 
