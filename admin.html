@@ -284,6 +284,21 @@ textarea{
   overflow:hidden;
   border:1px solid var(--line);
   flex-shrink:0;
+  cursor:grab;
+  transition:opacity .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.foto-existente:active{
+  cursor:grabbing;
+}
+
+.foto-existente.dragging{
+  opacity:.4;
+}
+
+.foto-existente.drag-over{
+  border-color:var(--green);
+  box-shadow:0 0 0 2px var(--green) inset;
 }
 
 .foto-existente img{
@@ -291,6 +306,8 @@ textarea{
   height:100%;
   object-fit:cover;
   display:block;
+  pointer-events:none;
+  -webkit-user-drag:none;
 }
 
 .foto-existente button{
@@ -315,6 +332,38 @@ textarea{
 
 .foto-existente button:hover{
   background:var(--red);
+}
+
+.foto-existente .foto-badge{
+  position:absolute;
+  left:3px;
+  bottom:3px;
+  background:rgba(12,59,44,.85);
+  color:#fff;
+  font-size:9px;
+  font-weight:600;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+  padding:2px 5px;
+  border-radius:4px;
+  pointer-events:none;
+}
+
+.foto-existente .foto-ordem{
+  position:absolute;
+  left:3px;
+  top:3px;
+  background:rgba(18,24,21,.75);
+  color:#fff;
+  font-size:10px;
+  font-weight:600;
+  min-width:15px;
+  height:15px;
+  border-radius:4px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
 }
 
 .fotos-existentes-info{
@@ -862,7 +911,7 @@ tr:last-child td{
 
 
       <!-- ========================================================
-           FOTOS ATUAIS (somente ao editar)
+           FOTOS DO IMÓVEL (existentes + recém-adicionadas)
            ======================================================== -->
 
       <div
@@ -874,11 +923,11 @@ tr:last-child td{
         <div>
 
           <label>
-            Fotos cadastradas
+            Fotos do imóvel
           </label>
 
           <div class="fotos-existentes-info">
-            Clique no × para remover uma foto. A remoção só é aplicada ao salvar o imóvel.
+            Arraste as fotos para reordenar. Clique no × para remover uma foto. As alterações só são aplicadas ao salvar o imóvel.
           </div>
 
           <div
@@ -892,7 +941,7 @@ tr:last-child td{
 
 
       <!-- ========================================================
-           FOTOS NOVAS
+           ADICIONAR FOTOS
            ======================================================== -->
 
       <div class="form-grid full">
@@ -900,7 +949,7 @@ tr:last-child td{
         <div>
 
           <label>
-            Fotos novas
+            Adicionar fotos
           </label>
 
           <div
@@ -925,7 +974,7 @@ tr:last-child td{
                 id="fotos-qtd"
                 class="dropzone-info"
               >
-                Nenhuma foto selecionada
+                Nenhuma foto adicionada
               </span>
 
             </div>
@@ -1177,9 +1226,20 @@ let carregandoTabela = false;
 
 let cidadesCarregadas = false;
 
-let fotosParaManter = [];
+// Lista unificada e ordenada das fotos do imóvel (existentes + novas,
+// ainda não enviadas). Cada item: { id, tipo:'existente'|'nova', valor?, file?, url? }
+let fotosItems = [];
 
 let fotosParaExcluirDoStorage = [];
+
+let contadorFotoId = 0;
+
+let dragIndexFoto = null;
+
+function novoFotoId() {
+  contadorFotoId += 1;
+  return `f${Date.now()}_${contadorFotoId}`;
+}
 
 
 /* ==============================================================
@@ -1212,7 +1272,7 @@ const precoInput =
    FOTOS EXISTENTES (edição)
    ============================================================== */
 
-function renderizarFotosExistentes() {
+function renderizarFotos() {
 
   const bloco =
     document.getElementById(
@@ -1224,10 +1284,12 @@ function renderizarFotosExistentes() {
       "fotos-existentes"
     );
 
-  if (!fotosParaManter.length) {
+  if (!fotosItems.length) {
 
     bloco.style.display = "none";
     container.innerHTML = "";
+
+    atualizarTextoFotos();
 
     return;
   }
@@ -1235,51 +1297,268 @@ function renderizarFotosExistentes() {
   bloco.style.display = "block";
 
   container.innerHTML =
-    fotosParaManter
+    fotosItems
       .map(
-        (foto, index) => `
-          <div class="foto-existente">
+        (item, index) => {
+
+          const src =
+            item.tipo === "nova"
+              ? item.url
+              : urlFoto(item.valor);
+
+          return `
+          <div
+            class="foto-existente"
+            draggable="true"
+            data-index="${index}"
+            data-id="${item.id}"
+          >
+
+            <span class="foto-ordem">
+              ${index + 1}
+            </span>
 
             <img
-              src="${escapeHtml(urlFoto(foto))}"
+              src="${escapeHtml(src)}"
               alt="Foto ${index + 1}"
               onerror="this.src='https://via.placeholder.com/84x64?text=—';"
             >
 
+            ${
+              item.tipo === "nova"
+                ? '<span class="foto-badge">nova</span>'
+                : ""
+            }
+
             <button
               type="button"
               title="Remover foto"
-              onclick="removerFotoExistente(${index})"
+              onclick="removerFotoItem('${item.id}')"
             >
               ×
             </button>
 
           </div>
-        `
+        `;
+        }
       )
       .join("");
+
+  ativarDragFotos();
+
+  atualizarTextoFotos();
 
 }
 
 
-function removerFotoExistente(index) {
+function removerFotoItem(id) {
+
+  const index =
+    fotosItems.findIndex(
+      item => item.id === id
+    );
+
+  if (index === -1) return;
 
   const [removida] =
-    fotosParaManter.splice(index, 1);
+    fotosItems.splice(index, 1);
 
-  if (
-    removida &&
-    !String(removida).startsWith("http://") &&
-    !String(removida).startsWith("https://")
+  if (removida.tipo === "existente") {
+
+    const valor = removida.valor;
+
+    if (
+      valor &&
+      !String(valor).startsWith("http://") &&
+      !String(valor).startsWith("https://")
+    ) {
+
+      fotosParaExcluirDoStorage.push(
+        valor
+      );
+
+    }
+
+  } else if (
+    removida.tipo === "nova" &&
+    removida.url
   ) {
 
-    fotosParaExcluirDoStorage.push(
-      removida
-    );
+    URL.revokeObjectURL(removida.url);
 
   }
 
-  renderizarFotosExistentes();
+  renderizarFotos();
+
+}
+
+
+/* ==============================================================
+   REORDENAR FOTOS (drag & drop entre as miniaturas)
+   ============================================================== */
+
+function ativarDragFotos() {
+
+  const container =
+    document.getElementById(
+      "fotos-existentes"
+    );
+
+  const cards =
+    container.querySelectorAll(
+      ".foto-existente"
+    );
+
+  cards.forEach(card => {
+
+    card.addEventListener(
+      "dragstart",
+      event => {
+
+        dragIndexFoto =
+          Number(card.dataset.index);
+
+        card.classList.add(
+          "dragging"
+        );
+
+        event.dataTransfer.effectAllowed =
+          "move";
+
+        // Necessário para o Firefox aceitar o drag
+        event.dataTransfer.setData(
+          "text/plain",
+          card.dataset.index
+        );
+
+      }
+    );
+
+    card.addEventListener(
+      "dragend",
+      () => {
+
+        card.classList.remove(
+          "dragging"
+        );
+
+        dragIndexFoto = null;
+
+      }
+    );
+
+    card.addEventListener(
+      "dragover",
+      event => {
+
+        event.preventDefault();
+
+        event.dataTransfer.dropEffect =
+          "move";
+
+        card.classList.add(
+          "drag-over"
+        );
+
+      }
+    );
+
+    card.addEventListener(
+      "dragleave",
+      () => {
+
+        card.classList.remove(
+          "drag-over"
+        );
+
+      }
+    );
+
+    card.addEventListener(
+      "drop",
+      event => {
+
+        event.preventDefault();
+
+        card.classList.remove(
+          "drag-over"
+        );
+
+        const alvoIndex =
+          Number(card.dataset.index);
+
+        if (
+          dragIndexFoto === null ||
+          dragIndexFoto === alvoIndex
+        ) {
+          return;
+        }
+
+        const [movida] =
+          fotosItems.splice(
+            dragIndexFoto,
+            1
+          );
+
+        fotosItems.splice(
+          alvoIndex,
+          0,
+          movida
+        );
+
+        renderizarFotos();
+
+      }
+    );
+
+  });
+
+}
+
+
+/* ==============================================================
+   ADICIONAR FOTOS NOVAS (preview imediato, upload só ao salvar)
+   ============================================================== */
+
+function adicionarFotosNovas(fileList) {
+
+  const arquivos =
+    Array.from(fileList || []);
+
+  if (!arquivos.length) return;
+
+  const imagens =
+    arquivos.filter(
+      arquivo =>
+        arquivo.type.startsWith(
+          "image/"
+        ) ||
+        /\.(heic|heif)$/i.test(
+          arquivo.name || ""
+        )
+    );
+
+  if (!imagens.length) {
+
+    alert(
+      "Selecione apenas arquivos de imagem."
+    );
+
+    return;
+  }
+
+  imagens.forEach(file => {
+
+    fotosItems.push({
+      id: novoFotoId(),
+      tipo: "nova",
+      file,
+      url: URL.createObjectURL(file)
+    });
+
+  });
+
+  renderizarFotos();
 
 }
 
@@ -1290,29 +1569,37 @@ function removerFotoExistente(index) {
 
 function atualizarTextoFotos() {
 
-  const quantidade =
-    fileInput.files
-      ? fileInput.files.length
-      : 0;
+  const total =
+    fotosItems.length;
 
-  if (!quantidade) {
+  if (!total) {
 
     fotosQtdText.textContent =
-      "Nenhuma foto selecionada";
+      "Nenhuma foto adicionada";
 
     return;
   }
 
   fotosQtdText.textContent =
-    quantidade === 1
-      ? "1 foto selecionada"
-      : `${quantidade} fotos selecionadas`;
+    total === 1
+      ? "1 foto no total"
+      : `${total} fotos no total`;
 }
 
 
 fileInput.addEventListener(
   "change",
-  atualizarTextoFotos
+  () => {
+
+    adicionarFotosNovas(
+      fileInput.files
+    );
+
+    // Limpa o input para permitir selecionar
+    // o(s) mesmo(s) arquivo(s) novamente depois
+    fileInput.value = "";
+
+  }
 );
 
 
@@ -1378,48 +1665,7 @@ dropzone.addEventListener(
       return;
     }
 
-    const imagens =
-      [...arquivos].filter(
-        arquivo =>
-          arquivo.type.startsWith(
-            "image/"
-          )
-      );
-
-    if (!imagens.length) {
-
-      alert(
-        "Selecione apenas arquivos de imagem."
-      );
-
-      return;
-    }
-
-    try {
-
-      const dataTransfer =
-        new DataTransfer();
-
-      imagens.forEach(
-        arquivo =>
-          dataTransfer.items.add(
-            arquivo
-          )
-      );
-
-      fileInput.files =
-        dataTransfer.files;
-
-      atualizarTextoFotos();
-
-    } catch (erro) {
-
-      console.error(
-        "Erro ao adicionar arquivos:",
-        erro
-      );
-
-    }
+    adicionarFotosNovas(arquivos);
 
   }
 );
@@ -1774,7 +2020,6 @@ async function salvarImovel(ev) {
     : "Criando imóvel...";
 
   try {
-    const arquivos = Array.from(fileInput.files || []);
 
     // ==========================================================
     // MONTA O DADOS DO IMÓVEL
@@ -1850,9 +2095,6 @@ async function salvarImovel(ev) {
         throw new Error("Imóvel não encontrado no cache.");
       }
 
-      // Mantém apenas as fotos que não foram removidas na edição
-      let fotosExistentes = [...fotosParaManter];
-
       // Primeiro atualiza os dados
       const { error: updateError } = await sb
         .from("imoveis")
@@ -1879,28 +2121,40 @@ async function salvarImovel(ev) {
 
       }
 
-      // Faz upload das novas fotos dentro da pasta do imóvel
-      if (arquivos.length > 0) {
+      // Faz upload apenas das fotos novas (as existentes já estão no Storage),
+      // mantendo a ordem definida em fotosItems (que reflete a reorganização
+      // feita por arrastar-e-soltar)
+      const itensNovos = fotosItems.filter(
+        item => item.tipo === "nova"
+      );
+
+      let caminhosNovos = [];
+
+      if (itensNovos.length > 0) {
 
         btn.textContent = "Enviando fotos...";
 
-        const novasFotos = await uploadFotos(
-          arquivos,
+        caminhosNovos = await uploadFotos(
+          itensNovos.map(item => item.file),
           editandoId
         );
 
-        fotosExistentes = [
-          ...fotosExistentes,
-          ...novasFotos
-        ];
-
       }
 
-      // Atualiza a lista final de fotos (removidas e/ou adicionadas)
+      let indiceNovo = 0;
+
+      const fotosFinal = fotosItems.map(
+        item =>
+          item.tipo === "existente"
+            ? item.valor
+            : caminhosNovos[indiceNovo++]
+      );
+
+      // Atualiza a lista final de fotos, já na ordem escolhida
       const { error: fotosError } = await sb
         .from("imoveis")
         .update({
-          fotos: fotosExistentes
+          fotos: fotosFinal
         })
         .eq("id", editandoId);
 
@@ -1951,20 +2205,23 @@ async function salvarImovel(ev) {
       // E PODEMOS CRIAR A "PASTA"
       // ========================================================
 
-      if (arquivos.length > 0) {
+      if (fotosItems.length > 0) {
 
         btn.textContent = "Enviando fotos...";
 
-        const novasFotos = await uploadFotos(
-          arquivos,
+        // Ao criar, todos os itens são fotos novas (ainda não há
+        // fotos existentes), mas percorremos fotosItems para
+        // respeitar a ordem escolhida na tela
+        const caminhosNovos = await uploadFotos(
+          fotosItems.map(item => item.file),
           novoId
         );
 
-        // Salva os caminhos das fotos no registro
+        // Salva os caminhos das fotos no registro, já na ordem certa
         const { error: fotosError } = await sb
           .from("imoveis")
           .update({
-            fotos: novasFotos
+            fotos: caminhosNovos
           })
           .eq("id", novoId);
 
@@ -2111,16 +2368,20 @@ function editarImovel(id) {
   ).style.display =
     "inline-block";
 
-  atualizarTextoFotos();
-
-  fotosParaManter =
+  fotosItems =
     Array.isArray(im.fotos)
-      ? [...im.fotos]
+      ? im.fotos.map(
+          foto => ({
+            id: novoFotoId(),
+            tipo: "existente",
+            valor: foto
+          })
+        )
       : [];
 
   fotosParaExcluirDoStorage = [];
 
-  renderizarFotosExistentes();
+  renderizarFotos();
 
   carregarBairros();
 
@@ -2156,12 +2417,17 @@ function cancelarEdicao() {
   fileInput.value =
     "";
 
-  atualizarTextoFotos();
+  // Libera as pré-visualizações (object URLs) das fotos novas pendentes
+  fotosItems.forEach(item => {
+    if (item.tipo === "nova" && item.url) {
+      URL.revokeObjectURL(item.url);
+    }
+  });
 
-  fotosParaManter = [];
+  fotosItems = [];
   fotosParaExcluirDoStorage = [];
 
-  renderizarFotosExistentes();
+  renderizarFotos();
 
 }
 
