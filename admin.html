@@ -769,7 +769,12 @@ tr:last-child td{
 
         <div>
           <label>Rua do imóvel</label>
-          <input name="rua" placeholder="Rua, Avenida, número...">
+          <input name="rua" placeholder="Rua, Avenida...">
+        </div>
+
+        <div>
+          <label>Número da Casa</label>
+          <input name="numero_casa" type="text" placeholder="Ex.: 123, 123A, s/n">
         </div>
 
       </div>
@@ -2070,6 +2075,9 @@ async function salvarImovel(ev) {
       rua:
         fd.get("rua")?.trim() || null,
 
+      numero_casa:
+        fd.get("numero_casa")?.trim() || null,
+
       descricao:
         fd.get("descricao")?.trim() || null,
 
@@ -2341,6 +2349,11 @@ function editarImovel(id) {
 
   form.rua.value =
     im.rua || "";
+
+  if (form.numero_casa) {
+    form.numero_casa.value =
+      im.numero_casa || "";
+  }
 
   form.descricao.value =
     im.descricao || "";
@@ -2988,6 +3001,9 @@ function renderizarTabela(
 
               ${escapeHtml(
                 [
+                  im.rua
+                    ? `${im.rua}${im.numero_casa ? ", " + im.numero_casa : ""}`
+                    : (im.numero_casa ? `Nº ${im.numero_casa}` : ""),
                   im.bairro,
                   im.cidade
                 ]
@@ -3155,6 +3171,9 @@ function exportarExcel() {
 
         "Rua":
           im.rua || "—",
+
+        "Número da Casa":
+          im.numero_casa || "—",
 
         "Área construída (m²)":
           im.area_construida_m2 ??
