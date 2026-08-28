@@ -141,11 +141,15 @@
   }
   
   /* SEARCH CARD */
-  .search-card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 48px rgba(12,24,18,.08);margin-top:28px;padding:8px;display:grid;grid-template-columns:repeat(5,minmax(100px,1fr)) auto;align-items:stretch;position:relative;}
+  .search-card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 48px rgba(12,24,18,.08);margin-top:28px;padding:8px;display:grid;grid-template-columns:repeat(6,minmax(90px,1fr)) auto;align-items:stretch;position:relative;}
   .search-card .field{position:relative;border-right:1px solid var(--line);min-width:0;}
   .search-card .field:last-of-type{border-right:none;}
   .search-card .field label{display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin:16px 18px 4px;font-weight:600;white-space:nowrap;pointer-events:none;}
   .dropdown-btn{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:0 18px 14px;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);font-weight:500;border-radius:10px;}
+  .codigo-filtro{padding:0;}
+  .codigo-filtro label{display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin:16px 18px 4px;font-weight:600;white-space:nowrap;}
+  .codigo-filtro input{display:block;width:calc(100% - 36px);margin:0 18px 14px;padding:0;border:0;outline:none;background:transparent;font:500 14px Inter;color:var(--ink);}
+  .codigo-filtro input::placeholder{color:#8A938D;}
   .dropdown-valor{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .dropdown-seta{font-size:20px;font-weight:800;color:var(--ink-soft);flex-shrink:0;transition:transform .15s ease;}
   .field:hover{background:var(--offwhite);border-radius:10px;}
@@ -301,6 +305,7 @@
       <span class="header-phone">(35) 3266-1985</span>
       <a class="btn-outline-header" href="anunciar.html">Anunciar imóvel</a>
       <button class="btn-login-header" id="btn-login-header" type="button">Entrar</button>
+      <a class="btn-outline-header" id="btn-admin-header" href="/admin" style="display:none;">Administrador</a>
       <button class="hero-fixed-toggle" id="btn-capa-fixa" type="button" aria-pressed="false" title="Alternar capa fixa">
         <span class="toggle-dot"></span><span id="capa-fixa-texto">Capa fixa</span>
       </button>
@@ -337,6 +342,11 @@
     </div>
 
     <div class="search-card" id="form-busca">
+      <div class="field codigo-filtro">
+        <label for="filtro-codigo">Código da casa</label>
+        <input id="filtro-codigo" type="text" inputmode="text" autocomplete="off" placeholder="Ex.: 1234" aria-label="Código da casa">
+      </div>
+
       <div class="field dropdown" data-campo="finalidade" tabindex="0">
         <label>Finalidade</label>
         <button type="button" class="dropdown-btn"><span class="dropdown-valor">Qualquer</span><span class="dropdown-seta">▾</span></button>
@@ -564,6 +574,7 @@
 const authBackdrop=document.getElementById("auth-backdrop");
 const authMsg=document.getElementById("auth-msg");
 const authBtn=document.getElementById("btn-login-header");
+const btnAdminHeader=document.getElementById("btn-admin-header");
 const btnCapaFixa=document.getElementById("btn-capa-fixa");
 const capaFixaTexto=document.getElementById("capa-fixa-texto");
 
@@ -624,11 +635,13 @@ async function atualizarLoginHeader(){
   if(autenticado){
     authBtn.textContent="Sair";
     authBtn.classList.add("auth-session");
+    if(btnAdminHeader) btnAdminHeader.style.display="inline-flex";
     btnCapaFixa.classList.add("visivel");
     atualizarVisualCapaFixa(capaFixaGlobal);
   }else{
     authBtn.textContent="Entrar";
     authBtn.classList.remove("auth-session");
+    if(btnAdminHeader) btnAdminHeader.style.display="none";
     btnCapaFixa.classList.remove("visivel");
   }
 }
@@ -766,6 +779,7 @@ let temMaisImoveis = true;
 
 let filtroPrecoMin = "";
 let filtroPrecoMax = "";
+let filtroCodigo = "";
 
 const valoresDropdown = {
   finalidade: "Qualquer",
@@ -800,7 +814,8 @@ function pegarFiltrosAtuais() {
     cidade: valoresDropdown.cidade,
     bairro: valoresDropdown.bairro,
     precoMin: filtroPrecoMin !== "" ? Number(filtroPrecoMin) : null,
-    precoMax: filtroPrecoMax !== "" ? Number(filtroPrecoMax) : null
+    precoMax: filtroPrecoMax !== "" ? Number(filtroPrecoMax) : null,
+    codigo: filtroCodigo
   };
 }
 
@@ -809,6 +824,51 @@ function pegarFiltrosAtuais() {
    (fmtPreco, urlFoto, rotuloFinalidade, cardHtml e buscarImoveis
    vêm de assets/site.js)
    ============================================================ */
+
+async function buscarImoveisComCodigo(filtros) {
+  const codigo = String(filtros.codigo || "").trim();
+
+  if (!codigo) {
+    return buscarImoveis(filtros);
+  }
+
+  let query = sb
+    .from("imoveis")
+    .select("*", { count: "exact" })
+    .eq("disponivel", true)
+    .ilike("codigo", `%${codigo.replace(/[%_]/g, "")}%`);
+
+  if (filtros.finalidade && filtros.finalidade !== "Qualquer") {
+    query = query.eq("finalidade", filtros.finalidade);
+  }
+  if (filtros.tipo && filtros.tipo !== "Qualquer") {
+    query = query.eq("tipo", filtros.tipo);
+  }
+  if (filtros.cidade && filtros.cidade !== "Todas") {
+    query = query.eq("cidade", filtros.cidade);
+  }
+  if (filtros.bairro && filtros.bairro !== "Todos") {
+    query = query.eq("bairro", filtros.bairro);
+  }
+  if (filtros.precoMin !== null && filtros.precoMin !== undefined) {
+    query = query.gte("preco", filtros.precoMin);
+  }
+  if (filtros.precoMax !== null && filtros.precoMax !== undefined) {
+    query = query.lte("preco", filtros.precoMax);
+  }
+
+  query = query
+    .order("criado_em", { ascending: false })
+    .range(
+      filtros.pagina * filtros.limite,
+      filtros.pagina * filtros.limite + filtros.limite - 1
+    );
+
+  const { data, error, count } = await query;
+  if (error) throw error;
+
+  return { imoveis: data || [], total: count || 0 };
+}
 
 async function renderizarResultados(reset = true) {
   if (carregando) return;
@@ -831,7 +891,7 @@ async function renderizarResultados(reset = true) {
   try {
     const filtros = pegarFiltrosAtuais();
 
-    const resultado = await buscarImoveis({
+    const resultado = await buscarImoveisComCodigo({
       ...filtros,
       pagina: paginaAtual,
       limite: TAMANHO_PAGINA
@@ -1342,6 +1402,26 @@ document.addEventListener("click", () => {
 });
 
 /* ============================================================
+   FILTRO POR CÓDIGO DA CASA
+   ============================================================ */
+
+const filtroCodigoInput = document.getElementById("filtro-codigo");
+
+if (filtroCodigoInput) {
+  filtroCodigoInput.addEventListener("input", () => {
+    filtroCodigo = filtroCodigoInput.value.trim();
+  });
+
+  filtroCodigoInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      filtroCodigo = filtroCodigoInput.value.trim();
+      renderizarResultados(true);
+    }
+  });
+}
+
+/* ============================================================
    PREÇO PERSONALIZADO
    ============================================================ */
 
@@ -1542,6 +1622,7 @@ function aplicarFiltrosDaUrl() {
   const params = new URLSearchParams(location.search);
   const finalidade = params.get("finalidade");
   const tipo = params.get("tipo");
+  const codigo = params.get("codigo");
 
   let aplicado = false;
 
@@ -1552,6 +1633,14 @@ function aplicarFiltrosDaUrl() {
 
   if (tipo) {
     selecionarValorDropdownPorCampo("tipo", tipo);
+    aplicado = true;
+  }
+
+  if (codigo) {
+    filtroCodigo = codigo.trim();
+    if (filtroCodigoInput) {
+      filtroCodigoInput.value = filtroCodigo;
+    }
     aplicado = true;
   }
 
