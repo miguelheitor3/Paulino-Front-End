@@ -436,7 +436,7 @@ textarea{
 }
 
 /* ============================================================
-   TABELA
+   TABELA E LINKS
    ============================================================ */
 
 .tabela-container{
@@ -534,6 +534,16 @@ tr:last-child td{
   font-size:11px;
   color:var(--ink-soft);
   margin-top:2px;
+}
+
+.link-titulo {
+  color: var(--green);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.link-titulo:hover {
+  text-decoration: underline;
 }
 
 /* ============================================================
@@ -2961,11 +2971,13 @@ function renderizarTabela(
 
 
             <td>
-
-              ${escapeHtml(
-                im.titulo ||
-                "—"
-              )}
+              <!-- LINK ADICIONADO AQUI -->
+              <a href="imovel.html?id=${escapeHtml(im.id)}" target="_blank" class="link-titulo">
+                ${escapeHtml(
+                  im.titulo ||
+                  "—"
+                )}
+              </a>
 
             </td>
 
