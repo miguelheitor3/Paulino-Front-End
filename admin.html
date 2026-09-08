@@ -4603,6 +4603,32 @@ sb.auth.onAuthStateChange(
 
 checarSessao();
 
+// ==============================================================
+// ALTERNÂNCIA DE ABAS
+// ==============================================================
+
+document.addEventListener("DOMContentLoaded", () => {
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const tabPanels = document.querySelectorAll(".tab-panel");
+
+  tabButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      const targetTab = button.getAttribute("data-tab");
+
+      // Remove a classe 'active' de todos os botões e painéis
+      tabButtons.forEach(btn => btn.classList.remove("active"));
+      tabPanels.forEach(panel => panel.classList.remove("active"));
+
+      // Adiciona a classe 'active' no botão clicado e no painel correspondente
+      button.classList.add("active");
+      const targetPanel = document.getElementById(`tab-${targetTab}`);
+      if (targetPanel) {
+        targetPanel.classList.add("active");
+      }
+    });
+  });
+});
+  
 </script>
 
 </body>
