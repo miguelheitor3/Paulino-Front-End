@@ -1241,8 +1241,6 @@ let carregandoTabela = false;
 
 let cidadesCarregadas = false;
 
-// Lista unificada e ordenada das fotos do imóvel (existentes + novas,
-// ainda não enviadas). Cada item: { id, tipo:'existente'|'nova', valor?, file?, url? }
 let fotosItems = [];
 
 let fotosParaExcluirDoStorage = [];
@@ -1284,7 +1282,7 @@ const precoInput =
 
 
 /* ==============================================================
-   FOTOS EXISTENTES (edição)
+   FOTOS EXISTENTES (edição + pré-visualização)
    ============================================================== */
 
 function renderizarFotos() {
@@ -1409,7 +1407,7 @@ function removerFotoItem(id) {
 
 
 /* ==============================================================
-   REORDENAR FOTOS (drag & drop entre as miniaturas)
+   REORDENAR FOTOS (drag & drop)
    ============================================================== */
 
 function ativarDragFotos() {
@@ -1440,7 +1438,6 @@ function ativarDragFotos() {
         event.dataTransfer.effectAllowed =
           "move";
 
-        // Necessário para o Firefox aceitar o drag
         event.dataTransfer.setData(
           "text/plain",
           card.dataset.index
@@ -1532,7 +1529,7 @@ function ativarDragFotos() {
 
 
 /* ==============================================================
-   ADICIONAR FOTOS NOVAS (preview imediato, upload só ao salvar)
+   ADICIONAR FOTOS NOVAS
    ============================================================== */
 
 function adicionarFotosNovas(fileList) {
@@ -1610,8 +1607,6 @@ fileInput.addEventListener(
       fileInput.files
     );
 
-    // Limpa o input para permitir selecionar
-    // o(s) mesmo(s) arquivo(s) novamente depois
     fileInput.value = "";
 
   }
@@ -1928,32 +1923,8 @@ function mostrarMsg(
 
 
 /* ==============================================================
-   UPLOAD
+   UPLOAD E PROCESSAMENTO DE IMAGENS
    ============================================================== */
-
-function gerarNomeArquivo(
-  arquivo
-) {
-
-  const extensao =
-    arquivo.name.includes(".")
-      ? arquivo.name
-          .split(".")
-          .pop()
-          .toLowerCase()
-      : "jpg";
-
-  const id =
-    crypto.randomUUID
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.random()
-          .toString(36)
-          .slice(2)}`;
-
-  return `${id}.${extensao}`;
-
-}
-
 
 async function prepararImagemParaUpload(arquivo) {
   const tipo = (arquivo.type || "").toLowerCase();
@@ -1974,17 +1945,48 @@ async function prepararImagemParaUpload(arquivo) {
   }
 
   try {
-    const bitmap = await createImageBitmap(arquivo);
+    let width, height, drawable, tempImg;
+
+    if (typeof createImageBitmap === "function") {
+      try {
+        tempImg = await createImageBitmap(arquivo);
+        width = tempImg.width;
+        height = tempImg.height;
+        drawable = tempImg;
+      } catch (e) {
+        tempImg = null;
+      }
+    }
+
+    if (!drawable) {
+      const url = URL.createObjectURL(arquivo);
+      const img = new Image();
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = url;
+      });
+      URL.revokeObjectURL(url);
+      width = img.naturalWidth;
+      height = img.naturalHeight;
+      drawable = img;
+    }
+
     const max = 2400;
-    const escala = Math.min(1, max / Math.max(bitmap.width, bitmap.height));
+    const escala = Math.min(1, max / Math.max(width, height));
     const canvas = document.createElement("canvas");
-    canvas.width = Math.max(1, Math.round(bitmap.width * escala));
-    canvas.height = Math.max(1, Math.round(bitmap.height * escala));
+    canvas.width = Math.max(1, Math.round(width * escala));
+    canvas.height = Math.max(1, Math.round(height * escala));
     const ctx = canvas.getContext("2d", { alpha: false });
-    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-    bitmap.close?.();
+    ctx.drawImage(drawable, 0, 0, canvas.width, canvas.height);
+
+    if (tempImg && typeof tempImg.close === "function") {
+      tempImg.close();
+    }
+
     const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", 0.88));
     if (!blob) throw new Error("Não foi possível converter a imagem para JPG.");
+    
     const base = nome.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_") || "foto";
     return { arquivo: new File([blob], `${base}.jpg`, { type: "image/jpeg" }), extensao: "jpg" };
   } catch (erro) {
@@ -2000,12 +2002,22 @@ async function uploadFotos(arquivos, imovelId) {
   for (const original of arquivos) {
     const preparado = await prepararImagemParaUpload(original);
     const arquivo = preparado.arquivo;
-    const nomeArquivo = `${Date.now()}-${Math.random().toString(36).slice(2)}-${arquivo.name}`;
+
+    const nomeSanitizado = arquivo.name
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9._-]/g, "_");
+
+    const nomeArquivo = `${Date.now()}-${Math.random().toString(36).slice(2)}-${nomeSanitizado}`;
     const caminho = `${imovelId}/${nomeArquivo}`;
 
     const { error } = await sb.storage
       .from("fotos-imoveis")
-      .upload(caminho, arquivo, { cacheControl: "3600", upsert: false, contentType: "image/jpeg" });
+      .upload(caminho, arquivo, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: arquivo.type || "image/jpeg"
+      });
 
     if (error) {
       console.error("Erro ao enviar foto:", original.name, error);
@@ -2035,10 +2047,6 @@ async function salvarImovel(ev) {
     : "Criando imóvel...";
 
   try {
-
-    // ==========================================================
-    // MONTA O DADOS DO IMÓVEL
-    // ==========================================================
 
     const payload = {
       titulo: fd.get("titulo")?.trim() || "",
@@ -2099,10 +2107,6 @@ async function salvarImovel(ev) {
     };
 
 
-    // ==========================================================
-    // EDITANDO IMÓVEL EXISTENTE
-    // ==========================================================
-
     if (editandoId) {
 
       const existente = imoveisCache.find(
@@ -2113,7 +2117,6 @@ async function salvarImovel(ev) {
         throw new Error("Imóvel não encontrado no cache.");
       }
 
-      // Primeiro atualiza os dados
       const { error: updateError } = await sb
         .from("imoveis")
         .update(payload)
@@ -2123,7 +2126,6 @@ async function salvarImovel(ev) {
         throw updateError;
       }
 
-      // Remove do Storage as fotos que o usuário excluiu nesta edição
       if (fotosParaExcluirDoStorage.length > 0) {
 
         const { error: removerError } = await sb.storage
@@ -2139,9 +2141,6 @@ async function salvarImovel(ev) {
 
       }
 
-      // Faz upload apenas das fotos novas (as existentes já estão no Storage),
-      // mantendo a ordem definida em fotosItems (que reflete a reorganização
-      // feita por arrastar-e-soltar)
       const itensNovos = fotosItems.filter(
         item => item.tipo === "nova"
       );
@@ -2168,7 +2167,6 @@ async function salvarImovel(ev) {
             : caminhosNovos[indiceNovo++]
       );
 
-      // Atualiza a lista final de fotos, já na ordem escolhida
       const { error: fotosError } = await sb
         .from("imoveis")
         .update({
@@ -2187,14 +2185,8 @@ async function salvarImovel(ev) {
 
     }
 
-    // ==========================================================
-    // CRIANDO NOVO IMÓVEL
-    // ==========================================================
-
     else {
 
-      // Primeiro cria o imóvel.
-      // O Supabase gera o ID.
       btn.textContent = "Criando imóvel...";
 
       const { data: novoImovel, error: insertError } = await sb
@@ -2218,24 +2210,15 @@ async function salvarImovel(ev) {
 
       const novoId = novoImovel.id;
 
-      // ========================================================
-      // AGORA TEMOS O ID
-      // E PODEMOS CRIAR A "PASTA"
-      // ========================================================
-
       if (fotosItems.length > 0) {
 
         btn.textContent = "Enviando fotos...";
 
-        // Ao criar, todos os itens são fotos novas (ainda não há
-        // fotos existentes), mas percorremos fotosItems para
-        // respeitar a ordem escolhida na tela
         const caminhosNovos = await uploadFotos(
           fotosItems.map(item => item.file),
           novoId
         );
 
-        // Salva os caminhos das fotos no registro, já na ordem certa
         const { error: fotosError } = await sb
           .from("imoveis")
           .update({
@@ -2253,10 +2236,6 @@ async function salvarImovel(ev) {
         "ok"
       );
     }
-
-    // ==========================================================
-    // FINALIZA
-    // ==========================================================
 
     cancelarEdicao();
 
@@ -2440,7 +2419,6 @@ function cancelarEdicao() {
   fileInput.value =
     "";
 
-  // Libera as pré-visualizações (object URLs) das fotos novas pendentes
   fotosItems.forEach(item => {
     if (item.tipo === "nova" && item.url) {
       URL.revokeObjectURL(item.url);
@@ -2533,10 +2511,6 @@ async function excluirImovel(
 
   try {
 
-    /* ----------------------------------------------------------
-       PRIMEIRO REMOVE O REGISTRO DO BANCO
-       ---------------------------------------------------------- */
-
     const {
       error
     } = await sb
@@ -2550,10 +2524,6 @@ async function excluirImovel(
     if (error) {
       throw error;
     }
-
-    /* ----------------------------------------------------------
-       DEPOIS REMOVE AS FOTOS
-       ---------------------------------------------------------- */
 
     if (
       Array.isArray(im.fotos) &&
@@ -2971,7 +2941,6 @@ function renderizarTabela(
 
 
             <td>
-              <!-- LINK ADICIONADO AQUI -->
               <a href="imovel.html?id=${escapeHtml(im.id)}" target="_blank" class="link-titulo">
                 ${escapeHtml(
                   im.titulo ||
@@ -3394,22 +3363,15 @@ async function carregarBairros() {
       "f-cidade"
     );
 
-  const bairro =
-    document.getElementById(
-      "f-bairro"
-    );
-
   const listaBairros =
     document.getElementById(
       "lista-bairros"
     );
 
-
   const cidadeNormalizada =
     normalizarLocal(
       cidade.value
     );
-
 
   try {
 
@@ -3425,29 +3387,14 @@ async function carregarBairros() {
           null
         );
 
-
-    if (cidadeNormalizada) {
-
-      /*
-       * Buscamos os imóveis e fazemos
-       * a comparação sem acento no JS,
-       * pois ilike não resolve todos os
-       * casos de acentuação.
-       */
-
-    }
-
-
     const {
       data,
       error
     } = await query;
 
-
     if (error) {
       throw error;
     }
-
 
     const bairros =
       [
@@ -3485,7 +3432,6 @@ async function carregarBairros() {
           )
       );
 
-
     listaBairros.innerHTML =
       bairros
         .map(
@@ -3495,7 +3441,6 @@ async function carregarBairros() {
             )}"></option>`
         )
         .join("");
-
 
   } catch (erro) {
 
@@ -3542,7 +3487,6 @@ function preencherFiltroMeses() {
     .sort()
     .reverse();
 
-
   const formatter =
     new Intl.DateTimeFormat(
       "pt-BR",
@@ -3550,7 +3494,6 @@ function preencherFiltroMeses() {
         month:"long"
       }
     );
-
 
   select.innerHTML =
     `
@@ -3585,7 +3528,6 @@ function preencherFiltroMeses() {
               .toUpperCase() +
             nome.slice(1);
 
-
           return `
             <option value="${chave}">
               ${nomeFormatado}, ${ano}
@@ -3610,14 +3552,12 @@ document
     entrar
   );
 
-
 document
   .getElementById("btn-sair")
   .addEventListener(
     "click",
     sair
   );
-
 
 document
   .getElementById(
@@ -3628,7 +3568,6 @@ document
     cancelarEdicao
   );
 
-
 document
   .getElementById(
     "btn-exportar"
@@ -3638,12 +3577,10 @@ document
     exportarExcel
   );
 
-
 form.addEventListener(
   "submit",
   salvarImovel
 );
-
 
 [
   "filtro-termo",
