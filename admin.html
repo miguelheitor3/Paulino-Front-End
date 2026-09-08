@@ -19,6 +19,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
 <style>
 
 :root{
@@ -547,6 +549,172 @@ tr:last-child td{
 }
 
 /* ============================================================
+   ABAS (TABS)
+   ============================================================ */
+
+.tabs-nav{
+  display:flex;
+  gap:4px;
+  margin-bottom:28px;
+  border-bottom:1px solid var(--line);
+}
+
+.tab-btn{
+  padding:12px 20px;
+  border:0;
+  background:transparent;
+  font-family:'Archivo',sans-serif;
+  font-weight:700;
+  font-size:14px;
+  color:var(--ink-soft);
+  cursor:pointer;
+  border-bottom:2.5px solid transparent;
+  margin-bottom:-1px;
+  transition:.15s ease;
+}
+
+.tab-btn:hover{
+  color:var(--ink);
+}
+
+.tab-btn.active{
+  color:var(--green);
+  border-bottom-color:var(--green);
+}
+
+.tab-panel{
+  display:none;
+}
+
+.tab-panel.active{
+  display:block;
+}
+
+/* ============================================================
+   DASHBOARD — KPIs
+   ============================================================ */
+
+.dash-topo{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:18px;
+  gap:16px;
+  flex-wrap:wrap;
+}
+
+.dash-topo p{
+  font-size:13px;
+  color:var(--ink-soft);
+}
+
+.kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:14px;
+  margin-bottom:28px;
+}
+
+.kpi-card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:18px 20px;
+  position:relative;
+  overflow:hidden;
+}
+
+.kpi-card::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:3px;
+  background:var(--green);
+}
+
+.kpi-card.red::before{
+  background:var(--red);
+}
+
+.kpi-icon{
+  position:absolute;
+  right:16px;
+  top:14px;
+  font-size:18px;
+  opacity:.35;
+}
+
+.kpi-label{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  color:var(--ink-soft);
+  font-weight:600;
+  margin-bottom:8px;
+  padding-right:22px;
+}
+
+.kpi-value{
+  font-family:'Archivo',sans-serif;
+  font-weight:800;
+  font-size:24px;
+  color:var(--ink);
+  line-height:1.15;
+}
+
+.kpi-sub{
+  font-size:11.5px;
+  color:var(--ink-soft);
+  margin-top:5px;
+}
+
+/* ============================================================
+   DASHBOARD — GRÁFICOS
+   ============================================================ */
+
+.charts-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+  margin-bottom:18px;
+}
+
+.charts-grid.full{
+  grid-template-columns:1fr;
+}
+
+.chart-card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:20px;
+}
+
+.chart-card h3{
+  font-family:'Archivo',sans-serif;
+  font-weight:700;
+  font-size:14.5px;
+  margin-bottom:2px;
+}
+
+.chart-card .chart-sub{
+  font-size:11.5px;
+  color:var(--ink-soft);
+  margin-bottom:14px;
+}
+
+.chart-wrap{
+  position:relative;
+  height:260px;
+}
+
+.chart-wrap.tall{
+  height:320px;
+}
+
+/* ============================================================
    RESPONSIVO
    ============================================================ */
 
@@ -562,6 +730,10 @@ tr:last-child td{
 
   .local-grid{
     grid-template-columns:1fr 1fr;
+  }
+
+  .charts-grid{
+    grid-template-columns:1fr;
   }
 
 }
@@ -660,6 +832,162 @@ tr:last-child td{
 
   </div>
 
+
+  <!-- ==========================================================
+       NAVEGAÇÃO POR ABAS
+       ========================================================== -->
+
+  <div class="tabs-nav">
+
+    <button class="tab-btn active" type="button" data-tab="dashboard">
+      📊 Dashboard
+    </button>
+
+    <button class="tab-btn" type="button" data-tab="imoveis">
+      🏠 Imóveis
+    </button>
+
+  </div>
+
+
+  <!-- ==========================================================
+       ABA: DASHBOARD
+       ========================================================== -->
+
+  <div class="tab-panel active" id="tab-dashboard">
+
+    <div class="dash-topo">
+      <p>Visão geral em tempo real da carteira de imóveis, atualizada automaticamente a cada carregamento.</p>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+
+      <div class="kpi-card">
+        <span class="kpi-icon">🏘️</span>
+        <div class="kpi-label">Total de imóveis</div>
+        <div class="kpi-value" id="kpi-total">—</div>
+        <div class="kpi-sub" id="kpi-novos-mes-sub">—</div>
+      </div>
+
+      <div class="kpi-card">
+        <span class="kpi-icon">✅</span>
+        <div class="kpi-label">Disponíveis</div>
+        <div class="kpi-value" id="kpi-disponiveis">—</div>
+        <div class="kpi-sub" id="kpi-disponiveis-pct">—</div>
+      </div>
+
+      <div class="kpi-card red">
+        <span class="kpi-icon">🚫</span>
+        <div class="kpi-label">Vendidos / Inativos</div>
+        <div class="kpi-value" id="kpi-vendidos">—</div>
+        <div class="kpi-sub" id="kpi-vendidos-pct">—</div>
+      </div>
+
+      <div class="kpi-card">
+        <span class="kpi-icon">💰</span>
+        <div class="kpi-label">Valor em carteira</div>
+        <div class="kpi-value" id="kpi-valor-carteira">—</div>
+        <div class="kpi-sub">Soma dos disponíveis com preço</div>
+      </div>
+
+      <div class="kpi-card">
+        <span class="kpi-icon">📈</span>
+        <div class="kpi-label">Ticket médio</div>
+        <div class="kpi-value" id="kpi-ticket-medio">—</div>
+        <div class="kpi-sub">Preço médio dos disponíveis</div>
+      </div>
+
+      <div class="kpi-card">
+        <span class="kpi-icon">👁️</span>
+        <div class="kpi-label">Visualizações totais</div>
+        <div class="kpi-value" id="kpi-views">—</div>
+        <div class="kpi-sub">Soma de todos os imóveis</div>
+      </div>
+
+    </div>
+
+    <!-- Gráficos -->
+    <div class="charts-grid">
+
+      <div class="chart-card">
+        <h3>Imóveis por tipo</h3>
+        <div class="chart-sub">Quantidade cadastrada em cada categoria</div>
+        <div class="chart-wrap">
+          <canvas id="chart-tipo"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Imóveis por finalidade</h3>
+        <div class="chart-sub">Comprar, alugar ou temporada</div>
+        <div class="chart-wrap">
+          <canvas id="chart-finalidade"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="charts-grid">
+
+      <div class="chart-card">
+        <h3>Disponibilidade</h3>
+        <div class="chart-sub">Proporção de imóveis ativos na carteira</div>
+        <div class="chart-wrap">
+          <canvas id="chart-status"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Preço médio por tipo</h3>
+        <div class="chart-sub">Ticket médio de cada categoria de imóvel</div>
+        <div class="chart-wrap">
+          <canvas id="chart-preco-tipo"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="charts-grid full">
+
+      <div class="chart-card">
+        <h3>Evolução de cadastros</h3>
+        <div class="chart-sub">Novos imóveis cadastrados nos últimos 12 meses</div>
+        <div class="chart-wrap tall">
+          <canvas id="chart-evolucao"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="charts-grid">
+
+      <div class="chart-card">
+        <h3>Top cidades</h3>
+        <div class="chart-sub">Cidades com mais imóveis cadastrados</div>
+        <div class="chart-wrap">
+          <canvas id="chart-cidades"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Mais visualizados</h3>
+        <div class="chart-sub">Top 10 imóveis com mais acessos</div>
+        <div class="chart-wrap">
+          <canvas id="chart-top-views"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ==========================================================
+       ABA: IMÓVEIS (formulário + listagem)
+       ========================================================== -->
+
+  <div class="tab-panel" id="tab-imoveis">
 
   <!-- ==========================================================
        FORMULÁRIO
@@ -1207,6 +1535,9 @@ tr:last-child td{
 
   </div>
 
+  </div>
+  <!-- fim da aba imóveis -->
+
 </div>
 
 </div>
@@ -1241,6 +1572,8 @@ let carregandoTabela = false;
 
 let cidadesCarregadas = false;
 
+// Lista unificada e ordenada das fotos do imóvel (existentes + novas,
+// ainda não enviadas). Cada item: { id, tipo:'existente'|'nova', valor?, file?, url? }
 let fotosItems = [];
 
 let fotosParaExcluirDoStorage = [];
@@ -1248,6 +1581,9 @@ let fotosParaExcluirDoStorage = [];
 let contadorFotoId = 0;
 
 let dragIndexFoto = null;
+
+// Instâncias ativas dos gráficos do Dashboard (por id do canvas)
+const graficosDashboard = {};
 
 function novoFotoId() {
   contadorFotoId += 1;
@@ -1282,7 +1618,7 @@ const precoInput =
 
 
 /* ==============================================================
-   FOTOS EXISTENTES (edição + pré-visualização)
+   FOTOS EXISTENTES (edição)
    ============================================================== */
 
 function renderizarFotos() {
@@ -1407,7 +1743,7 @@ function removerFotoItem(id) {
 
 
 /* ==============================================================
-   REORDENAR FOTOS (drag & drop)
+   REORDENAR FOTOS (drag & drop entre as miniaturas)
    ============================================================== */
 
 function ativarDragFotos() {
@@ -1438,6 +1774,7 @@ function ativarDragFotos() {
         event.dataTransfer.effectAllowed =
           "move";
 
+        // Necessário para o Firefox aceitar o drag
         event.dataTransfer.setData(
           "text/plain",
           card.dataset.index
@@ -1529,7 +1866,7 @@ function ativarDragFotos() {
 
 
 /* ==============================================================
-   ADICIONAR FOTOS NOVAS
+   ADICIONAR FOTOS NOVAS (preview imediato, upload só ao salvar)
    ============================================================== */
 
 function adicionarFotosNovas(fileList) {
@@ -1607,6 +1944,8 @@ fileInput.addEventListener(
       fileInput.files
     );
 
+    // Limpa o input para permitir selecionar
+    // o(s) mesmo(s) arquivo(s) novamente depois
     fileInput.value = "";
 
   }
@@ -1923,8 +2262,32 @@ function mostrarMsg(
 
 
 /* ==============================================================
-   UPLOAD E PROCESSAMENTO DE IMAGENS
+   UPLOAD
    ============================================================== */
+
+function gerarNomeArquivo(
+  arquivo
+) {
+
+  const extensao =
+    arquivo.name.includes(".")
+      ? arquivo.name
+          .split(".")
+          .pop()
+          .toLowerCase()
+      : "jpg";
+
+  const id =
+    crypto.randomUUID
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random()
+          .toString(36)
+          .slice(2)}`;
+
+  return `${id}.${extensao}`;
+
+}
+
 
 async function prepararImagemParaUpload(arquivo) {
   const tipo = (arquivo.type || "").toLowerCase();
@@ -1945,48 +2308,17 @@ async function prepararImagemParaUpload(arquivo) {
   }
 
   try {
-    let width, height, drawable, tempImg;
-
-    if (typeof createImageBitmap === "function") {
-      try {
-        tempImg = await createImageBitmap(arquivo);
-        width = tempImg.width;
-        height = tempImg.height;
-        drawable = tempImg;
-      } catch (e) {
-        tempImg = null;
-      }
-    }
-
-    if (!drawable) {
-      const url = URL.createObjectURL(arquivo);
-      const img = new Image();
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-        img.src = url;
-      });
-      URL.revokeObjectURL(url);
-      width = img.naturalWidth;
-      height = img.naturalHeight;
-      drawable = img;
-    }
-
+    const bitmap = await createImageBitmap(arquivo);
     const max = 2400;
-    const escala = Math.min(1, max / Math.max(width, height));
+    const escala = Math.min(1, max / Math.max(bitmap.width, bitmap.height));
     const canvas = document.createElement("canvas");
-    canvas.width = Math.max(1, Math.round(width * escala));
-    canvas.height = Math.max(1, Math.round(height * escala));
+    canvas.width = Math.max(1, Math.round(bitmap.width * escala));
+    canvas.height = Math.max(1, Math.round(bitmap.height * escala));
     const ctx = canvas.getContext("2d", { alpha: false });
-    ctx.drawImage(drawable, 0, 0, canvas.width, canvas.height);
-
-    if (tempImg && typeof tempImg.close === "function") {
-      tempImg.close();
-    }
-
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close?.();
     const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", 0.88));
     if (!blob) throw new Error("Não foi possível converter a imagem para JPG.");
-    
     const base = nome.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_") || "foto";
     return { arquivo: new File([blob], `${base}.jpg`, { type: "image/jpeg" }), extensao: "jpg" };
   } catch (erro) {
@@ -2002,22 +2334,12 @@ async function uploadFotos(arquivos, imovelId) {
   for (const original of arquivos) {
     const preparado = await prepararImagemParaUpload(original);
     const arquivo = preparado.arquivo;
-
-    const nomeSanitizado = arquivo.name
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-zA-Z0-9._-]/g, "_");
-
-    const nomeArquivo = `${Date.now()}-${Math.random().toString(36).slice(2)}-${nomeSanitizado}`;
+    const nomeArquivo = `${Date.now()}-${Math.random().toString(36).slice(2)}-${arquivo.name}`;
     const caminho = `${imovelId}/${nomeArquivo}`;
 
     const { error } = await sb.storage
       .from("fotos-imoveis")
-      .upload(caminho, arquivo, {
-        cacheControl: "3600",
-        upsert: false,
-        contentType: arquivo.type || "image/jpeg"
-      });
+      .upload(caminho, arquivo, { cacheControl: "3600", upsert: false, contentType: "image/jpeg" });
 
     if (error) {
       console.error("Erro ao enviar foto:", original.name, error);
@@ -2047,6 +2369,10 @@ async function salvarImovel(ev) {
     : "Criando imóvel...";
 
   try {
+
+    // ==========================================================
+    // MONTA O DADOS DO IMÓVEL
+    // ==========================================================
 
     const payload = {
       titulo: fd.get("titulo")?.trim() || "",
@@ -2107,6 +2433,10 @@ async function salvarImovel(ev) {
     };
 
 
+    // ==========================================================
+    // EDITANDO IMÓVEL EXISTENTE
+    // ==========================================================
+
     if (editandoId) {
 
       const existente = imoveisCache.find(
@@ -2117,6 +2447,7 @@ async function salvarImovel(ev) {
         throw new Error("Imóvel não encontrado no cache.");
       }
 
+      // Primeiro atualiza os dados
       const { error: updateError } = await sb
         .from("imoveis")
         .update(payload)
@@ -2126,6 +2457,7 @@ async function salvarImovel(ev) {
         throw updateError;
       }
 
+      // Remove do Storage as fotos que o usuário excluiu nesta edição
       if (fotosParaExcluirDoStorage.length > 0) {
 
         const { error: removerError } = await sb.storage
@@ -2141,6 +2473,9 @@ async function salvarImovel(ev) {
 
       }
 
+      // Faz upload apenas das fotos novas (as existentes já estão no Storage),
+      // mantendo a ordem definida em fotosItems (que reflete a reorganização
+      // feita por arrastar-e-soltar)
       const itensNovos = fotosItems.filter(
         item => item.tipo === "nova"
       );
@@ -2167,6 +2502,7 @@ async function salvarImovel(ev) {
             : caminhosNovos[indiceNovo++]
       );
 
+      // Atualiza a lista final de fotos, já na ordem escolhida
       const { error: fotosError } = await sb
         .from("imoveis")
         .update({
@@ -2185,8 +2521,14 @@ async function salvarImovel(ev) {
 
     }
 
+    // ==========================================================
+    // CRIANDO NOVO IMÓVEL
+    // ==========================================================
+
     else {
 
+      // Primeiro cria o imóvel.
+      // O Supabase gera o ID.
       btn.textContent = "Criando imóvel...";
 
       const { data: novoImovel, error: insertError } = await sb
@@ -2210,15 +2552,24 @@ async function salvarImovel(ev) {
 
       const novoId = novoImovel.id;
 
+      // ========================================================
+      // AGORA TEMOS O ID
+      // E PODEMOS CRIAR A "PASTA"
+      // ========================================================
+
       if (fotosItems.length > 0) {
 
         btn.textContent = "Enviando fotos...";
 
+        // Ao criar, todos os itens são fotos novas (ainda não há
+        // fotos existentes), mas percorremos fotosItems para
+        // respeitar a ordem escolhida na tela
         const caminhosNovos = await uploadFotos(
           fotosItems.map(item => item.file),
           novoId
         );
 
+        // Salva os caminhos das fotos no registro, já na ordem certa
         const { error: fotosError } = await sb
           .from("imoveis")
           .update({
@@ -2236,6 +2587,10 @@ async function salvarImovel(ev) {
         "ok"
       );
     }
+
+    // ==========================================================
+    // FINALIZA
+    // ==========================================================
 
     cancelarEdicao();
 
@@ -2419,6 +2774,7 @@ function cancelarEdicao() {
   fileInput.value =
     "";
 
+  // Libera as pré-visualizações (object URLs) das fotos novas pendentes
   fotosItems.forEach(item => {
     if (item.tipo === "nova" && item.url) {
       URL.revokeObjectURL(item.url);
@@ -2511,6 +2867,10 @@ async function excluirImovel(
 
   try {
 
+    /* ----------------------------------------------------------
+       PRIMEIRO REMOVE O REGISTRO DO BANCO
+       ---------------------------------------------------------- */
+
     const {
       error
     } = await sb
@@ -2524,6 +2884,10 @@ async function excluirImovel(
     if (error) {
       throw error;
     }
+
+    /* ----------------------------------------------------------
+       DEPOIS REMOVE AS FOTOS
+       ---------------------------------------------------------- */
 
     if (
       Array.isArray(im.fotos) &&
@@ -2646,6 +3010,8 @@ async function carregarTabela() {
     preencherFiltroMeses();
 
     aplicarFiltros();
+
+    renderizarDashboard();
 
   } catch (erro) {
 
@@ -2941,6 +3307,7 @@ function renderizarTabela(
 
 
             <td>
+              <!-- LINK ADICIONADO AQUI -->
               <a href="imovel.html?id=${escapeHtml(im.id)}" target="_blank" class="link-titulo">
                 ${escapeHtml(
                   im.titulo ||
@@ -3252,6 +3619,534 @@ function exportarExcel() {
 
 
 /* ==============================================================
+   DASHBOARD — KPIs E GRÁFICOS
+   ============================================================== */
+
+const PALETA_GRAFICOS = [
+  "#0C3B2C",
+  "#3E7C59",
+  "#7FAF8C",
+  "#C81E2C",
+  "#E38A90",
+  "#8A6D3B",
+  "#4C6EF5",
+  "#C9DED0"
+];
+
+function formatarMoeda(valor) {
+
+  return new Intl.NumberFormat(
+    "pt-BR",
+    {
+      style:"currency",
+      currency:"BRL",
+      maximumFractionDigits:0
+    }
+  ).format(Number(valor) || 0);
+
+}
+
+function formatarMoedaCompacta(valor) {
+
+  return new Intl.NumberFormat(
+    "pt-BR",
+    {
+      style:"currency",
+      currency:"BRL",
+      notation:"compact",
+      maximumFractionDigits:1
+    }
+  ).format(Number(valor) || 0);
+
+}
+
+function setTextoEl(id, texto) {
+
+  const el = document.getElementById(id);
+
+  if (el) {
+    el.textContent = texto;
+  }
+
+}
+
+/* ------------------------------------------------------------
+   KPIs
+   ------------------------------------------------------------ */
+
+function computarKPIsDashboard(lista) {
+
+  const total = lista.length;
+
+  const disponiveis = lista.filter(
+    im => im.disponivel
+  ).length;
+
+  const vendidos = total - disponiveis;
+
+  const precosDisponiveis = lista
+    .filter(im => im.disponivel && Number(im.preco) > 0)
+    .map(im => Number(im.preco));
+
+  const valorCarteira = precosDisponiveis.reduce(
+    (acc, v) => acc + v,
+    0
+  );
+
+  const ticketMedio = precosDisponiveis.length
+    ? valorCarteira / precosDisponiveis.length
+    : 0;
+
+  const totalViews = lista.reduce(
+    (acc, im) => acc + Number(im.visualizacoes || 0),
+    0
+  );
+
+  const hoje = new Date();
+
+  const chaveMesAtual =
+    `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}`;
+
+  const novosNoMes = lista.filter(
+    im => im.criado_em && String(im.criado_em).slice(0, 7) === chaveMesAtual
+  ).length;
+
+  return {
+    total,
+    disponiveis,
+    vendidos,
+    valorCarteira,
+    ticketMedio,
+    totalViews,
+    novosNoMes
+  };
+
+}
+
+function renderizarKPIs(kpis) {
+
+  setTextoEl("kpi-total", kpis.total.toLocaleString("pt-BR"));
+
+  setTextoEl(
+    "kpi-novos-mes-sub",
+    `${kpis.novosNoMes.toLocaleString("pt-BR")} novo(s) este mês`
+  );
+
+  setTextoEl("kpi-disponiveis", kpis.disponiveis.toLocaleString("pt-BR"));
+
+  setTextoEl(
+    "kpi-disponiveis-pct",
+    kpis.total
+      ? `${Math.round((kpis.disponiveis / kpis.total) * 100)}% da carteira`
+      : "—"
+  );
+
+  setTextoEl("kpi-vendidos", kpis.vendidos.toLocaleString("pt-BR"));
+
+  setTextoEl(
+    "kpi-vendidos-pct",
+    kpis.total
+      ? `${Math.round((kpis.vendidos / kpis.total) * 100)}% da carteira`
+      : "—"
+  );
+
+  setTextoEl("kpi-valor-carteira", formatarMoedaCompacta(kpis.valorCarteira));
+
+  setTextoEl("kpi-ticket-medio", formatarMoedaCompacta(kpis.ticketMedio));
+
+  setTextoEl("kpi-views", kpis.totalViews.toLocaleString("pt-BR"));
+
+}
+
+/* ------------------------------------------------------------
+   GRÁFICOS (Chart.js)
+   ------------------------------------------------------------ */
+
+function criarGraficoDashboard(id, config) {
+
+  if (typeof Chart === "undefined") {
+    return;
+  }
+
+  const canvas = document.getElementById(id);
+
+  if (!canvas) {
+    return;
+  }
+
+  if (graficosDashboard[id]) {
+    graficosDashboard[id].destroy();
+  }
+
+  graficosDashboard[id] = new Chart(
+    canvas.getContext("2d"),
+    config
+  );
+
+}
+
+function renderizarGraficoTipo(lista) {
+
+  const contagem = {};
+
+  lista.forEach(im => {
+    const tipo = im.tipo || "Não informado";
+    contagem[tipo] = (contagem[tipo] || 0) + 1;
+  });
+
+  const labels = Object.keys(contagem).sort(
+    (a, b) => contagem[b] - contagem[a]
+  );
+
+  const valores = labels.map(l => contagem[l]);
+
+  criarGraficoDashboard("chart-tipo", {
+    type:"bar",
+    data:{
+      labels,
+      datasets:[{
+        label:"Imóveis",
+        data:valores,
+        backgroundColor:"#0C3B2C",
+        borderRadius:6,
+        maxBarThickness:40
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        y:{ beginAtZero:true, ticks:{ precision:0 } }
+      }
+    }
+  });
+
+}
+
+function renderizarGraficoFinalidade(lista) {
+
+  const contagem = {};
+
+  lista.forEach(im => {
+    const finalidade = im.finalidade || "Não informado";
+    contagem[finalidade] = (contagem[finalidade] || 0) + 1;
+  });
+
+  const labels = Object.keys(contagem);
+  const valores = labels.map(l => contagem[l]);
+
+  criarGraficoDashboard("chart-finalidade", {
+    type:"doughnut",
+    data:{
+      labels,
+      datasets:[{
+        data:valores,
+        backgroundColor:PALETA_GRAFICOS,
+        borderWidth:2,
+        borderColor:"#fff"
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      cutout:"62%",
+      plugins:{
+        legend:{
+          position:"bottom",
+          labels:{ boxWidth:12, font:{ size:11 } }
+        }
+      }
+    }
+  });
+
+}
+
+function renderizarGraficoStatus(lista) {
+
+  const disponiveis = lista.filter(im => im.disponivel).length;
+  const vendidos = lista.length - disponiveis;
+
+  criarGraficoDashboard("chart-status", {
+    type:"doughnut",
+    data:{
+      labels:["Disponível", "Vendido/Inativo"],
+      datasets:[{
+        data:[disponiveis, vendidos],
+        backgroundColor:["#0C3B2C", "#C81E2C"],
+        borderWidth:2,
+        borderColor:"#fff"
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      cutout:"62%",
+      plugins:{
+        legend:{
+          position:"bottom",
+          labels:{ boxWidth:12, font:{ size:11 } }
+        }
+      }
+    }
+  });
+
+}
+
+function renderizarGraficoPrecoPorTipo(lista) {
+
+  const grupos = {};
+
+  lista.forEach(im => {
+
+    if (!(Number(im.preco) > 0)) {
+      return;
+    }
+
+    const tipo = im.tipo || "Não informado";
+
+    if (!grupos[tipo]) {
+      grupos[tipo] = [];
+    }
+
+    grupos[tipo].push(Number(im.preco));
+
+  });
+
+  const labels = Object.keys(grupos).sort((a, b) => {
+
+    const mediaA = grupos[a].reduce((x, y) => x + y, 0) / grupos[a].length;
+    const mediaB = grupos[b].reduce((x, y) => x + y, 0) / grupos[b].length;
+
+    return mediaB - mediaA;
+
+  });
+
+  const valores = labels.map(l => {
+    const arr = grupos[l];
+    return arr.reduce((a, b) => a + b, 0) / arr.length;
+  });
+
+  criarGraficoDashboard("chart-preco-tipo", {
+    type:"bar",
+    data:{
+      labels,
+      datasets:[{
+        label:"Preço médio",
+        data:valores,
+        backgroundColor:"#3E7C59",
+        borderRadius:6,
+        maxBarThickness:40
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{ display:false },
+        tooltip:{
+          callbacks:{
+            label: ctx => formatarMoeda(ctx.parsed.y)
+          }
+        }
+      },
+      scales:{
+        y:{
+          beginAtZero:true,
+          ticks:{ callback: v => formatarMoedaCompacta(v) }
+        }
+      }
+    }
+  });
+
+}
+
+function renderizarGraficoEvolucao(lista) {
+
+  const hoje = new Date();
+  const meses = [];
+
+  for (let i = 11; i >= 0; i--) {
+
+    const data = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+
+    meses.push({
+      chave:`${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, "0")}`,
+      data
+    });
+
+  }
+
+  const contagemPorMes = {};
+
+  lista.forEach(im => {
+
+    if (!im.criado_em) {
+      return;
+    }
+
+    const chave = String(im.criado_em).slice(0, 7);
+
+    contagemPorMes[chave] = (contagemPorMes[chave] || 0) + 1;
+
+  });
+
+  const formatter = new Intl.DateTimeFormat("pt-BR", { month:"short" });
+
+  const labels = meses.map(m => {
+
+    const nome = formatter.format(m.data).replace(".", "");
+
+    const nomeFormatado =
+      nome.charAt(0).toUpperCase() + nome.slice(1);
+
+    return `${nomeFormatado}/${String(m.data.getFullYear()).slice(2)}`;
+
+  });
+
+  const valores = meses.map(m => contagemPorMes[m.chave] || 0);
+
+  criarGraficoDashboard("chart-evolucao", {
+    type:"line",
+    data:{
+      labels,
+      datasets:[{
+        label:"Imóveis cadastrados",
+        data:valores,
+        borderColor:"#0C3B2C",
+        backgroundColor:"rgba(12,59,44,.1)",
+        fill:true,
+        tension:.3,
+        pointRadius:3,
+        pointBackgroundColor:"#0C3B2C"
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        y:{ beginAtZero:true, ticks:{ precision:0 } }
+      }
+    }
+  });
+
+}
+
+function renderizarGraficoCidades(lista) {
+
+  const contagem = {};
+
+  lista.forEach(im => {
+
+    if (!im.cidade) {
+      return;
+    }
+
+    const cidade = im.cidade.trim();
+
+    contagem[cidade] = (contagem[cidade] || 0) + 1;
+
+  });
+
+  const ordenado = Object.entries(contagem)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8);
+
+  const labels = ordenado.map(o => o[0]);
+  const valores = ordenado.map(o => o[1]);
+
+  criarGraficoDashboard("chart-cidades", {
+    type:"bar",
+    data:{
+      labels,
+      datasets:[{
+        label:"Imóveis",
+        data:valores,
+        backgroundColor:"#0C3B2C",
+        borderRadius:6,
+        maxBarThickness:22
+      }]
+    },
+    options:{
+      indexAxis:"y",
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ beginAtZero:true, ticks:{ precision:0 } }
+      }
+    }
+  });
+
+}
+
+function renderizarGraficoTopViews(lista) {
+
+  const ordenado = [...lista]
+    .sort((a, b) => Number(b.visualizacoes || 0) - Number(a.visualizacoes || 0))
+    .slice(0, 10);
+
+  const labels = ordenado.map(im => {
+
+    const titulo = im.titulo || "Sem título";
+
+    const tituloCurto =
+      titulo.length > 26 ? `${titulo.slice(0, 26)}…` : titulo;
+
+    return im.codigo ? `${im.codigo} · ${tituloCurto}` : tituloCurto;
+
+  });
+
+  const valores = ordenado.map(im => Number(im.visualizacoes || 0));
+
+  criarGraficoDashboard("chart-top-views", {
+    type:"bar",
+    data:{
+      labels,
+      datasets:[{
+        label:"Visualizações",
+        data:valores,
+        backgroundColor:"#C81E2C",
+        borderRadius:6,
+        maxBarThickness:22
+      }]
+    },
+    options:{
+      indexAxis:"y",
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ beginAtZero:true, ticks:{ precision:0 } }
+      }
+    }
+  });
+
+}
+
+function renderizarDashboard() {
+
+  if (typeof Chart === "undefined") {
+    return;
+  }
+
+  const lista = imoveisCache;
+
+  renderizarKPIs(computarKPIsDashboard(lista));
+
+  renderizarGraficoTipo(lista);
+  renderizarGraficoFinalidade(lista);
+  renderizarGraficoStatus(lista);
+  renderizarGraficoPrecoPorTipo(lista);
+  renderizarGraficoEvolucao(lista);
+  renderizarGraficoCidades(lista);
+  renderizarGraficoTopViews(lista);
+
+}
+
+
+/* ==============================================================
    LOCALIDADES
    ============================================================== */
 
@@ -3363,15 +4258,22 @@ async function carregarBairros() {
       "f-cidade"
     );
 
+  const bairro =
+    document.getElementById(
+      "f-bairro"
+    );
+
   const listaBairros =
     document.getElementById(
       "lista-bairros"
     );
 
+
   const cidadeNormalizada =
     normalizarLocal(
       cidade.value
     );
+
 
   try {
 
@@ -3387,14 +4289,29 @@ async function carregarBairros() {
           null
         );
 
+
+    if (cidadeNormalizada) {
+
+      /*
+       * Buscamos os imóveis e fazemos
+       * a comparação sem acento no JS,
+       * pois ilike não resolve todos os
+       * casos de acentuação.
+       */
+
+    }
+
+
     const {
       data,
       error
     } = await query;
 
+
     if (error) {
       throw error;
     }
+
 
     const bairros =
       [
@@ -3432,6 +4349,7 @@ async function carregarBairros() {
           )
       );
 
+
     listaBairros.innerHTML =
       bairros
         .map(
@@ -3441,6 +4359,7 @@ async function carregarBairros() {
             )}"></option>`
         )
         .join("");
+
 
   } catch (erro) {
 
@@ -3487,6 +4406,7 @@ function preencherFiltroMeses() {
     .sort()
     .reverse();
 
+
   const formatter =
     new Intl.DateTimeFormat(
       "pt-BR",
@@ -3494,6 +4414,7 @@ function preencherFiltroMeses() {
         month:"long"
       }
     );
+
 
   select.innerHTML =
     `
@@ -3528,6 +4449,7 @@ function preencherFiltroMeses() {
               .toUpperCase() +
             nome.slice(1);
 
+
           return `
             <option value="${chave}">
               ${nomeFormatado}, ${ano}
@@ -3552,12 +4474,14 @@ document
     entrar
   );
 
+
 document
   .getElementById("btn-sair")
   .addEventListener(
     "click",
     sair
   );
+
 
 document
   .getElementById(
@@ -3568,6 +4492,7 @@ document
     cancelarEdicao
   );
 
+
 document
   .getElementById(
     "btn-exportar"
@@ -3577,10 +4502,12 @@ document
     exportarExcel
   );
 
+
 form.addEventListener(
   "submit",
   salvarImovel
 );
+
 
 [
   "filtro-termo",
