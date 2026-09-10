@@ -762,6 +762,7 @@ tr:last-child td{
 
 </style>
 
+  <link rel="icon" type="image/png" href="assets/logo.png">
 </head>
 
 <body>
@@ -1054,17 +1055,6 @@ tr:last-child td{
 
         </div>
 
-      <div>
-        <label>Finalidade</label>
-      
-        <select id="filtro-finalidade">
-          <option value="">Todas as finalidades</option>
-          <option value="Comprar">Comprar</option>
-          <option value="Alugar">Alugar</option>
-          <option value="Temporada">Temporada</option>
-        </select>
-      </div>
-        
       </div>
 
 
@@ -1487,6 +1477,20 @@ tr:last-child td{
           <option value="Terreno">Terreno</option>
           <option value="Área de Lazer">Área de Lazer</option>
 
+        </select>
+
+      </div>
+
+
+      <div>
+
+        <label>Finalidade</label>
+
+        <select id="filtro-finalidade">
+          <option value="">Todas as finalidades</option>
+          <option value="Comprar">Comprar</option>
+          <option value="Alugar">Alugar</option>
+          <option value="Temporada">Temporada</option>
         </select>
 
       </div>
@@ -3210,7 +3214,10 @@ function aplicarFiltros() {
     ).value;
 
   const finalidade =
-  document.getElementById("filtro-finalidade").value;
+    document.getElementById(
+      "filtro-finalidade"
+    ).value;
+
   const status =
     document.getElementById(
       "filtro-status"
@@ -3278,6 +3285,7 @@ function aplicarFiltros() {
         ) {
           return false;
         }
+
 
         if (
           status === "disp" &&
