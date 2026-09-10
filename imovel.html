@@ -764,6 +764,29 @@
   .editor-cancel{background:#fff;color:var(--ink);border:1px solid var(--line)!important}
   .editor-save{background:var(--green);color:#fff}
   @media(max-width:650px){.editor-grid{grid-template-columns:1fr}.editor-grid .full{grid-column:auto}.editor-modal{padding:18px}}
+  .editor-check{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:11px 12px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:#fafbfa;
+  }
+  .editor-check input{
+    width:17px !important;
+    height:17px;
+    accent-color:var(--green);
+    flex:0 0 auto;
+  }
+  .editor-check label{
+    margin:0 !important;
+    font-size:13px !important;
+    font-weight:700 !important;
+    color:var(--ink) !important;
+    cursor:pointer;
+  }
+
 
   /* IMÓVEIS SIMILARES */
   .similares-section{margin:56px 0 64px;padding-top:8px}
@@ -853,6 +876,17 @@
         <div><label>Código</label><input name="codigo"></div>
         <div><label>Tipo</label><select name="tipo"><option>Casa</option><option>Apartamento</option><option>Barracão</option><option>Ponto Comercial</option><option>Sítio/Fazenda</option><option>Terreno</option><option>Área de Lazer</option></select></div>
         <div><label>Finalidade</label><select name="finalidade"><option>Comprar</option><option>Alugar</option><option>Temporada</option></select></div>
+
+        <div class="full editor-check" id="editor-opcao-animal" style="display:none;">
+          <input type="checkbox" id="editor-aceita-animal" name="aceita_animal">
+          <label for="editor-aceita-animal">Aceita animal de estimação?</label>
+        </div>
+
+        <div class="full editor-check" id="editor-opcao-financiamento" style="display:none;">
+          <input type="checkbox" id="editor-aceita-financiamento" name="aceita_financiamento">
+          <label for="editor-aceita-financiamento">Aceita Financiamento</label>
+        </div>
+
         <div><label>Cidade</label><input name="cidade"></div>
         <div><label>Bairro</label><input name="bairro"></div>
         <div class="full"><label>Rua do imóvel</label><input name="rua"></div>
@@ -1030,6 +1064,28 @@ async function carregar(){
   if(imovel.banheiros) specsList.push({ valor: imovel.banheiros, rotulo: imovel.banheiros === 1 ? "Banheiro" : "Banheiros" });
   if(imovel.vagas) specsList.push({ valor: imovel.vagas, rotulo: imovel.vagas === 1 ? "Vaga" : "Vagas" });
 
+  if(
+    imovel.finalidade === "Alugar" &&
+    imovel.aceita_animal !== null &&
+    imovel.aceita_animal !== undefined
+  ){
+    specsList.push({
+      valor: imovel.aceita_animal ? "Sim" : "Não",
+      rotulo: "Aceita animal de estimação?"
+    });
+  }
+
+  if(
+    imovel.tipo === "Terreno" &&
+    imovel.aceita_financiamento !== null &&
+    imovel.aceita_financiamento !== undefined
+  ){
+    specsList.push({
+      valor: imovel.aceita_financiamento ? "Sim" : "Não",
+      rotulo: "Aceita Financiamento"
+    });
+  }
+
   const numeroWhats = (imovel.finalidade === "Alugar" || imovel.finalidade === "Temporada") ? "5535998848963" : "5535999158800";
   const textoWhats = `Olá! Tenho interesse no imóvel ${imovel.codigo ? "(" + imovel.codigo + ") " : ""}${imovel.titulo}.`;
   const linkWhats = `https://wa.me/${numeroWhats}?text=${encodeURIComponent(textoWhats)}`;
@@ -1199,9 +1255,35 @@ const editorBackdrop = document.getElementById("editor-backdrop");
 const editorForm = document.getElementById("editor-form");
 const editorSaveMsg = document.getElementById("editor-save-msg");
 
+const editorTipo = editorForm.elements["tipo"];
+const editorFinalidade = editorForm.elements["finalidade"];
+
+if(editorTipo) editorTipo.addEventListener("change", atualizarOpcoesCondicionaisEditor);
+if(editorFinalidade) editorFinalidade.addEventListener("change", atualizarOpcoesCondicionaisEditor);
+
 function abrirEditor(){editorBackdrop.classList.add("aberto");editorBackdrop.setAttribute("aria-hidden","false");preencherEditor();}
 function fecharEditor(){editorBackdrop.classList.remove("aberto");editorBackdrop.setAttribute("aria-hidden","true");editorSaveMsg.style.display="none";}
 function mostrarEditorMensagem(el,msg){el.textContent=msg;el.style.display="block";}
+
+function atualizarOpcoesCondicionaisEditor(){
+  const finalidade = editorForm.elements["finalidade"]?.value || "";
+  const tipo = editorForm.elements["tipo"]?.value || "";
+
+  const blocoAnimal = document.getElementById("editor-opcao-animal");
+  const checkAnimal = document.getElementById("editor-aceita-animal");
+
+  const blocoFinanciamento = document.getElementById("editor-opcao-financiamento");
+  const checkFinanciamento = document.getElementById("editor-aceita-financiamento");
+
+  const mostrarAnimal = finalidade === "Alugar";
+  const mostrarFinanciamento = tipo === "Terreno";
+
+  if(blocoAnimal) blocoAnimal.style.display = mostrarAnimal ? "flex" : "none";
+  if(blocoFinanciamento) blocoFinanciamento.style.display = mostrarFinanciamento ? "flex" : "none";
+
+  if(!mostrarAnimal && checkAnimal) checkAnimal.checked = false;
+  if(!mostrarFinanciamento && checkFinanciamento) checkFinanciamento.checked = false;
+}
 
 function preencherEditor(){
   if(!imovelAtual)return; const f=editorForm;
@@ -1209,6 +1291,14 @@ function preencherEditor(){
   f.cidade.value=imovelAtual.cidade||""; f.bairro.value=imovelAtual.bairro||""; f.rua.value=imovelAtual.rua||"";
   f.preco.value=imovelAtual.preco!=null?Number(imovelAtual.preco).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}):"";
   f.area_construida_m2.value=imovelAtual.area_construida_m2??""; f.area_terreno_m2.value=imovelAtual.area_terreno_m2??""; f.quartos.value=imovelAtual.quartos??""; f.banheiros.value=imovelAtual.banheiros??""; f.vagas.value=imovelAtual.vagas??""; f.descricao.value=imovelAtual.descricao||"";
+
+  document.getElementById("editor-aceita-animal").checked =
+    Boolean(imovelAtual.aceita_animal);
+
+  document.getElementById("editor-aceita-financiamento").checked =
+    Boolean(imovelAtual.aceita_financiamento);
+
+  atualizarOpcoesCondicionaisEditor();
 }
 
 function parsePrecoEditor(v){
@@ -1254,6 +1344,17 @@ async function salvarEdicaoDireta(ev){
       area_construida_m2:fd.get("area_construida_m2")?Number(fd.get("area_construida_m2")):null,
       area_terreno_m2:fd.get("area_terreno_m2")?Number(fd.get("area_terreno_m2")):null,
       quartos:fd.get("quartos")?Number(fd.get("quartos")):null, banheiros:fd.get("banheiros")?Number(fd.get("banheiros")):null, vagas:fd.get("vagas")?Number(fd.get("vagas")):null,
+
+      aceita_animal:
+        editorForm.elements["finalidade"].value === "Alugar"
+          ? document.getElementById("editor-aceita-animal").checked
+          : false,
+
+      aceita_financiamento:
+        editorForm.elements["tipo"].value === "Terreno"
+          ? document.getElementById("editor-aceita-financiamento").checked
+          : false,
+
       descricao:fd.get("descricao")?.trim()||null
     };
     const {error}=await sb.from("imoveis").update(payload).eq("id",id); if(error) throw error;
