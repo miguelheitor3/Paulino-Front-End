@@ -1338,6 +1338,44 @@ tr:last-child td{
       </div>
 
 
+      <div
+        class="check-row opcao-condicional"
+        id="opcao-animal"
+        style="display:none;"
+      >
+        <input
+          type="checkbox"
+          id="aceita_animal"
+          name="aceita_animal"
+        >
+
+        <label
+          style="margin:0;"
+          for="aceita_animal"
+        >
+          Aceita animal de estimação?
+        </label>
+      </div>
+
+      <div
+        class="check-row opcao-condicional"
+        id="opcao-financiamento"
+        style="display:none;"
+      >
+        <input
+          type="checkbox"
+          id="aceita_financiamento"
+          name="aceita_financiamento"
+        >
+
+        <label
+          style="margin:0;"
+          for="aceita_financiamento"
+        >
+          Aceita Financiamento
+        </label>
+      </div>
+
       <div class="check-row">
 
         <input
@@ -2351,6 +2389,40 @@ async function uploadFotos(arquivos, imovelId) {
 }
 
 
+
+/* ==============================================================
+   OPÇÕES CONDICIONAIS
+   - Animal: somente para locação (Alugar)
+   - Financiamento: somente para Terreno
+   ============================================================== */
+
+function atualizarOpcoesCondicionais() {
+  const tipo = form.tipo?.value || "";
+  const finalidade = form.finalidade?.value || "";
+
+  const blocoAnimal = document.getElementById("opcao-animal");
+  const blocoFinanciamento = document.getElementById("opcao-financiamento");
+
+  if (blocoAnimal) {
+    const mostrarAnimal = finalidade === "Alugar";
+    blocoAnimal.style.display = mostrarAnimal ? "flex" : "none";
+
+    if (!mostrarAnimal) {
+      document.getElementById("aceita_animal").checked = false;
+    }
+  }
+
+  if (blocoFinanciamento) {
+    const mostrarFinanciamento = tipo === "Terreno";
+    blocoFinanciamento.style.display = mostrarFinanciamento ? "flex" : "none";
+
+    if (!mostrarFinanciamento) {
+      document.getElementById("aceita_financiamento").checked = false;
+    }
+  }
+}
+
+
 /* ==============================================================
    SALVAR IMÓVEL
    ============================================================== */
@@ -2427,6 +2499,12 @@ async function salvarImovel(ev) {
 
       observacoes_internas:
         fd.get("observacoes_internas")?.trim() || null,
+
+      aceita_animal:
+        document.getElementById("aceita_animal").checked,
+
+      aceita_financiamento:
+        document.getElementById("aceita_financiamento").checked,
 
       destaque_manual:
         document.getElementById("destaque_manual").checked
@@ -2707,6 +2785,14 @@ function editarImovel(id) {
       im.observacoes_internas || "";
   }
 
+  document.getElementById("aceita_animal").checked =
+    Boolean(im.aceita_animal);
+
+  document.getElementById("aceita_financiamento").checked =
+    Boolean(im.aceita_financiamento);
+
+  atualizarOpcoesCondicionais();
+
   document.getElementById(
     "destaque_manual"
   ).checked =
@@ -2760,6 +2846,10 @@ function cancelarEdicao() {
     null;
 
   form.reset();
+
+  document.getElementById("aceita_animal").checked = false;
+  document.getElementById("aceita_financiamento").checked = false;
+  atualizarOpcoesCondicionais();
 
   document.getElementById(
     "titulo-form"
@@ -3539,6 +3629,20 @@ function exportarExcel() {
 
         "Vagas":
           im.vagas ?? "",
+
+        "Aceita animal de estimação":
+          im.aceita_animal === true
+            ? "Sim"
+            : im.aceita_animal === false
+              ? "Não"
+              : "—",
+
+        "Aceita Financiamento":
+          im.aceita_financiamento === true
+            ? "Sim"
+            : im.aceita_financiamento === false
+              ? "Não"
+              : "—",
 
         "Status":
           im.disponivel
@@ -4507,6 +4611,18 @@ form.addEventListener(
   "submit",
   salvarImovel
 );
+
+form.tipo.addEventListener(
+  "change",
+  atualizarOpcoesCondicionais
+);
+
+form.finalidade.addEventListener(
+  "change",
+  atualizarOpcoesCondicionais
+);
+
+atualizarOpcoesCondicionais();
 
 
 [
