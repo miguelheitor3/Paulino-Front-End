@@ -432,7 +432,7 @@ textarea{
 
 .filtros-grid{
   display:grid;
-  grid-template-columns:2fr 1fr 1fr 1.2fr;
+  grid-template-columns:2fr 1fr 1fr 1fr 1.2fr;
   gap:12px;
   align-items:end;
 }
@@ -1054,6 +1054,17 @@ tr:last-child td{
 
         </div>
 
+      <div>
+        <label>Finalidade</label>
+      
+        <select id="filtro-finalidade">
+          <option value="">Todas as finalidades</option>
+          <option value="Comprar">Comprar</option>
+          <option value="Alugar">Alugar</option>
+          <option value="Temporada">Temporada</option>
+        </select>
+      </div>
+        
       </div>
 
 
@@ -3198,6 +3209,8 @@ function aplicarFiltros() {
       "filtro-tipo"
     ).value;
 
+  const finalidade =
+  document.getElementById("filtro-finalidade").value;
   const status =
     document.getElementById(
       "filtro-status"
@@ -3259,6 +3272,12 @@ function aplicarFiltros() {
           return false;
         }
 
+        if (
+          finalidade &&
+          im.finalidade !== finalidade
+        ) {
+          return false;
+        }
 
         if (
           status === "disp" &&
@@ -4628,6 +4647,7 @@ atualizarOpcoesCondicionais();
 [
   "filtro-termo",
   "filtro-tipo",
+  "filtro-finalidade",
   "filtro-status",
   "filtro-mes-postagem"
 ].forEach(
