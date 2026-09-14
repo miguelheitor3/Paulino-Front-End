@@ -568,6 +568,40 @@
     background:var(--green-dark);
   }
 
+  .btn-compartilhar{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    width:100%;
+    background:#fff;
+    color:var(--green);
+    font-weight:700;
+    font-size:14.5px;
+    padding:14px 15px;
+    border-radius:10px;
+    margin-bottom:22px;
+    border:1px solid var(--green);
+    cursor:pointer;
+    transition:background .15s ease,color .15s ease,transform .15s ease,box-shadow .15s ease;
+  }
+
+  .btn-compartilhar:hover{
+    background:var(--green-tint);
+    box-shadow:0 4px 12px rgba(12,59,44,.10);
+    transform:translateY(-1px);
+  }
+
+  .btn-compartilhar:active{
+    transform:translateY(0);
+  }
+
+  .btn-compartilhar svg{
+    width:18px;
+    height:18px;
+    flex:0 0 auto;
+  }
+
   .btn-tel{
     display:flex;
     align-items:center;
@@ -1181,6 +1215,12 @@ async function carregar(){
 
             <a class="btn-whats" href="${linkWhats}" target="_blank" rel="noopener">Falar no WhatsApp</a>
             <a class="btn-tel" href="tel:3532661985">Ligar (35) 3266-1985</a>
+            <button type="button" class="btn-compartilhar" id="btn-compartilhar-imovel" aria-label="Compartilhar este imóvel">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M18 8a3 3 0 1 0-2.83-4A3 3 0 0 0 15 5.17L8.91 8.56A3 3 0 1 0 9 15.44l6.09 3.39A3 3 0 1 0 16 17.83l-6.09-3.39a3.02 3.02 0 0 0 0-4.88L16 6.17A3 3 0 0 0 18 8Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Compartilhar imóvel</span>
+            </button>
 
             <div id="editor-actions" class="editor-actions" style="display:none;">
               <button type="button" id="btn-editar-imovel" class="btn-editor">✎ Editar imóvel</button>
@@ -1249,6 +1289,92 @@ async function carregar(){
 
   carregarImoveisSimilares(imovel);
 }
+
+/* COMPARTILHAR IMÓVEL */
+async function compartilharImovel(){
+  const btn=document.getElementById("btn-compartilhar-imovel");
+  if(!btn) return;
+
+  const textoOriginal=btn.innerHTML;
+  const url=window.location.href;
+  const titulo=imovelAtual?.titulo
+    ? `${imovelAtual.titulo} — Paulino Imóveis`
+    : document.title;
+
+  const texto=`Confira este imóvel: ${titulo}`;
+
+  const ehDispositivoMovel=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  // No celular, usa o compartilhamento nativo do sistema.
+  if(ehDispositivoMovel && typeof navigator.share === "function"){
+    try{
+      await navigator.share({
+        title:titulo,
+        text:texto,
+        url:url
+      });
+      return;
+    }catch(error){
+      // Fechar o menu de compartilhamento não é um erro para o usuário.
+      if(error?.name === "AbortError") return;
+      console.warn("Compartilhamento nativo indisponível:",error);
+    }
+  }
+
+  // No computador (ou se o compartilhamento nativo falhar), copia o link.
+  let copiado=false;
+
+  try{
+    if(navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(url);
+      copiado=true;
+    }
+  }catch(error){
+    console.warn("Clipboard API indisponível:",error);
+  }
+
+  // Fallback para navegadores/contextos que não permitem navigator.clipboard.
+  if(!copiado){
+    try{
+      const textarea=document.createElement("textarea");
+      textarea.value=url;
+      textarea.setAttribute("readonly","");
+      textarea.style.position="fixed";
+      textarea.style.left="-9999px";
+      textarea.style.top="0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      textarea.setSelectionRange(0,textarea.value.length);
+      copiado=document.execCommand("copy");
+      textarea.remove();
+    }catch(error){
+      console.error("Não foi possível copiar o link:",error);
+    }
+  }
+
+  if(copiado){
+    btn.innerHTML=`<span>✓ Link copiado!</span>`;
+    btn.setAttribute("aria-label","Link do imóvel copiado");
+    setTimeout(()=>{
+      if(btn){
+        btn.innerHTML=textoOriginal;
+        btn.setAttribute("aria-label","Compartilhar este imóvel");
+      }
+    },2200);
+  }else{
+    btn.innerHTML=`<span>Copie o link desta página</span>`;
+    setTimeout(()=>{
+      if(btn){
+        btn.innerHTML=textoOriginal;
+        btn.setAttribute("aria-label","Compartilhar este imóvel");
+      }
+    },2500);
+  }
+}
+
+document.addEventListener("click",e=>{
+  if(e.target.closest("#btn-compartilhar-imovel")) compartilharImovel();
+});
 
 /* EDITOR ADMINISTRATIVO */
 const editorBackdrop = document.getElementById("editor-backdrop");
