@@ -1116,6 +1116,11 @@ tr:last-child td{
           <input name="numero_casa" type="text" placeholder="Ex.: 123, 123A, s/n">
         </div>
 
+        <div>
+          <label>Ponto de Referência</label>
+          <input name="ponto_referencia" type="text" placeholder="Ex.: Próximo à Praça Central">
+        </div>
+
       </div>
 
 
@@ -2509,6 +2514,9 @@ async function salvarImovel(ev) {
       numero_casa:
         fd.get("numero_casa")?.trim() || null,
 
+      ponto_referencia:
+        fd.get("ponto_referencia")?.trim() || null,
+
       descricao:
         fd.get("descricao")?.trim() || null,
 
@@ -2790,6 +2798,11 @@ function editarImovel(id) {
   if (form.numero_casa) {
     form.numero_casa.value =
       im.numero_casa || "";
+  }
+
+  if (form.ponto_referencia) {
+    form.ponto_referencia.value =
+      im.ponto_referencia || "";
   }
 
   form.descricao.value =
@@ -3639,6 +3652,9 @@ function exportarExcel() {
 
         "Número da Casa":
           im.numero_casa || "—",
+
+        "Ponto de Referência":
+          im.ponto_referencia || "—",
 
         "Área construída (m²)":
           im.area_construida_m2 ??
