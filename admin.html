@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -199,6 +200,39 @@ h2{
   padding:24px;
   margin-bottom:32px;
 }
+
+.form-section{
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:18px;
+  margin:18px 0;
+  background:#fff;
+}
+
+.form-section-heading{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:0 0 16px;
+  color:var(--green);
+  font:700 16px 'Archivo',sans-serif;
+}
+
+.form-section-heading span{
+  display:grid;
+  place-items:center;
+  width:30px;
+  height:30px;
+  border-radius:9px;
+  background:#e8efea;
+  font-size:15px;
+}
+
+.form-section .form-grid:last-child{margin-bottom:0;}
+.description-help{margin:0 0 14px;color:var(--ink-soft);font-size:13px;line-height:1.5;}
+.description-builder{padding:14px;background:#f7f9f7;border:1px solid var(--line);border-radius:10px;margin-bottom:14px;}
+.description-builder .btn{margin-top:10px;}
+.form-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
 
 .form-grid{
   display:grid;
@@ -1014,6 +1048,9 @@ tr:last-child td{
         id="f-id"
       >
 
+      <section class="form-section">
+        <h3 class="form-section-heading"><span>🏠</span>Identificação do imóvel</h3>
+
       <div class="form-grid">
 
         <div>
@@ -1057,7 +1094,10 @@ tr:last-child td{
 
       </div>
 
+      </section>
 
+      <section class="form-section">
+        <h3 class="form-section-heading"><span>📍</span>Localização</h3>
       <div class="form-grid">
 
         <div>
@@ -1123,7 +1163,10 @@ tr:last-child td{
 
       </div>
 
+      </section>
 
+      <section class="form-section">
+        <h3 class="form-section-heading"><span>💰</span>Preço e áreas</h3>
       <div class="form-grid">
 
         <div>
@@ -1174,7 +1217,10 @@ tr:last-child td{
 
       </div>
 
+      </section>
 
+      <section class="form-section">
+        <h3 class="form-section-heading"><span>📐</span>Características do imóvel</h3>
       <div class="form-grid">
 
         <div>
@@ -1218,39 +1264,30 @@ tr:last-child td{
 
       </div>
 
+      </section>
 
-      <div class="form-grid">
-
-        <div>
-          <label>Proprietário (Interno)</label>
-          <input name="proprietario" placeholder="Nome do proprietário">
-        </div>
-
-        <div>
-          <label>Nº do proprietário (WhatsApp/telefone)</label>
-          <input name="proprietario_telefone" type="tel" placeholder="(35) 99999-9999">
-        </div>
-
-      </div>
-
-
-      <div class="form-grid full">
-        <div>
-          <label>Observações internas</label>
-          <textarea name="observacoes_internas" placeholder="Anotações da imobiliária. Não aparecem para o cliente final."></textarea>
-        </div>
-      </div>
-
+      <section class="form-section">
+        <h3 class="form-section-heading"><span>✍️</span>Descrição para publicação</h3>
       <div class="form-grid full">
 
         <div>
 
-          <label>
-            Descrição
-          </label>
+          <div class="description-builder">
+            <p class="description-help">Preencha os dados acima e complemente com diferenciais específicos. Depois monte o texto e revise antes de salvar.</p>
+            <label for="f-caracteristicas">Diferenciais e detalhes</label>
+            <textarea id="f-caracteristicas" placeholder="Ex.: 1 suíte com closet; cômodo preparado para banheira; lavanderia; garagem coberta para 3 carros; água quente"></textarea>
+
+            <label for="f-chamada" style="margin-top:12px;">Texto de destaque (opcional)</label>
+            <textarea id="f-chamada" placeholder="Ex.: Imóvel novo, com acabamento de alta qualidade e ótima localização."></textarea>
+
+            <button class="btn btn-outline" type="button" id="btn-montar-descricao">Montar descrição</button>
+          </div>
+
+          <label for="f-descricao">Descrição final (você pode editar)</label>
 
           <textarea
             name="descricao"
+            id="f-descricao"
             placeholder="Detalhes do imóvel..."
           ></textarea>
 
@@ -1258,10 +1295,15 @@ tr:last-child td{
 
       </div>
 
+      </section>
+
 
       <!-- ========================================================
            FOTOS DO IMÓVEL (existentes + recém-adicionadas)
            ======================================================== -->
+
+      <section class="form-section">
+      <h3 class="form-section-heading"><span>📷</span>Fotos do imóvel</h3>
 
       <div
         class="form-grid full"
@@ -1287,7 +1329,6 @@ tr:last-child td{
         </div>
 
       </div>
-
 
       <!-- ========================================================
            ADICIONAR FOTOS
@@ -1341,6 +1382,30 @@ tr:last-child td{
 
         </div>
 
+      </div>
+
+      </section>
+
+      <section class="form-section">
+      <h3 class="form-section-heading"><span>🔒</span>Informações internas e opções</h3>
+
+      <div class="form-grid">
+        <div>
+          <label>Proprietário (Interno)</label>
+          <input name="proprietario" placeholder="Nome do proprietário">
+        </div>
+
+        <div>
+          <label>Nº do proprietário (WhatsApp/telefone)</label>
+          <input name="proprietario_telefone" type="tel" placeholder="(35) 99999-9999">
+        </div>
+      </div>
+
+      <div class="form-grid full">
+        <div>
+          <label>Observações internas</label>
+          <textarea name="observacoes_internas" placeholder="Anotações da imobiliária. Não aparecem para o cliente final."></textarea>
+        </div>
       </div>
 
 
@@ -1400,7 +1465,9 @@ tr:last-child td{
 
       </div>
 
+      </section>
 
+      <div class="form-actions">
       <button
         class="btn btn-green"
         type="submit"
@@ -1417,6 +1484,8 @@ tr:last-child td{
       >
         Cancelar edição
       </button>
+
+      </div>
 
     </form>
 
@@ -1673,6 +1742,42 @@ const fotosQtdText =
 
 const precoInput =
   document.getElementById("f-preco");
+
+function montarDescricaoImovel() {
+  const valor = nome => String(form.elements[nome]?.value || "").trim();
+  const titulo = valor("titulo").toLocaleUpperCase("pt-BR");
+  const bairro = valor("bairro");
+  const finalidade = valor("finalidade");
+  const cidade = valor("cidade");
+  const codigo = valor("codigo");
+  const preco = parsePrecoBR(valor("preco"));
+  const terreno = valor("area_terreno_m2");
+  const construcao = valor("area_construida_m2");
+  const linhas = [titulo || `${valor("tipo").toLocaleUpperCase("pt-BR")} ${finalidade === "Comprar" ? "À VENDA" : finalidade === "Alugar" ? "PARA LOCAÇÃO" : "PARA TEMPORADA"}`];
+  if (bairro || cidade) linhas.push(`Bairro: ${[bairro, cidade].filter(Boolean).join(", ")}`);
+  if (preco != null) linhas.push(`💰 ${finalidade === "Alugar" ? "Aluguel" : "Valor"}: ${Number(preco).toLocaleString("pt-BR", {style:"currency",currency:"BRL"})}`);
+  const areas = [];
+  if (terreno) areas.push(`Terreno: ${terreno}m²`);
+  if (construcao) areas.push(`Construção: ${construcao}m²`);
+  if (areas.length) linhas.push(areas.join(" - "));
+  if (codigo) linhas.push(`Cód: ${codigo}`);
+
+  const especificacoes = [];
+  const quartos = valor("quartos"), banheiros = valor("banheiros"), vagas = valor("vagas");
+  if (quartos) especificacoes.push(`${quartos} ${Number(quartos) === 1 ? "quarto" : "quartos"}`);
+  if (banheiros) especificacoes.push(`${banheiros} ${Number(banheiros) === 1 ? "banheiro" : "banheiros"}`);
+  if (vagas) especificacoes.push(`garagem para ${vagas} ${Number(vagas) === 1 ? "carro" : "carros"}`);
+  const caracteristicas = document.getElementById("f-caracteristicas").value.split(/[;\n]+/).map(s => s.trim()).filter(Boolean);
+  especificacoes.push(...caracteristicas);
+  if (especificacoes.length) linhas.push("\nESPECIFICAÇÕES:\n" + especificacoes.map(item => `✔ ${item.replace(/[.;]+$/, "")}.`).join("\n"));
+
+  const chamada = document.getElementById("f-chamada").value.trim();
+  if (chamada) linhas.push(`\n📍 ${chamada}`);
+  linhas.push("\n🌐 Visite nosso site: www.paulinoimobiliaria.com.br", "📞 Agende sua visita!", "(35) 9-9915-8800 - Antonio Corretor", "(35) 9-9823-0122 - Sandra", "(35) 9-9884-0518 - Vendas");
+  form.elements.descricao.value = linhas.join("\n");
+}
+
+document.getElementById("btn-montar-descricao").addEventListener("click", montarDescricaoImovel);
 
 
 /* ==============================================================
@@ -2807,6 +2912,9 @@ function editarImovel(id) {
 
   form.descricao.value =
     im.descricao || "";
+
+  document.getElementById("f-caracteristicas").value = "";
+  document.getElementById("f-chamada").value = "";
 
   if (form.observacoes_internas) {
     form.observacoes_internas.value =
