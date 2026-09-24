@@ -112,6 +112,11 @@
   }
   window.urlFoto = urlFoto;
 
+  function mediaEhVideo(caminho) {
+    return /\.(mp4|webm|ogg|mov|m4v)(?:[?#].*)?$/i.test(String(caminho || ""));
+  }
+  window.mediaEhVideo = mediaEhVideo;
+
   // ------------------------------------------------------------
   // FINALIDADE
   // ------------------------------------------------------------
@@ -135,7 +140,7 @@
   // ------------------------------------------------------------
 
   function cardHtml(im, destaque) {
-    const fotos = Array.isArray(im.fotos) ? im.fotos.filter(Boolean) : [];
+    const fotos = Array.isArray(im.fotos) ? im.fotos.filter(foto => foto && !mediaEhVideo(foto)) : [];
     const primeiraFoto = fotos.length ? urlFoto(fotos[0]) : "";
     const fin = rotuloFinalidade(im.finalidade);
     const titulo = escapeHtml(im.titulo || "Imóvel");
@@ -198,6 +203,7 @@
   function trocarFotoCard(cardPhoto, direcao) {
     let fotos = [];
     try { fotos = JSON.parse(cardPhoto.getAttribute("data-fotos") || "[]"); } catch { return; }
+    fotos = fotos.filter(foto => foto && !mediaEhVideo(foto));
     if (fotos.length <= 1) return;
 
     let indice = Number(cardPhoto.getAttribute("data-foto-index") || 0);
