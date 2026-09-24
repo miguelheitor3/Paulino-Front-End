@@ -1682,12 +1682,16 @@ tr:last-child td{
 
 <script src="assets/config.js"></script>
 
-<script src="assets/site.js"></script>
+<script src="assets/site.js?v=20260924-fix-media"></script>
 
 
 <script>
 
 "use strict";
+
+function isVideoMedia(value) {
+  return /\.(mp4|webm|ogg|mov|m4v)(?:[?#].*)?$/i.test(String(value || ""));
+}
 
 /* ==============================================================
    ESTADO
@@ -1834,7 +1838,7 @@ function renderizarFotos() {
               ${index + 1}
             </span>
 
-            ${mediaEhVideo(item.tipo === "nova" ? item.file.name : item.valor)
+            ${isVideoMedia(item.tipo === "nova" ? item.file.name : item.valor)
               ? `<video src="${escapeHtml(src)}" muted preload="metadata" aria-label="Vídeo ${index + 1}"></video>`
               : `<img src="${escapeHtml(src)}" alt="Foto ${index + 1}" onerror="this.src='https://via.placeholder.com/84x64?text=—';">`}
 
@@ -2488,7 +2492,7 @@ async function prepararImagemParaUpload(arquivo) {
 }
 
 function archivoEhVideo(arquivo) {
-  return mediaEhVideo(arquivo?.name);
+  return isVideoMedia(arquivo?.name);
 }
 
 function tipoMimeVideo(arquivo) {
@@ -2514,7 +2518,14 @@ async function uploadFotos(arquivos, imovelId) {
 
     if (error) {
       console.error("Erro ao enviar foto:", original.name, error);
-      throw new Error(`Não foi possível enviar "${original.name}": ${error.message || "erro no Storage"}`);
+      const mensagemStorage = error.message || "erro no Storage";
+      if (video && /(mime|content.?type|not allowed|invalid.*type)/i.test(mensagemStorage)) {
+        throw new Error(`O Supabase recusou o vídeo. No bucket fotos-imoveis, permita o tipo ${tipoMimeVideo(arquivo)}.`);
+      }
+      if (video && /(size|too large|exceed|payload)/i.test(mensagemStorage)) {
+        throw new Error("O vídeo excede o limite de tamanho configurado no bucket fotos-imoveis do Supabase.");
+      }
+      throw new Error(`Não foi possível enviar "${original.name}": ${mensagemStorage}`);
     }
     caminhos.push(caminho);
   }
@@ -3503,7 +3514,7 @@ function renderizarTabela(
       im => {
 
         const caminhoFoto = Array.isArray(im.fotos)
-          ? im.fotos.find(item => item && !mediaEhVideo(item))
+          ? im.fotos.find(item => item && !isVideoMedia(item))
           : null;
         const foto = caminhoFoto
           ? urlFoto(caminhoFoto)
