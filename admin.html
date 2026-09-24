@@ -346,6 +346,14 @@ textarea{
   -webkit-user-drag:none;
 }
 
+.foto-existente video{
+  width:84px;
+  height:64px;
+  object-fit:cover;
+  border-radius:6px;
+  background:#111;
+}
+
 .foto-existente button{
   position:absolute;
   top:3px;
@@ -1303,7 +1311,7 @@ tr:last-child td{
            ======================================================== -->
 
       <section class="form-section">
-      <h3 class="form-section-heading"><span>📷</span>Fotos do imóvel</h3>
+      <h3 class="form-section-heading"><span>📷</span>Fotos e vídeos do imóvel</h3>
 
       <div
         class="form-grid full"
@@ -1314,11 +1322,11 @@ tr:last-child td{
         <div>
 
           <label>
-            Fotos do imóvel
+            Arquivos já adicionados. Arraste para reordenar e use × para remover.
           </label>
 
           <div class="fotos-existentes-info">
-            Arraste as fotos para reordenar. Clique no × para remover uma foto. As alterações só são aplicadas ao salvar o imóvel.
+            Arraste os arquivos para reordenar. Clique no × para remover. As alterações só são aplicadas ao salvar o imóvel.
           </div>
 
           <div
@@ -1338,9 +1346,7 @@ tr:last-child td{
 
         <div>
 
-          <label>
-            Adicionar fotos
-          </label>
+          <label>Adicionar fotos e vídeos</label>
 
           <div
             id="dropzone"
@@ -1354,17 +1360,15 @@ tr:last-child td{
               </span>
 
               <p>
-                <strong>
-                  Clique para selecionar
-                </strong>
-                ou arraste as fotos até aqui
+                <strong>Clique para selecionar</strong>
+                ou arraste fotos e vídeos até aqui
               </p>
 
               <span
                 id="fotos-qtd"
                 class="dropzone-info"
               >
-                Nenhuma foto adicionada
+                Nenhum arquivo de mídia adicionado
               </span>
 
             </div>
@@ -1373,7 +1377,7 @@ tr:last-child td{
               name="fotos"
               id="f-fotos"
               type="file"
-              accept=".jpg,.jpeg,.png,.webp,.gif,.bmp,.avif,.heic,.heif,image/*"
+              accept=".jpg,.jpeg,.png,.webp,.gif,.bmp,.avif,.heic,.heif,.mp4,.webm,.ogg,.mov,.m4v,image/*,video/*"
               multiple
               style="display:none;"
             >
@@ -1830,11 +1834,9 @@ function renderizarFotos() {
               ${index + 1}
             </span>
 
-            <img
-              src="${escapeHtml(src)}"
-              alt="Foto ${index + 1}"
-              onerror="this.src='https://via.placeholder.com/84x64?text=—';"
-            >
+            ${mediaEhVideo(item.tipo === "nova" ? item.file.name : item.valor)
+              ? `<video src="${escapeHtml(src)}" muted preload="metadata" aria-label="Vídeo ${index + 1}"></video>`
+              : `<img src="${escapeHtml(src)}" alt="Foto ${index + 1}" onerror="this.src='https://via.placeholder.com/84x64?text=—';">`}
 
             ${
               item.tipo === "nova"
@@ -2041,19 +2043,14 @@ function adicionarFotosNovas(fileList) {
 
   const imagens =
     arquivos.filter(
-      arquivo =>
-        arquivo.type.startsWith(
-          "image/"
-        ) ||
-        /\.(heic|heif)$/i.test(
-          arquivo.name || ""
-        )
+      arquivo => arquivo.type.startsWith("image/") ||
+        archivoEhVideo(arquivo) || /\.(heic|heif)$/i.test(arquivo.name || "")
     );
 
   if (!imagens.length) {
 
     alert(
-      "Selecione apenas arquivos de imagem."
+      "Selecione arquivos de imagem ou vídeo (MP4, WebM, OGG, MOV ou M4V)."
     );
 
     return;
@@ -2087,15 +2084,15 @@ function atualizarTextoFotos() {
   if (!total) {
 
     fotosQtdText.textContent =
-      "Nenhuma foto adicionada";
+      "Nenhum arquivo de mídia adicionado";
 
     return;
   }
 
   fotosQtdText.textContent =
     total === 1
-      ? "1 foto no total"
-      : `${total} fotos no total`;
+      ? "1 arquivo de mídia no total"
+      : `${total} arquivos de mídia no total`;
 }
 
 
@@ -2490,19 +2487,30 @@ async function prepararImagemParaUpload(arquivo) {
   }
 }
 
+function archivoEhVideo(arquivo) {
+  return mediaEhVideo(arquivo?.name);
+}
+
+function tipoMimeVideo(arquivo) {
+  const extensao = String(arquivo?.name || "").split(".").pop().toLowerCase();
+  return ({ mp4: "video/mp4", webm: "video/webm", ogg: "video/ogg", mov: "video/quicktime", m4v: "video/x-m4v" })[extensao] || "video/mp4";
+}
+
 async function uploadFotos(arquivos, imovelId) {
   const caminhos = [];
   if (!arquivos || !arquivos.length) return caminhos;
 
   for (const original of arquivos) {
-    const preparado = await prepararImagemParaUpload(original);
-    const arquivo = preparado.arquivo;
-    const nomeArquivo = `${Date.now()}-${Math.random().toString(36).slice(2)}-${arquivo.name}`;
+    const video = archivoEhVideo(original);
+    const preparado = video ? null : await prepararImagemParaUpload(original);
+    const arquivo = video ? original : preparado.arquivo;
+    const nomeSeguro = arquivo.name.replace(/[^a-zA-Z0-9._-]+/g, "_");
+    const nomeArquivo = `${Date.now()}-${Math.random().toString(36).slice(2)}-${nomeSeguro}`;
     const caminho = `${imovelId}/${nomeArquivo}`;
 
     const { error } = await sb.storage
       .from("fotos-imoveis")
-      .upload(caminho, arquivo, { cacheControl: "3600", upsert: false, contentType: "image/jpeg" });
+      .upload(caminho, arquivo, { cacheControl: "3600", upsert: false, contentType: video ? tipoMimeVideo(arquivo) : "image/jpeg" });
 
     if (error) {
       console.error("Erro ao enviar foto:", original.name, error);
@@ -2690,7 +2698,7 @@ async function salvarImovel(ev) {
 
       if (itensNovos.length > 0) {
 
-        btn.textContent = "Enviando fotos...";
+        btn.textContent = "Enviando fotos e vídeos...";
 
         caminhosNovos = await uploadFotos(
           itensNovos.map(item => item.file),
@@ -2765,7 +2773,7 @@ async function salvarImovel(ev) {
 
       if (fotosItems.length > 0) {
 
-        btn.textContent = "Enviando fotos...";
+        btn.textContent = "Enviando fotos e vídeos...";
 
         // Ao criar, todos os itens são fotos novas (ainda não há
         // fotos existentes), mas percorremos fotosItems para
@@ -3494,13 +3502,12 @@ function renderizarTabela(
     lista.map(
       im => {
 
-        const foto =
-          Array.isArray(im.fotos) &&
-          im.fotos.length
-            ? urlFoto(
-                im.fotos[0]
-              )
-            : "https://via.placeholder.com/56x42?text=—";
+        const caminhoFoto = Array.isArray(im.fotos)
+          ? im.fotos.find(item => item && !mediaEhVideo(item))
+          : null;
+        const foto = caminhoFoto
+          ? urlFoto(caminhoFoto)
+          : "https://via.placeholder.com/56x42?text=—";
 
         return `
 
