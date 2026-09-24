@@ -39,6 +39,7 @@
   nav a.ativo{color:var(--green);font-weight:700;}
   .mobile-nav-toggle{display:none;}
   .mobile-nav-contact{display:none;}
+  .mobile-nav-login{display:none;}
   .mobile-nav-brand{display:none;}
   .header-right{display:flex;align-items:center;gap:20px;}
   .header-phone{font-size:13.5px;color:var(--ink-soft);}
@@ -177,15 +178,16 @@
     .header-inner.menu-aberto nav a:hover{background:var(--green-tint);}
     .header-inner.menu-aberto .mobile-nav-brand{display:block;padding:12px;color:var(--ink-soft);font-size:11px;line-height:1.5;border-bottom:1px solid var(--line);margin-bottom:4px;}
     .header-inner.menu-aberto .mobile-nav-contact{display:block;margin-top:4px;padding:13px 12px;border-radius:7px;background:var(--green);color:#fff;font-weight:700;}
+    .header-inner.menu-aberto .mobile-nav-login{display:block;width:100%;margin-top:6px;padding:12px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--green);font:700 14px Inter;text-align:left;cursor:pointer;}
     .header-phone,.btn-outline-header{display:none;}
   }
   @media (max-width:560px){
-    .header-inner{gap:8px;padding:14px 0;}
+    .header-inner{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:14px 0;}
+    .header-inner .logo{min-width:0;width:auto;}
     .logo-img{height:36px;max-width:104px;object-fit:contain;object-position:left;}
     .logo-sub{display:none;}
-    .header-right{gap:8px;}
-    .header-right .btn-green{display:none;}
-    .btn-login-header{display:none;}
+    .header-right{display:none;}
+    .mobile-nav-toggle{justify-self:end;}
     .cta-band{padding:36px 28px;}
     .footer-grid{grid-template-columns:1fr;}
     .como-etapa,.como-etapa.inverso{grid-template-columns:1fr;text-align:center;}
@@ -211,6 +213,7 @@
       <a href="financiamento.html" class="ativo">Financiamento</a>
       <a href="https://wa.me/5535997097389?text=Ol%C3%A1%2C%20gostaria%20de%20negociar%20um%20im%C3%B3vel." target="_blank" rel="noopener">Negociar imóvel</a>
       <a class="mobile-nav-contact" href="https://wa.me/5535997097389?text=Ol%C3%A1%2C%20gostaria%20de%20simular%20um%20financiamento%20imobili%C3%A1rio." target="_blank" rel="noopener">Falar no WhatsApp</a>
+      <button class="mobile-nav-login" type="button">Entrar</button>
     </nav>
     <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="navegacao-financiamento">☰ Menu</button>
     <div class="header-right">
@@ -434,7 +437,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="assets/config.js"></script>
-<script src="assets/site.js"></script>
+<script src="assets/site.js?v=20260924-fix-media"></script>
 <script>
 /* ============================================================
    PAULINO IMÓVEIS - LOGIN DO HEADER (financiamento.html)
@@ -534,6 +537,10 @@ if (menuMobileBotao && menuMobileNav) {
     const aberto = document.querySelector(".header-inner").classList.toggle("menu-aberto");
     menuMobileBotao.setAttribute("aria-expanded", String(aberto));
     menuMobileBotao.textContent = aberto ? "✕ Fechar" : "☰ Menu";
+  });
+  menuMobileNav.querySelector(".mobile-nav-login")?.addEventListener("click", () => {
+    fecharMenuMobile();
+    document.getElementById("btn-login-header")?.click();
   });
   menuMobileNav.addEventListener("click", event => { if (event.target.closest("a")) fecharMenuMobile(); });
   document.addEventListener("keydown", event => { if (event.key === "Escape") fecharMenuMobile(); });
