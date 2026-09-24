@@ -775,11 +775,12 @@
 
   @media (max-width:560px){
     .wrap{ padding-left:18px; padding-right:18px; }
-    .header-inner{ padding-top:14px; padding-bottom:14px;gap:10px; }
+    .header-inner{ display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding-top:14px;padding-bottom:14px; }
+    .header-inner .logo{min-width:0;width:auto;}
     .logo-img{ height:36px;max-width:104px;object-fit:contain;object-position:left; }
     .logo-sub,.header-phone{ display:none; }
-    .header-right{gap:8px;}
-    .header-right .btn-green{display:none;}
+    .header-right{display:none;}
+    .mobile-nav-toggle{justify-self:end;}
     .voltar{ margin-top:18px; }
     .detalhe{ padding-top:16px; padding-bottom:60px; }
     .foto-principal{ width:100%; aspect-ratio:1 / 1; border-radius:12px; }
@@ -872,6 +873,13 @@
   .similar-card-specs span{white-space:nowrap}
   @media(max-width:1050px){.similares-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media(max-width:650px){.similares-section{margin:42px 0 48px;min-width:0}.similares-head{display:block}.similares-head>div{min-width:0}.similares-head h2{font-size:clamp(22px,6vw,28px);overflow-wrap:anywhere}.similares-head p{font-size:13px;overflow-wrap:anywhere}.similares-ver-todos{display:inline-flex;max-width:100%;white-space:normal;text-align:center;margin-top:15px}.similares-grid{grid-template-columns:1fr;gap:14px}.similar-card{display:grid;grid-template-columns:104px minmax(0,1fr);border-radius:10px}.similar-card-img{aspect-ratio:1/1;height:100%}.similar-card-body{padding:12px;min-width:0}.similar-card-price{font-size:16px}.similar-card-title{font-size:13px;min-height:auto;overflow-wrap:anywhere}.similar-card-location{white-space:normal;overflow-wrap:anywhere}}
+  @media(max-width:650px){
+    .similar-card{grid-template-columns:104px minmax(0,1fr);grid-template-rows:minmax(120px,auto);}
+    .similar-card-img{grid-column:1;grid-row:1;width:104px;max-width:100%;min-width:0;height:100%;min-height:0;aspect-ratio:auto;}
+    .similar-card-img img{width:100%;max-width:100%;height:100%;}
+    .similar-card-body{grid-column:2;grid-row:1;width:100%;min-width:0;overflow:hidden;position:relative;z-index:1;}
+  }
+  @media(max-width:360px){.similar-card{grid-template-columns:88px minmax(0,1fr)}.similar-card-img{width:88px}}
 
 </style>
 </head>
