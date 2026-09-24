@@ -1035,12 +1035,16 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="assets/config.js"></script>
-<script src="assets/site.js"></script>
+<script src="assets/site.js?v=20260924-fix-media"></script>
 
 <script>
 const params = new URLSearchParams(location.search);
 const id = params.get("id");
 let imovelAtual = null;
+
+function isVideoMedia(value){
+  return /\.(mp4|webm|ogg|mov|m4v)(?:[?#].*)?$/i.test(String(value || ""));
+}
 
 function escapeHtml(valor){
   if(valor === null || valor === undefined) return "";
@@ -1173,7 +1177,7 @@ async function carregar(){
             ` : ""}
 
             ${fotos[0] ? `
-              <div id="media-principal">${mediaEhVideo(fotos[0])
+              <div id="media-principal">${isVideoMedia(fotos[0])
                 ? `<video src="${escapeHtml(fotos[0])}" controls playsinline preload="metadata" aria-label="Vídeo de ${escapeHtml(imovel.titulo)}"></video>`
                 : `<img src="${escapeHtml(fotos[0])}" alt="${escapeHtml(imovel.titulo)}" width="1080" height="1080" loading="eager" decoding="async">`}</div>
             ` : `
@@ -1184,7 +1188,7 @@ async function carregar(){
           ${fotos.length > 1 ? `
             <div class="miniaturas" id="miniaturas">
               ${fotos.map((foto,index) => `
-                <button type="button" data-idx="${index}" class="${index === 0 ? "ativa" : ""}" aria-label="${mediaEhVideo(foto) ? "Reproduzir vídeo" : "Ver foto"} ${index + 1}">${mediaEhVideo(foto)
+                <button type="button" data-idx="${index}" class="${index === 0 ? "ativa" : ""}" aria-label="${isVideoMedia(foto) ? "Reproduzir vídeo" : "Ver foto"} ${index + 1}">${isVideoMedia(foto)
                   ? `<video src="${escapeHtml(foto)}#t=0.1" muted preload="metadata"></video><span aria-hidden="true">▶</span>`
                   : `<img src="${escapeHtml(foto)}" width="60" height="60" loading="lazy" decoding="async" alt="Miniatura ${index + 1}">`}</button>
               `).join("")}
@@ -1303,7 +1307,7 @@ async function carregar(){
 
     function mostrarFoto(novoIdx){
       idx = (novoIdx + fotos.length) % fotos.length;
-      if(mediaPrincipal) mediaPrincipal.innerHTML = mediaEhVideo(fotos[idx])
+      if(mediaPrincipal) mediaPrincipal.innerHTML = isVideoMedia(fotos[idx])
         ? `<video src="${escapeHtml(fotos[idx])}" controls autoplay playsinline preload="metadata" aria-label="Vídeo do imóvel"></video>`
         : `<img src="${escapeHtml(fotos[idx])}" alt="${escapeHtml(imovel.titulo)}" width="1080" height="1080" decoding="async">`;
       if(contador) contador.textContent = `${idx + 1} / ${fotos.length}`;
@@ -1667,6 +1671,7 @@ carregar()
   .catch(error => {
     console.error("Erro inesperado ao carregar imóvel:", error);
     const el = document.getElementById("conteudo");
+    const similares = document.getElementById("grid-similares");
     if(el){
       el.innerHTML = `
         <div class="estado">
@@ -1674,6 +1679,9 @@ carregar()
           <a href="index.html" style="color:var(--green);font-weight:600;">Voltar para o catálogo</a>
         </div>
       `;
+    }
+    if(similares){
+      similares.innerHTML = `<div class="similares-empty">Não foi possível carregar as recomendações agora. <a href="index.html#resultados" style="color:var(--green);font-weight:800;">Continuar no catálogo</a>.</div>`;
     }
   });
 </script>
