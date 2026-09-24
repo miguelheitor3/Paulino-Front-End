@@ -1364,6 +1364,8 @@ tr:last-child td{
                 ou arraste fotos e vídeos até aqui
               </p>
 
+              <span class="dropzone-info" style="display:block;margin:4px 0 8px;">Limite de 50 MB por arquivo</span>
+
               <span
                 id="fotos-qtd"
                 class="dropzone-info"
@@ -2045,11 +2047,17 @@ function adicionarFotosNovas(fileList) {
 
   if (!arquivos.length) return;
 
+  const limiteBytes = 50 * 1000 * 1000;
+  const arquivosAcimaDoLimite = arquivos.filter(arquivo => arquivo.size > limiteBytes);
+  if (arquivosAcimaDoLimite.length) {
+    alert(`Cada arquivo pode ter no máximo 50 MB. Não foram adicionados:\n${arquivosAcimaDoLimite.map(arquivo => arquivo.name).join("\n")}`);
+  }
+
   const imagens =
     arquivos.filter(
       arquivo => arquivo.type.startsWith("image/") ||
         archivoEhVideo(arquivo) || /\.(heic|heif)$/i.test(arquivo.name || "")
-    );
+    ).filter(arquivo => arquivo.size <= limiteBytes);
 
   if (!imagens.length) {
 
