@@ -75,6 +75,7 @@
   }
 
   .header-inner{
+    position:relative;
     display:flex;
     align-items:center;
     justify-content:space-between;
@@ -123,6 +124,10 @@
   nav a:hover{
     opacity:.7;
   }
+
+  .mobile-nav-toggle{display:none;}
+  .mobile-nav-brand{display:none;}
+  .mobile-nav-contact{display:none;}
 
   .header-right{
     display:flex;
@@ -217,7 +222,9 @@
     isolation:isolate;
   }
 
-  .foto-principal > #foto-principal-img{
+  .foto-principal > #media-principal,
+  .foto-principal > #media-principal img,
+  .foto-principal > #media-principal video{
     position:absolute;
     inset:0;
     width:100% !important;
@@ -226,7 +233,6 @@
     max-height:none !important;
     min-width:0;
     min-height:0;
-    object-fit:cover;
     object-position:center;
     display:block;
     z-index:1;
@@ -311,26 +317,39 @@
     scrollbar-width:thin;
   }
 
-  .miniaturas img{
-    width:60px !important;
-    height:60px !important;
+  .miniaturas button{
+    position:relative;
+    width:60px;
+    height:60px;
     min-width:60px;
-    max-width:60px;
-    min-height:60px;
-    max-height:60px;
-    object-fit:cover;
+    padding:0;
+    background:#111;
+    border:2px solid transparent;
     border-radius:8px;
     cursor:pointer;
     flex:0 0 60px;
     opacity:.5;
-    border:2px solid transparent;
+    overflow:hidden;
+    font:inherit;
     transition:opacity .15s ease, border-color .15s ease;
   }
 
-  .miniaturas img.ativa{
+  .miniaturas img,
+  .miniaturas video{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+  }
+
+  .miniaturas button.ativa{
     opacity:1;
     border-color:var(--green);
   }
+
+  .miniaturas button span{position:absolute;inset:0;display:grid;place-items:center;color:#fff;text-shadow:0 1px 4px #000;font-size:14px;pointer-events:none;}
+
+  #media-principal img{object-fit:cover;}
+  #media-principal video{object-fit:contain;background:#0d1310;}
 
   .titulo-bloco{
     margin-top:28px;
@@ -743,6 +762,12 @@
     .detalhe-grid{ grid-template-columns:1fr; gap:32px; }
     .card-preco{ position:static; }
     nav{ display:none; }
+    .mobile-nav-toggle{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--green);font:700 12px Inter;cursor:pointer;white-space:nowrap;}
+    .header-inner.menu-aberto nav{display:flex;position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:110;flex-direction:column;align-items:stretch;gap:0;padding:8px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 28px rgba(12,24,18,.14);}
+    .header-inner.menu-aberto nav a{padding:13px 12px;border-radius:7px;font-size:14px;}
+    .header-inner.menu-aberto nav a:hover{background:var(--green-tint);}
+    .header-inner.menu-aberto .mobile-nav-brand{display:block;padding:12px;color:var(--ink-soft);font-size:11px;line-height:1.5;border-bottom:1px solid var(--line);margin-bottom:4px;}
+    .header-inner.menu-aberto .mobile-nav-contact{display:block;margin-top:4px;padding:13px 12px;border-radius:7px;background:var(--green);color:#fff;font-weight:700;}
     .header-right{ margin-left:auto; }
     .footer-grid{ grid-template-columns:1fr 1fr; }
     .header-phone,.btn-outline-header{ display:none; }
@@ -750,10 +775,11 @@
 
   @media (max-width:560px){
     .wrap{ padding-left:18px; padding-right:18px; }
-    .header-inner{ padding-top:14px; padding-bottom:14px; }
-    .logo-img{ height:42px; }
+    .header-inner{ padding-top:14px; padding-bottom:14px;gap:10px; }
+    .logo-img{ height:36px;max-width:104px;object-fit:contain;object-position:left; }
     .logo-sub,.header-phone{ display:none; }
-    .btn-green{ padding:10px 14px; font-size:12px; }
+    .header-right{gap:8px;}
+    .header-right .btn-green{display:none;}
     .voltar{ margin-top:18px; }
     .detalhe{ padding-top:16px; padding-bottom:60px; }
     .foto-principal{ width:100%; aspect-ratio:1 / 1; border-radius:12px; }
@@ -845,7 +871,7 @@
   .similar-card-specs{display:flex;gap:10px;flex-wrap:wrap;margin-top:11px;padding-top:11px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink-soft)}
   .similar-card-specs span{white-space:nowrap}
   @media(max-width:1050px){.similares-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-  @media(max-width:650px){.similares-section{margin:42px 0 48px}.similares-head{display:block}.similares-ver-todos{display:inline-block;margin-top:15px}.similares-grid{grid-template-columns:1fr;gap:14px}.similar-card{display:grid;grid-template-columns:120px minmax(0,1fr);border-radius:10px}.similar-card-img{aspect-ratio:1/1;height:100%}.similar-card-body{padding:13px}.similar-card-price{font-size:16px}.similar-card-title{font-size:13px;min-height:auto}}
+  @media(max-width:650px){.similares-section{margin:42px 0 48px;min-width:0}.similares-head{display:block}.similares-head>div{min-width:0}.similares-head h2{font-size:clamp(22px,6vw,28px);overflow-wrap:anywhere}.similares-head p{font-size:13px;overflow-wrap:anywhere}.similares-ver-todos{display:inline-flex;max-width:100%;white-space:normal;text-align:center;margin-top:15px}.similares-grid{grid-template-columns:1fr;gap:14px}.similar-card{display:grid;grid-template-columns:104px minmax(0,1fr);border-radius:10px}.similar-card-img{aspect-ratio:1/1;height:100%}.similar-card-body{padding:12px;min-width:0}.similar-card-price{font-size:16px}.similar-card-title{font-size:13px;min-height:auto;overflow-wrap:anywhere}.similar-card-location{white-space:normal;overflow-wrap:anywhere}}
 
 </style>
 </head>
@@ -862,13 +888,17 @@
       </div>
     </a>
 
-    <nav>
+    <nav id="navegacao-imovel">
+      <div class="mobile-nav-brand">CRECI 37888 · Três Pontas–MG</div>
       <a href="index.html?finalidade=Comprar#resultados">Comprar</a>
       <a href="index.html?finalidade=Alugar#resultados">Alugar</a>
       <a href="index.html?tipo=Terreno#resultados">Terrenos</a>
       <a href="https://wa.me/5535998848963?text=Ol%C3%A1%2C%20gostaria%20de%20negociar%20um%20im%C3%B3vel." target="_blank" rel="noopener">Negociar imóvel</a>
       <a href="https://wa.me/5535998848963?text=Ol%C3%A1!%20Quero%20falar%20sobre%20financiamento%20de%20um%20im%C3%B3vel." target="_blank" rel="noopener">Financiamento</a>
+      <a class="mobile-nav-contact" href="https://wa.me/5535998848963" target="_blank" rel="noopener">Falar no WhatsApp</a>
     </nav>
+
+    <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="navegacao-imovel">☰ Menu</button>
 
     <div class="header-right">
       <a class="btn-outline-header" href="anunciar.html">Anunciar imóvel</a>
@@ -1143,7 +1173,9 @@ async function carregar(){
             ` : ""}
 
             ${fotos[0] ? `
-              <img id="foto-principal-img" src="${escapeHtml(fotos[0])}" alt="${escapeHtml(imovel.titulo)}" width="1080" height="1080" loading="eager" decoding="async">
+              <div id="media-principal">${mediaEhVideo(fotos[0])
+                ? `<video src="${escapeHtml(fotos[0])}" controls playsinline preload="metadata" aria-label="Vídeo de ${escapeHtml(imovel.titulo)}"></video>`
+                : `<img src="${escapeHtml(fotos[0])}" alt="${escapeHtml(imovel.titulo)}" width="1080" height="1080" loading="eager" decoding="async">`}</div>
             ` : `
               <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:14px;z-index:1;">Foto não disponível</div>
             `}
@@ -1152,7 +1184,9 @@ async function carregar(){
           ${fotos.length > 1 ? `
             <div class="miniaturas" id="miniaturas">
               ${fotos.map((foto,index) => `
-                <img src="${escapeHtml(foto)}" data-idx="${index}" class="${index === 0 ? "ativa" : ""}" width="60" height="60" loading="lazy" decoding="async" alt="Miniatura ${index + 1}">
+                <button type="button" data-idx="${index}" class="${index === 0 ? "ativa" : ""}" aria-label="${mediaEhVideo(foto) ? "Reproduzir vídeo" : "Ver foto"} ${index + 1}">${mediaEhVideo(foto)
+                  ? `<video src="${escapeHtml(foto)}#t=0.1" muted preload="metadata"></video><span aria-hidden="true">▶</span>`
+                  : `<img src="${escapeHtml(foto)}" width="60" height="60" loading="lazy" decoding="async" alt="Miniatura ${index + 1}">`}</button>
               `).join("")}
             </div>
           ` : ""}
@@ -1261,15 +1295,17 @@ async function carregar(){
   // Galeria de Fotos
   if(fotos.length > 1){
     let idx = 0;
-    const imgPrincipal = document.getElementById("foto-principal-img");
+    const mediaPrincipal = document.getElementById("media-principal");
     const contador = document.getElementById("foto-contador");
-    const miniaturas = [...document.querySelectorAll("#miniaturas img")];
+    const miniaturas = [...document.querySelectorAll("#miniaturas button")];
     const botaoAnterior = document.querySelector(".foto-nav.prev");
     const botaoProximo = document.querySelector(".foto-nav.next");
 
     function mostrarFoto(novoIdx){
       idx = (novoIdx + fotos.length) % fotos.length;
-      if(imgPrincipal) imgPrincipal.src = fotos[idx];
+      if(mediaPrincipal) mediaPrincipal.innerHTML = mediaEhVideo(fotos[idx])
+        ? `<video src="${escapeHtml(fotos[idx])}" controls autoplay playsinline preload="metadata" aria-label="Vídeo do imóvel"></video>`
+        : `<img src="${escapeHtml(fotos[idx])}" alt="${escapeHtml(imovel.titulo)}" width="1080" height="1080" decoding="async">`;
       if(contador) contador.textContent = `${idx + 1} / ${fotos.length}`;
       miniaturas.forEach((miniatura,i) => miniatura.classList.toggle("ativa", i === idx));
     }
@@ -1597,6 +1633,31 @@ async function atualizarBotaoEdicao(){
 }
 
 document.addEventListener("click",e=>{if(e.target.id==="btn-editar-imovel")abrirEditor();if(e.target.id==="editor-cancelar")fecharEditor();});
+
+const mobileNavButton = document.querySelector(".mobile-nav-toggle");
+const mobileNav = document.getElementById("navegacao-imovel");
+if (mobileNavButton && mobileNav) {
+  mobileNavButton.addEventListener("click", () => {
+    const aberto = document.querySelector(".header-inner").classList.toggle("menu-aberto");
+    mobileNavButton.setAttribute("aria-expanded", String(aberto));
+    mobileNavButton.textContent = aberto ? "✕ Fechar" : "☰ Menu";
+  });
+  mobileNav.addEventListener("click", event => {
+    if (event.target.closest("a")) {
+      document.querySelector(".header-inner").classList.remove("menu-aberto");
+      mobileNavButton.setAttribute("aria-expanded", "false");
+      mobileNavButton.textContent = "☰ Menu";
+    }
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      document.querySelector(".header-inner").classList.remove("menu-aberto");
+      mobileNavButton.setAttribute("aria-expanded", "false");
+      mobileNavButton.textContent = "☰ Menu";
+    }
+  });
+}
+
 document.getElementById("editor-form").addEventListener("submit",salvarEdicaoDireta);
 document.getElementById("editor-backdrop").addEventListener("click",e=>{if(e.target===editorBackdrop)fecharEditor();});
 sb.auth.onAuthStateChange(()=>setTimeout(atualizarBotaoEdicao,0));
