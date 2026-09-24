@@ -588,7 +588,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="assets/config.js"></script>
-<script src="assets/site.js"></script>
+<script src="assets/site.js?v=20260924-fix-media"></script>
 <script>
 const authBackdrop=document.getElementById("auth-backdrop");
 const authMsg=document.getElementById("auth-msg");
@@ -791,6 +791,10 @@ atualizarLoginHeader();
    ============================================================ */
 
 const TAMANHO_PAGINA = 12;
+
+function isVideoMedia(value) {
+  return /\.(mp4|webm|ogg|mov|m4v)(?:[?#].*)?$/i.test(String(value || ""));
+}
 
 let paginaAtual = 0;
 let carregando = false;
@@ -1124,7 +1128,7 @@ async function carregarFotoCapa() {
     if (error) throw error;
 
     const maisRecente = (data || []).find(
-      (im) => Array.isArray(im.fotos) && im.fotos.some(foto => foto && !mediaEhVideo(foto))
+      (im) => Array.isArray(im.fotos) && im.fotos.some(foto => foto && !isVideoMedia(foto))
     );
 
     if (!maisRecente) {
@@ -1135,7 +1139,7 @@ async function carregarFotoCapa() {
     }
 
     mostrarImagem(
-      urlFoto(maisRecente.fotos.find(foto => foto && !mediaEhVideo(foto))),
+      urlFoto(maisRecente.fotos.find(foto => foto && !isVideoMedia(foto))),
       maisRecente.titulo || "Imóvel em destaque",
       `imovel.html?id=${encodeURIComponent(maisRecente.id)}`,
       false
