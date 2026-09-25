@@ -128,6 +128,7 @@
   .mobile-nav-toggle{display:none;}
   .mobile-nav-brand{display:none;}
   .mobile-nav-contact{display:none;}
+  .mobile-nav-login{display:none;}
 
   .header-right{
     display:flex;
@@ -135,6 +136,22 @@
     gap:20px;
     flex-shrink:0;
   }
+
+  .btn-login-header{background:#fff;color:var(--green);border:1px solid var(--green);font:600 13.5px Inter;padding:10px 16px;border-radius:8px;cursor:pointer;white-space:nowrap;}
+  .btn-login-header:hover{background:var(--green-tint);}
+  .btn-login-header.auth-session{font-size:13.5px;padding:10px 16px;border:1px solid var(--green);}
+  .auth-backdrop{position:fixed;inset:0;background:rgba(8,43,32,.38);display:none;align-items:center;justify-content:center;padding:20px;z-index:2000;}
+  .auth-backdrop.aberto{display:flex;}
+  .auth-modal{width:min(420px,100%);background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px;box-shadow:0 24px 70px rgba(0,0,0,.2);}
+  .auth-modal h2{font:700 22px Archivo;margin-bottom:6px;}
+  .auth-modal p{font-size:13px;color:var(--ink-soft);line-height:1.5;margin-bottom:18px;}
+  .auth-modal label{display:block;font-size:11px;font-weight:800;color:var(--ink-soft);margin:12px 0 5px;}
+  .auth-modal input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:8px;font:14px Inter;}
+  .auth-msg{font-size:13px;color:var(--red);margin-top:10px;display:none;}
+  .auth-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;}
+  .auth-actions button{border:0;border-radius:8px;padding:10px 15px;font-weight:700;cursor:pointer;}
+  .auth-cancel{background:#fff;border:1px solid var(--line)!important;color:var(--ink);}
+  .auth-submit{background:var(--green);color:#fff;}
 
   .header-phone{
     font-size:13.5px;
@@ -768,6 +785,7 @@
     .header-inner.menu-aberto nav a:hover{background:var(--green-tint);}
     .header-inner.menu-aberto .mobile-nav-brand{display:block;padding:12px;color:var(--ink-soft);font-size:11px;line-height:1.5;border-bottom:1px solid var(--line);margin-bottom:4px;}
     .header-inner.menu-aberto .mobile-nav-contact{display:block;margin-top:4px;padding:13px 12px;border-radius:7px;background:var(--green);color:#fff;font-weight:700;}
+    .header-inner.menu-aberto .mobile-nav-login{display:block;width:100%;margin-top:6px;padding:12px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--green);font:700 14px Inter;text-align:left;cursor:pointer;}
     .header-right{ margin-left:auto; }
     .footer-grid{ grid-template-columns:1fr 1fr; }
     .header-phone,.btn-outline-header{ display:none; }
@@ -904,16 +922,35 @@
       <a href="https://wa.me/5535998848963?text=Ol%C3%A1%2C%20gostaria%20de%20negociar%20um%20im%C3%B3vel." target="_blank" rel="noopener">Negociar imóvel</a>
       <a href="https://wa.me/5535998848963?text=Ol%C3%A1!%20Quero%20falar%20sobre%20financiamento%20de%20um%20im%C3%B3vel." target="_blank" rel="noopener">Financiamento</a>
       <a class="mobile-nav-contact" href="https://wa.me/5535998848963" target="_blank" rel="noopener">Falar no WhatsApp</a>
+      <button class="mobile-nav-login" type="button">Entrar</button>
     </nav>
 
     <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="navegacao-imovel">☰ Menu</button>
 
     <div class="header-right">
       <a class="btn-outline-header" href="anunciar.html">Anunciar imóvel</a>
+      <button class="btn-login-header" id="btn-login-header" type="button">Entrar</button>
+      <a class="btn-outline-header" id="btn-admin-header" href="/admin" style="display:none;">Administrador</a>
       <a class="btn-green" href="https://wa.me/5535998848963" target="_blank" rel="noopener">Falar no WhatsApp</a>
     </div>
   </div>
 </header>
+
+<div class="auth-backdrop" id="auth-backdrop" aria-hidden="true">
+  <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+    <h2 id="auth-title">Entrar</h2>
+    <p>Entre para acessar os recursos exclusivos da administração.</p>
+    <label for="auth-email">E-mail</label>
+    <input id="auth-email" type="email" autocomplete="username">
+    <label for="auth-password">Senha</label>
+    <input id="auth-password" type="password" autocomplete="current-password">
+    <div class="auth-msg" id="auth-msg"></div>
+    <div class="auth-actions">
+      <button class="auth-cancel" id="auth-cancel" type="button">Cancelar</button>
+      <button class="auth-submit" id="auth-submit" type="button">Entrar</button>
+    </div>
+  </div>
+</div>
 
 <div class="wrap">
   <a class="voltar" href="index.html">← Voltar para o catálogo</a>
@@ -1638,10 +1675,73 @@ async function carregarImoveisSimilares(atual){
   }
 }
 
-async function atualizarBotaoEdicao(){
-  const area=document.getElementById("editor-actions"); const btn=document.getElementById("btn-editar-imovel"); if(!area||!btn)return;
+const authBackdrop=document.getElementById("auth-backdrop");
+const authBtn=document.getElementById("btn-login-header");
+const mobileAuthBtn=document.querySelector(".mobile-nav-login");
+const btnAdminHeader=document.getElementById("btn-admin-header");
+const authMsg=document.getElementById("auth-msg");
+
+function authAbrir(){
+  authBackdrop.classList.add("aberto");
+  authBackdrop.setAttribute("aria-hidden","false");
+  authMsg.style.display="none";
+  document.getElementById("auth-email").focus();
+}
+
+function authFechar(){
+  authBackdrop.classList.remove("aberto");
+  authBackdrop.setAttribute("aria-hidden","true");
+}
+
+function authMostrarErro(mensagem){
+  authMsg.textContent=mensagem;
+  authMsg.style.display="block";
+}
+
+authBtn.addEventListener("click",async()=>{
   const {data}=await sb.auth.getSession();
-  area.style.display=data?.session?"block":"none";
+  if(data?.session){
+    await sb.auth.signOut();
+    await atualizarBotaoEdicao();
+    return;
+  }
+  authAbrir();
+});
+
+document.getElementById("auth-cancel").addEventListener("click",authFechar);
+authBackdrop.addEventListener("click",event=>{if(event.target===authBackdrop)authFechar();});
+document.getElementById("auth-submit").addEventListener("click",async()=>{
+  const email=document.getElementById("auth-email").value.trim();
+  const password=document.getElementById("auth-password").value;
+  if(!email||!password){authMostrarErro("Informe o e-mail e a senha.");return;}
+
+  const botao=document.getElementById("auth-submit");
+  botao.disabled=true;
+  botao.textContent="Entrando...";
+  const {error}=await sb.auth.signInWithPassword({email,password});
+  botao.disabled=false;
+  botao.textContent="Entrar";
+  if(error){authMostrarErro("E-mail ou senha inválidos.");return;}
+  authFechar();
+  await atualizarBotaoEdicao();
+});
+
+mobileAuthBtn.addEventListener("click",()=>{
+  document.querySelector(".header-inner").classList.remove("menu-aberto");
+  mobileNavButton.setAttribute("aria-expanded","false");
+  mobileNavButton.textContent="☰ Menu";
+  authBtn.click();
+});
+
+async function atualizarBotaoEdicao(){
+  const {data}=await sb.auth.getSession();
+  const autenticado=!!data?.session;
+  const area=document.getElementById("editor-actions");
+  const btn=document.getElementById("btn-editar-imovel");
+  if(area&&btn) area.style.display=autenticado?"block":"none";
+  authBtn.textContent=autenticado?"Sair":"Entrar";
+  mobileAuthBtn.textContent=autenticado?"Sair":"Entrar";
+  if(btnAdminHeader) btnAdminHeader.style.display=autenticado?"inline-flex":"none";
 }
 
 document.addEventListener("click",e=>{if(e.target.id==="btn-editar-imovel")abrirEditor();if(e.target.id==="editor-cancelar")fecharEditor();});
