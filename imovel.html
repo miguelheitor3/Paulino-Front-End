@@ -1043,7 +1043,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="assets/config.js"></script>
-<script src="assets/site.js?v=20260924-fix-media"></script>
+<script src="assets/site.js?v=20260925-video-cover-auth"></script>
 
 <script>
 const params = new URLSearchParams(location.search);
@@ -1207,7 +1207,7 @@ async function carregar(){
             ${imovel.codigo ? `<span class="codigo-badge">Código ${escapeHtml(imovel.codigo)}</span>` : ""}
             <h1>${escapeHtml(imovel.titulo)}</h1>
             <div class="local">
-              ${[imovel.rua, imovel.bairro, imovel.cidade].filter(Boolean).map(escapeHtml).join(", ")}
+              ${[imovel.bairro, imovel.cidade].filter(Boolean).map(escapeHtml).join(", ")}
             </div>
           </div>
 
