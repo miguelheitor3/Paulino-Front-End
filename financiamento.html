@@ -437,7 +437,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="assets/config.js"></script>
-<script src="assets/site.js?v=20260924-fix-media"></script>
+<script src="assets/site.js?v=20260925-video-cover-auth"></script>
 <script>
 /* ============================================================
    PAULINO IMÓVEIS - LOGIN DO HEADER (financiamento.html)
@@ -447,6 +447,7 @@
 const authBackdrop=document.getElementById("auth-backdrop");
 const authMsg=document.getElementById("auth-msg");
 const authBtn=document.getElementById("btn-login-header");
+const mobileAuthBtn=document.querySelector(".mobile-nav-login");
 const btnAdminHeader=document.getElementById("btn-admin-header");
 
 async function atualizarLoginHeader(){
@@ -455,10 +456,12 @@ async function atualizarLoginHeader(){
 
   if(autenticado){
     authBtn.textContent="Sair";
+    if(mobileAuthBtn) mobileAuthBtn.textContent="Sair";
     authBtn.classList.add("auth-session");
     if(btnAdminHeader) btnAdminHeader.style.display="inline-flex";
   }else{
     authBtn.textContent="Entrar";
+    if(mobileAuthBtn) mobileAuthBtn.textContent="Entrar";
     authBtn.classList.remove("auth-session");
     if(btnAdminHeader) btnAdminHeader.style.display="none";
   }
