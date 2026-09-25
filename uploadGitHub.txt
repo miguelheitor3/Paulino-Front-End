@@ -1,0 +1,5 @@
+cd "C:\Users\migue\OneDrive\Desktop\descriçãoPaulino"
+git status
+git add -A
+git commit -m "Descreva suas alterações"
+git push
