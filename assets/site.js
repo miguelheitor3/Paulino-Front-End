@@ -22,7 +22,13 @@
   }
 
   if (!window.sb) {
-    window.sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+    window.sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    });
   }
 
   const sb = window.sb;
@@ -140,8 +146,11 @@
   // ------------------------------------------------------------
 
   function cardHtml(im, destaque) {
-    const fotos = Array.isArray(im.fotos) ? im.fotos.filter(foto => foto && !mediaEhVideo(foto)) : [];
+    const arquivos = Array.isArray(im.fotos) ? im.fotos.filter(Boolean) : [];
+    const fotos = arquivos.filter(foto => !mediaEhVideo(foto));
+    const videoCapa = fotos.length ? "" : arquivos.find(mediaEhVideo);
     const primeiraFoto = fotos.length ? urlFoto(fotos[0]) : "";
+    const urlVideoCapa = videoCapa ? urlFoto(videoCapa) : "";
     const fin = rotuloFinalidade(im.finalidade);
     const titulo = escapeHtml(im.titulo || "Imóvel");
     const temCarrossel = fotos.length > 1;
@@ -169,6 +178,8 @@
           <div class="carousel-imgs">
             ${primeiraFoto
               ? `<img src="${primeiraFoto}" loading="lazy" decoding="async" alt="${titulo}" onerror="this.src='${PLACEHOLDER_FOTO}';">`
+              : urlVideoCapa
+                ? `<video class="card-video-cover" src="${escapeHtml(urlVideoCapa)}#t=0.1" autoplay muted loop playsinline preload="metadata" aria-label="Prévia em vídeo de ${titulo}"></video><span class="card-video-badge" aria-hidden="true">▶ Vídeo</span>`
               : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#7b847e;font-size:13px;">Sem foto</div>`
             }
           </div>
