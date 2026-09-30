@@ -869,11 +869,14 @@ tr:last-child td{
     </h1>
 
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <button class="btn btn-outline" id="btn-migrar-r2" type="button">Copiar mídias para o R2</button>
       <a class="btn btn-outline" href="index.html">← Voltar ao site</a>
       <button class="btn btn-outline" id="btn-sair" type="button">Sair</button>
     </div>
 
   </div>
+
+  <div id="status-migracao-r2" role="status" aria-live="polite" style="display:none;margin:-10px 0 18px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink-soft);font-size:13px;"></div>
 
 
   <!-- ==========================================================
@@ -1682,9 +1685,9 @@ tr:last-child td{
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
-<script src="assets/config.js?v=20260930-r2-migration"></script>
+<script src="assets/config.js?v=20260930-r2-admin-copy"></script>
 
-<script src="assets/site.js?v=20260930-r2-migration"></script>
+<script src="assets/site.js?v=20260930-r2-admin-copy"></script>
 
 
 <script>
@@ -2545,6 +2548,78 @@ async function uploadFotos(arquivos, imovelId) {
    - Animal: somente para locação (Alugar)
    - Financiamento: somente para Terreno
    ============================================================== */
+
+function caminhoStorageDaFoto(valor) {
+  const foto = String(valor || "").trim();
+  if (!foto) return "";
+  if (window.R2_PUBLIC_URL && foto.startsWith(window.R2_PUBLIC_URL)) return "";
+  if (!/^https?:\/\//i.test(foto)) return foto;
+  try {
+    const url = new URL(foto);
+    const marcadores = ["/storage/v1/object/public/fotos-imoveis/", "/storage/v1/object/sign/fotos-imoveis/"];
+    for (const marcador of marcadores) {
+      const inicio = url.pathname.indexOf(marcador);
+      if (inicio >= 0) return decodeURIComponent(url.pathname.slice(inicio + marcador.length));
+    }
+    return "";
+  } catch {
+    return "";
+  }
+}
+
+async function copiarMidiasParaR2() {
+  const botao = document.getElementById("btn-migrar-r2");
+  const status = document.getElementById("status-migracao-r2");
+  const mostrarStatus = (texto, erro = false) => {
+    status.textContent = texto;
+    status.style.display = "block";
+    status.style.color = erro ? "#b42318" : "var(--ink-soft)";
+  };
+  if (!window.R2_WORKER_URL) {
+    mostrarStatus("O endereço do Worker R2 não está configurado.", true);
+    return;
+  }
+  if (!confirm("Vou copiar para o Cloudflare R2 todas as fotos e vídeos referenciados nos imóveis. Os arquivos originais do Supabase e os cadastros não serão apagados. Continuar?")) return;
+
+  botao.disabled = true;
+  const textoOriginal = botao.textContent;
+  botao.textContent = "Preparando cópia...";
+  try {
+    while (carregandoTabela) await new Promise(resolve => setTimeout(resolve, 150));
+    if (!imoveisCache.length) await carregarTabela();
+    const caminhos = [...new Set(imoveisCache.flatMap(im => Array.isArray(im.fotos) ? im.fotos : [])
+      .map(caminhoStorageDaFoto).filter(Boolean))];
+    if (!caminhos.length) {
+      mostrarStatus("Não encontrei caminhos do Supabase no campo de mídias dos imóveis.");
+      return;
+    }
+
+    let copiados = 0;
+    for (const caminho of caminhos) {
+      botao.textContent = `Copiando ${copiados + 1} de ${caminhos.length}...`;
+      mostrarStatus(`Copiando mídias para o R2: ${copiados} de ${caminhos.length}. Mantenha esta página aberta.`);
+      const { data, error } = await sb.storage.from("fotos-imoveis").download(caminho);
+      if (error) throw new Error(`${caminho}: não consegui baixar do Supabase (${error.message || "erro de leitura"}).`);
+      if (!data) throw new Error(`${caminho}: o Supabase não retornou o arquivo.`);
+      if (data.size > 50 * 1000 * 1000) throw new Error(`${caminho}: arquivo maior que o limite de 50 MB do Worker.`);
+      const extensao = caminho.split(".").pop().toLowerCase();
+      const tipoPorExtensao = ({ jpg:"image/jpeg", jpeg:"image/jpeg", png:"image/png", webp:"image/webp", gif:"image/gif", avif:"image/avif", mp4:"video/mp4", webm:"video/webm", ogg:"video/ogg", mov:"video/quicktime", m4v:"video/x-m4v" })[extensao];
+      const contentType = data.type && data.type !== "application/octet-stream" ? data.type : (tipoPorExtensao || "application/octet-stream");
+      await enviarMidiaParaR2(caminho, data, contentType);
+      copiados += 1;
+    }
+    mostrarStatus(`Cópia concluída: ${copiados} arquivos enviados ao R2. Os originais do Supabase continuam intactos. Ainda não ative a migração no site.`);
+  } catch (erro) {
+    console.error("Erro ao copiar mídias para R2:", erro);
+    mostrarStatus(`A cópia parou. ${erro?.message || "Erro desconhecido."} Você pode tentar novamente; os arquivos já copiados serão substituídos com o mesmo conteúdo.`, true);
+  } finally {
+    botao.disabled = false;
+    botao.textContent = textoOriginal;
+  }
+}
+
+document.getElementById("btn-migrar-r2").addEventListener("click", copiarMidiasParaR2);
+if (window.R2_STORAGE_ENABLED) document.getElementById("btn-migrar-r2").style.display = "none";
 
 function atualizarOpcoesCondicionais() {
   const tipo = form.tipo?.value || "";

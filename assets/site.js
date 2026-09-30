@@ -122,15 +122,7 @@
   }
   window.urlFoto = urlFoto;
 
-  async function enviarMidia(caminho, arquivo, contentType) {
-    if (!window.R2_STORAGE_ENABLED) {
-      const { error } = await sb.storage.from("fotos-imoveis").upload(caminho, arquivo, {
-        cacheControl: "3600", upsert: false, contentType
-      });
-      if (error) throw error;
-      return caminho;
-    }
-
+  async function enviarMidiaParaR2(caminho, arquivo, contentType) {
     if (!window.R2_WORKER_URL) throw new Error("O Worker do R2 ainda não foi configurado no assets/config.js.");
     const { data, error } = await sb.auth.getSession();
     if (error || !data?.session?.access_token) throw new Error("Entre novamente para enviar arquivos.");
@@ -143,6 +135,16 @@
       const detalhe = await resposta.json().catch(() => ({}));
       throw new Error(detalhe.error || `Falha no upload (HTTP ${resposta.status}).`);
     }
+    return caminho;
+  }
+  window.enviarMidiaParaR2 = enviarMidiaParaR2;
+
+  async function enviarMidia(caminho, arquivo, contentType) {
+    if (window.R2_STORAGE_ENABLED) return enviarMidiaParaR2(caminho, arquivo, contentType);
+    const { error } = await sb.storage.from("fotos-imoveis").upload(caminho, arquivo, {
+      cacheControl: "3600", upsert: false, contentType
+    });
+    if (error) throw error;
     return caminho;
   }
   window.enviarMidia = enviarMidia;
