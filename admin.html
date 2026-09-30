@@ -2585,6 +2585,21 @@ async function copiarMidiasParaR2() {
   const textoOriginal = botao.textContent;
   botao.textContent = "Preparando cópia...";
   try {
+    // Falhas de rede transitórias (especialmente em uploads grandes) não devem
+    // obrigar a reiniciar a cópia inteira. GET e PUT são seguros para repetir;
+    // o PUT substitui o objeto pelo mesmo conteúdo e não apaga o original.
+    const tentarNovamente = async (operacao, executar) => {
+      let ultimoErro;
+      for (let tentativa = 1; tentativa <= 3; tentativa += 1) {
+        try { return await executar(); }
+        catch (erro) {
+          ultimoErro = erro;
+          if (tentativa < 3) await new Promise(resolve => setTimeout(resolve, tentativa * 1200));
+        }
+      }
+      const detalhe = ultimoErro?.message || "Falha de rede sem detalhes.";
+      throw new Error(`${operacao} falhou após 3 tentativas: ${detalhe}`);
+    };
     while (carregandoTabela) await new Promise(resolve => setTimeout(resolve, 150));
     if (!imoveisCache.length) await carregarTabela();
     const caminhos = [...new Set(imoveisCache.flatMap(im => Array.isArray(im.fotos) ? im.fotos : [])
@@ -2598,14 +2613,17 @@ async function copiarMidiasParaR2() {
     for (const caminho of caminhos) {
       botao.textContent = `Copiando ${copiados + 1} de ${caminhos.length}...`;
       mostrarStatus(`Copiando mídias para o R2: ${copiados} de ${caminhos.length}. Mantenha esta página aberta.`);
-      const { data, error } = await sb.storage.from("fotos-imoveis").download(caminho);
-      if (error) throw new Error(`${caminho}: não consegui baixar do Supabase (${error.message || "erro de leitura"}).`);
+      const { data, error } = await tentarNovamente(`Download do Supabase (${caminho})`, async () => {
+        const resultado = await sb.storage.from("fotos-imoveis").download(caminho);
+        if (resultado.error) throw new Error(resultado.error.message || "erro de leitura");
+        return resultado;
+      });
       if (!data) throw new Error(`${caminho}: o Supabase não retornou o arquivo.`);
       if (data.size > 50 * 1000 * 1000) throw new Error(`${caminho}: arquivo maior que o limite de 50 MB do Worker.`);
       const extensao = caminho.split(".").pop().toLowerCase();
       const tipoPorExtensao = ({ jpg:"image/jpeg", jpeg:"image/jpeg", png:"image/png", webp:"image/webp", gif:"image/gif", avif:"image/avif", mp4:"video/mp4", webm:"video/webm", ogg:"video/ogg", mov:"video/quicktime", m4v:"video/x-m4v" })[extensao];
       const contentType = data.type && data.type !== "application/octet-stream" ? data.type : (tipoPorExtensao || "application/octet-stream");
-      await enviarMidiaParaR2(caminho, data, contentType);
+      await tentarNovamente(`Envio ao Cloudflare (${caminho})`, () => enviarMidiaParaR2(caminho, data, contentType));
       copiados += 1;
     }
     mostrarStatus(`Cópia concluída: ${copiados} arquivos enviados ao R2. Os originais do Supabase continuam intactos. Ainda não ative a migração no site.`);
