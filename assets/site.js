@@ -97,7 +97,7 @@
   window.formatarPrecoBR = formatarPrecoBR;
 
   // ------------------------------------------------------------
-  // FOTOS (Supabase Storage)
+  // FOTOS E VÍDEOS (Supabase Storage ou Cloudflare R2)
   // ------------------------------------------------------------
 
   const PLACEHOLDER_FOTO = "https://via.placeholder.com/600x450?text=Sem+foto";
@@ -109,13 +109,29 @@
     caminho = String(caminho).trim();
     if (!caminho) return PLACEHOLDER_FOTO;
 
-    if (caminho.startsWith("https://") || caminho.startsWith("http://")) {
-      return caminho;
-    }
-
     if (window.R2_STORAGE_ENABLED && window.R2_PUBLIC_URL) {
+      // Cadastros antigos podem guardar uma URL Supabase completa. Converta-a
+      // para o mesmo caminho no R2 durante a migração, inclusive URLs assinadas.
+      if (/^https?:\/\//i.test(caminho)) {
+        try {
+          const url = new URL(caminho);
+          const marcadores = ["/storage/v1/object/public/fotos-imoveis/", "/storage/v1/object/sign/fotos-imoveis/"];
+          for (const marcador of marcadores) {
+            const inicio = url.pathname.indexOf(marcador);
+            if (inicio >= 0) {
+              const chave = decodeURIComponent(url.pathname.slice(inicio + marcador.length));
+              return `${window.R2_PUBLIC_URL.replace(/\/$/, "")}/${chave.split("/").map(encodeURIComponent).join("/")}`;
+            }
+          }
+          return caminho;
+        } catch {
+          return caminho;
+        }
+      }
       return `${window.R2_PUBLIC_URL.replace(/\/$/, "")}/${caminho.split("/").map(encodeURIComponent).join("/")}`;
     }
+
+    if (caminho.startsWith("https://") || caminho.startsWith("http://")) return caminho;
 
     const { data } = sb.storage.from("fotos-imoveis").getPublicUrl(caminho);
     return data?.publicUrl || PLACEHOLDER_FOTO;

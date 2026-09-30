@@ -1,5 +1,7 @@
 const MAX_UPLOAD_BYTES = 50 * 1000 * 1000;
-const KEY_PATTERN = /^[A-Za-z0-9_-]+\/[A-Za-z0-9._-]+$/;
+// Storage pode ter nomes de arquivo com espaços, acentos e parênteses.
+// Bloqueia separadores adicionais, query/hash e caracteres de controle.
+const KEY_PATTERN = /^[^/\\?#\u0000-\u001F\u007F]+\/[^/\\?#\u0000-\u001F\u007F]+$/u;
 
 function responseJson(body, status, cors) {
   return new Response(JSON.stringify(body), {
@@ -43,7 +45,10 @@ async function validarAdmin(request, env) {
 }
 
 function validarChave(chave) {
-  return KEY_PATTERN.test(chave) && !chave.split("/").some(parte => parte === "." || parte === "..");
+  return KEY_PATTERN.test(chave) && !chave.split("/").some(parte => {
+    const segmento = parte.trim();
+    return !segmento || segmento === "." || segmento === "..";
+  });
 }
 
 export default {
@@ -65,29 +70,29 @@ export default {
         return responseJson({ error: "O arquivo deve ter até 50 MB." }, 413, cors);
       }
       if (!request.body) return responseJson({ error: "Arquivo vazio." }, 400, cors);
-      let totalRecebido = 0;
-      let excedeuLimite = false;
-      const corpoLimitado = request.body.pipeThrough(new TransformStream({
-        transform(chunk, controller) {
-          totalRecebido += chunk.byteLength;
-          if (totalRecebido > MAX_UPLOAD_BYTES) {
-            excedeuLimite = true;
-            controller.error(new Error("FILE_TOO_LARGE"));
-            return;
-          }
-          controller.enqueue(chunk);
-        }
-      }));
+      // Leia o corpo limitado em memória para que o R2 receba um objeto com
+      // tamanho conhecido. Um ReadableStream sem Content-Length pode falhar
+      // durante o put e o navegador só exibir "Failed to fetch" por CORS.
+      let arquivo;
       try {
-        await env.IMOVEIS.put(chave, corpoLimitado, {
+        arquivo = await request.arrayBuffer();
+      } catch (error) {
+        console.error("Falha ao ler o arquivo enviado:", error);
+        return responseJson({ error: "Não foi possível ler o arquivo enviado." }, 400, cors);
+      }
+      if (!arquivo.byteLength) return responseJson({ error: "Arquivo vazio." }, 400, cors);
+      if (arquivo.byteLength > MAX_UPLOAD_BYTES) {
+        return responseJson({ error: "O arquivo deve ter até 50 MB." }, 413, cors);
+      }
+      try {
+        await env.IMOVEIS.put(chave, arquivo, {
           httpMetadata: { contentType: request.headers.get("Content-Type") || "application/octet-stream" },
           customMetadata: { uploadedAt: new Date().toISOString() }
         });
       } catch (error) {
-        if (excedeuLimite) return responseJson({ error: "O arquivo deve ter até 50 MB." }, 413, cors);
-        throw error;
+        console.error("Falha ao gravar objeto no R2:", error);
+        return responseJson({ error: "O Cloudflare não conseguiu gravar o arquivo no R2." }, 500, cors);
       }
-      if (!totalRecebido) return responseJson({ error: "Arquivo vazio." }, 400, cors);
       return responseJson({ ok: true, key: chave }, 201, cors);
     }
 
