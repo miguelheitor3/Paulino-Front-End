@@ -113,10 +113,62 @@
       return caminho;
     }
 
+    if (window.R2_STORAGE_ENABLED && window.R2_PUBLIC_URL) {
+      return `${window.R2_PUBLIC_URL.replace(/\/$/, "")}/${caminho.split("/").map(encodeURIComponent).join("/")}`;
+    }
+
     const { data } = sb.storage.from("fotos-imoveis").getPublicUrl(caminho);
     return data?.publicUrl || PLACEHOLDER_FOTO;
   }
   window.urlFoto = urlFoto;
+
+  async function enviarMidia(caminho, arquivo, contentType) {
+    if (!window.R2_STORAGE_ENABLED) {
+      const { error } = await sb.storage.from("fotos-imoveis").upload(caminho, arquivo, {
+        cacheControl: "3600", upsert: false, contentType
+      });
+      if (error) throw error;
+      return caminho;
+    }
+
+    if (!window.R2_WORKER_URL) throw new Error("O Worker do R2 ainda não foi configurado no assets/config.js.");
+    const { data, error } = await sb.auth.getSession();
+    if (error || !data?.session?.access_token) throw new Error("Entre novamente para enviar arquivos.");
+    const resposta = await fetch(`${window.R2_WORKER_URL.replace(/\/$/, "")}/objects/${caminho.split("/").map(encodeURIComponent).join("/")}`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${data.session.access_token}`, "Content-Type": contentType },
+      body: arquivo
+    });
+    if (!resposta.ok) {
+      const detalhe = await resposta.json().catch(() => ({}));
+      throw new Error(detalhe.error || `Falha no upload (HTTP ${resposta.status}).`);
+    }
+    return caminho;
+  }
+  window.enviarMidia = enviarMidia;
+
+  async function excluirMidias(caminhos) {
+    const itens = (Array.isArray(caminhos) ? caminhos : []).filter(c => c && !/^https?:\/\//i.test(String(c)));
+    if (!itens.length) return;
+    if (!window.R2_STORAGE_ENABLED) {
+      const { error } = await sb.storage.from("fotos-imoveis").remove(itens);
+      if (error) throw error;
+      return;
+    }
+    if (!window.R2_WORKER_URL) throw new Error("O Worker do R2 ainda não foi configurado no assets/config.js.");
+    const { data, error } = await sb.auth.getSession();
+    if (error || !data?.session?.access_token) throw new Error("Entre novamente para remover arquivos.");
+    const resposta = await fetch(`${window.R2_WORKER_URL.replace(/\/$/, "")}/objects`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${data.session.access_token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ keys: itens })
+    });
+    if (!resposta.ok) {
+      const detalhe = await resposta.json().catch(() => ({}));
+      throw new Error(detalhe.error || `Falha ao excluir arquivos (HTTP ${resposta.status}).`);
+    }
+  }
+  window.excluirMidias = excluirMidias;
 
   function mediaEhVideo(caminho) {
     return /\.(mp4|webm|ogg|mov|m4v)(?:[?#].*)?$/i.test(String(caminho || ""));

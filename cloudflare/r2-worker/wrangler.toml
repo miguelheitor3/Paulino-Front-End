@@ -1,0 +1,12 @@
+name = "paulino-r2-media"
+main = "src/index.js"
+compatibility_date = "2026-09-30"
+workers_dev = true
+
+[vars]
+SUPABASE_URL = "https://fiakktgrfatuacicefnp.supabase.co"
+ALLOWED_ORIGINS = "https://www.paulinoimobiliaria.com.br,https://paulinoimobiliaria.com.br"
+
+[[r2_buckets]]
+binding = "IMOVEIS"
+bucket_name = "imoveis"

@@ -1682,9 +1682,9 @@ tr:last-child td{
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
-<script src="assets/config.js"></script>
+<script src="assets/config.js?v=20260930-r2-migration"></script>
 
-<script src="assets/site.js?v=20260925-video-cover-auth"></script>
+<script src="assets/site.js?v=20260930-r2-migration"></script>
 
 
 <script>
@@ -2520,18 +2520,16 @@ async function uploadFotos(arquivos, imovelId) {
     const nomeArquivo = `${Date.now()}-${Math.random().toString(36).slice(2)}-${nomeSeguro}`;
     const caminho = `${imovelId}/${nomeArquivo}`;
 
-    const { error } = await sb.storage
-      .from("fotos-imoveis")
-      .upload(caminho, arquivo, { cacheControl: "3600", upsert: false, contentType: video ? tipoMimeVideo(arquivo) : "image/jpeg" });
-
-    if (error) {
+    try {
+      await enviarMidia(caminho, arquivo, video ? tipoMimeVideo(arquivo) : "image/jpeg");
+    } catch (error) {
       console.error("Erro ao enviar foto:", original.name, error);
-      const mensagemStorage = error.message || "erro no Storage";
+      const mensagemStorage = error.message || "erro no armazenamento";
       if (video && /(mime|content.?type|not allowed|invalid.*type)/i.test(mensagemStorage)) {
-        throw new Error(`O Supabase recusou o vídeo. No bucket fotos-imoveis, permita o tipo ${tipoMimeVideo(arquivo)}.`);
+        throw new Error(`O armazenamento recusou o vídeo. Confira se o formato ${tipoMimeVideo(arquivo)} é permitido.`);
       }
-      if (video && /(size|too large|exceed|payload)/i.test(mensagemStorage)) {
-        throw new Error("O vídeo excede o limite de tamanho configurado no bucket fotos-imoveis do Supabase.");
+      if (video && /(size|too large|exceed|payload|50\s*mb)/i.test(mensagemStorage)) {
+        throw new Error("O vídeo excede o limite de 50 MB para cada arquivo.");
       }
       throw new Error(`Não foi possível enviar "${original.name}": ${mensagemStorage}`);
     }
@@ -2693,11 +2691,9 @@ async function salvarImovel(ev) {
       // Remove do Storage as fotos que o usuário excluiu nesta edição
       if (fotosParaExcluirDoStorage.length > 0) {
 
-        const { error: removerError } = await sb.storage
-          .from("fotos-imoveis")
-          .remove(fotosParaExcluirDoStorage);
-
-        if (removerError) {
+        try {
+          await excluirMidias(fotosParaExcluirDoStorage);
+        } catch (removerError) {
           console.warn(
             "Não foi possível remover algumas fotos do Storage:",
             removerError
@@ -3165,18 +3161,9 @@ async function excluirImovel(
 
       if (fotosStorage.length) {
 
-        const {
-          error:
-            storageError
-        } = await sb.storage
-          .from(
-            "fotos-imoveis"
-          )
-          .remove(
-            fotosStorage
-          );
-
-        if (storageError) {
+        try {
+          await excluirMidias(fotosStorage);
+        } catch (storageError) {
 
           console.warn(
             "Registro excluído, mas houve erro ao remover fotos:",

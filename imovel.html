@@ -1079,8 +1079,8 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="assets/config.js"></script>
-<script src="assets/site.js?v=20260925-video-cover-auth"></script>
+<script src="assets/config.js?v=20260930-r2-migration"></script>
+<script src="assets/site.js?v=20260930-r2-migration"></script>
 
 <script>
 const params = new URLSearchParams(location.search);
@@ -1536,8 +1536,8 @@ async function uploadFotosEditor(arquivos){
   for(const original of arquivos){
     const arquivo=await prepararFotoEditor(original);
     const caminho=`${id}/${Date.now()}-${Math.random().toString(36).slice(2)}-${arquivo.name}`;
-    const {error}=await sb.storage.from("fotos-imoveis").upload(caminho,arquivo,{cacheControl:"3600",upsert:false,contentType:"image/jpeg"});
-    if(error) throw new Error(`Falha ao enviar ${original.name}: ${error.message||"erro no Storage"}`);
+    try{await enviarMidia(caminho,arquivo,"image/jpeg");}
+    catch(error){throw new Error(`Falha ao enviar ${original.name}: ${error.message||"erro no armazenamento"}`);}
     paths.push(caminho);
   }
   return paths;
