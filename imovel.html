@@ -831,6 +831,17 @@
   .editor-help{font-size:12.5px;color:var(--ink-soft);margin-bottom:18px;line-height:1.5}
   .editor-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   .editor-grid .full{grid-column:1/-1}
+  .editor-section{grid-column:1/-1;padding:14px;border:1px solid var(--line);border-radius:10px;background:#fff}
+  .editor-section h3{margin:0 0 12px;font-size:14px;color:var(--green);font-family:Archivo,Inter,sans-serif}
+  .editor-section .editor-grid{padding:0}
+  .editor-media-list{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+  .editor-media-item{position:relative;width:118px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fafbfa}
+  .editor-media-item img,.editor-media-item video{display:block;width:100%;height:88px;object-fit:cover;background:#111}
+  .editor-media-actions{display:flex;justify-content:space-between;align-items:center;padding:5px 6px;font-size:11px;color:var(--ink-soft)}
+  .editor-media-actions button{border:0;background:#fff;color:var(--ink);border-radius:5px;padding:3px 6px;cursor:pointer}
+  .editor-media-actions button:hover{background:var(--green-tint)}
+  .editor-media-actions .remove{color:#b42318}
+  .editor-media-help{font-size:12px;color:var(--ink-soft);margin:0 0 8px;line-height:1.45}
   .editor-grid label{display:block;font-size:11.5px;font-weight:800;color:var(--ink-soft);margin-bottom:5px}
   .editor-grid input,.editor-grid select,.editor-grid textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:14px Inter;background:#fff}
   .editor-grid textarea{min-height:110px;resize:vertical}
@@ -981,6 +992,9 @@
 
     <form id="editor-form">
       <div class="editor-grid">
+        <section class="editor-section">
+          <h3>Identificação do imóvel</h3>
+          <div class="editor-grid">
         <div><label>Título</label><input name="titulo" required></div>
         <div><label>Código</label><input name="codigo"></div>
         <div><label>Tipo</label><select name="tipo"><option>Casa</option><option>Apartamento</option><option>Barracão</option><option>Ponto Comercial</option><option>Sítio/Fazenda</option><option>Terreno</option><option>Área de Lazer</option></select></div>
@@ -1000,27 +1014,60 @@
           <input type="checkbox" id="editor-temos-chaves" name="temos_chaves">
           <label for="editor-temos-chaves">Temos as chaves desse imóvel?</label>
         </div>
-
+          </div>
+        </section>
+        <section class="editor-section">
+          <h3>Localização</h3>
+          <div class="editor-grid">
         <div><label>Cidade</label><input name="cidade"></div>
         <div><label>Bairro</label><input name="bairro"></div>
         <div class="full"><label>Rua do imóvel</label><input name="rua"></div>
         <div><label>Número da casa</label><input name="numero_casa" placeholder="Ex.: 123, 123A, s/n"></div>
         <div><label>Ponto de referência</label><input name="ponto_referencia" placeholder="Ex.: Próximo à Praça Central"></div>
-        <div><label>Proprietário (interno)</label><input name="proprietario"></div>
-        <div><label>Telefone do proprietário</label><input name="proprietario_telefone" type="tel"></div>
+          </div>
+        </section>
+        <section class="editor-section">
+          <h3>Preço e áreas</h3>
+          <div class="editor-grid">
         <div><label>Preço (R$)</label><input name="preco" inputmode="decimal"></div>
         <div><label>Área construída (m²)</label><input name="area_construida_m2" type="number" step="0.01"></div>
         <div><label>Área do terreno (m²)</label><input name="area_terreno_m2" type="number" step="0.01"></div>
+          </div>
+        </section>
+        <section class="editor-section">
+          <h3>Características</h3>
+          <div class="editor-grid">
         <div><label>Quartos</label><input name="quartos" type="number"></div>
         <div><label>Banheiros</label><input name="banheiros" type="number"></div>
         <div><label>Vagas</label><input name="vagas" type="number"></div>
+          </div>
+        </section>
+        <section class="editor-section">
+          <h3>Descrição</h3>
+          <div class="editor-grid">
         <div class="full"><label>Descrição</label><textarea name="descricao"></textarea></div>
+          </div>
+        </section>
+        <section class="editor-section">
+          <h3>Informações internas</h3>
+          <div class="editor-grid">
+        <div><label>Proprietário (interno)</label><input name="proprietario"></div>
+        <div><label>Telefone do proprietário</label><input name="proprietario_telefone" type="tel"></div>
         <div class="full"><label>Observações internas</label><textarea name="observacoes_internas" placeholder="Anotações da imobiliária. Não aparecem para o cliente final."></textarea></div>
         <div class="full editor-check">
           <input type="checkbox" id="editor-destaque-manual" name="destaque_manual">
           <label for="editor-destaque-manual">Forçar destaque na home (independente de visualizações)</label>
         </div>
-        <div class="full editor-files"><label for="editor-fotos">Adicionar novas fotos</label><input id="editor-fotos" name="fotos" type="file" accept=".jpg,.jpeg,.png,.webp,.gif,.bmp,.avif,.heic,.heif,image/*" multiple><small>As novas fotos são adicionadas às atuais. JPG, PNG e WebP são convertidos para JPG quando o navegador conseguir processá-los.</small></div>
+          </div>
+        </section>
+        <section class="editor-section">
+          <h3>Fotos e vídeos</h3>
+          <p class="editor-media-help">As mídias atuais aparecem abaixo. Remova ou mude a ordem e adicione novos arquivos; as alterações são aplicadas ao salvar.</p>
+          <div class="editor-media-list" id="editor-media-list"></div>
+          <label for="editor-fotos">Adicionar fotos e vídeos</label>
+          <input id="editor-fotos" name="fotos" type="file" accept=".jpg,.jpeg,.png,.webp,.gif,.bmp,.avif,.heic,.heif,.mp4,.webm,.ogg,.mov,.m4v,image/*,video/*" multiple>
+          <small>Limite de 50 MB por arquivo. JPG, PNG e WebP são convertidos para JPG quando possível.</small>
+        </section>
       </div>
       <div class="editor-msg" id="editor-save-msg"></div>
       <div class="editor-footer">
@@ -1479,6 +1526,51 @@ document.addEventListener("click",e=>{
 const editorBackdrop = document.getElementById("editor-backdrop");
 const editorForm = document.getElementById("editor-form");
 const editorSaveMsg = document.getElementById("editor-save-msg");
+let editorMidias = [];
+
+function renderizarMidiasEditor(){
+  const container=document.getElementById("editor-media-list");
+  if(!container)return;
+  if(!editorMidias.length){container.innerHTML='<span class="editor-media-help">Nenhuma mídia cadastrada.</span>';return;}
+  container.innerHTML=editorMidias.map((item,index)=>{
+    const src=item.kind==="existing"?urlFoto(item.value):item.url;
+    const video=isVideoMedia(item.kind==="existing"?item.value:item.file.name);
+    return `<div class="editor-media-item" data-index="${index}">
+      ${video?`<video src="${escapeHtml(src)}" muted preload="metadata"></video>`:`<img src="${escapeHtml(src)}" alt="Mídia ${index+1}">`}
+      <div class="editor-media-actions"><span>${index+1}${item.kind==="new"?" · nova":""}</span><span>
+        <button type="button" data-action="up" aria-label="Mover para cima" ${index===0?"disabled":""}>↑</button>
+        <button type="button" data-action="down" aria-label="Mover para baixo" ${index===editorMidias.length-1?"disabled":""}>↓</button>
+        <button type="button" class="remove" data-action="remove" aria-label="Remover mídia">×</button>
+      </span></div></div>`;
+  }).join("");
+}
+
+document.getElementById("editor-media-list").addEventListener("click",event=>{
+  const button=event.target.closest("button[data-action]");
+  if(!button)return;
+  const card=button.closest("[data-index]");
+  const index=Number(card?.dataset.index);
+  if(!Number.isInteger(index)||!editorMidias[index])return;
+  if(button.dataset.action==="remove"){
+    const [item]=editorMidias.splice(index,1);
+    if(item.kind==="new")URL.revokeObjectURL(item.url);
+  }else{
+    const other=index+(button.dataset.action==="up"?-1:1);
+    if(other<0||other>=editorMidias.length)return;
+    [editorMidias[index],editorMidias[other]]=[editorMidias[other],editorMidias[index]];
+  }
+  renderizarMidiasEditor();
+});
+
+document.getElementById("editor-fotos").addEventListener("change",event=>{
+  const files=[...(event.target.files||[])];
+  const max=50*1000*1000;
+  const valid=files.filter(file=>file.size<=max&&(file.type.startsWith("image/")||file.type.startsWith("video/")||/\.(heic|heif|mp4|webm|ogg|mov|m4v)$/i.test(file.name)));
+  if(valid.length!==files.length)alert("Selecione arquivos de imagem ou vídeo de até 50 MB cada.");
+  for(const file of valid)editorMidias.push({kind:"new",file,url:URL.createObjectURL(file)});
+  event.target.value="";
+  renderizarMidiasEditor();
+});
 
 const editorTipo = editorForm.elements["tipo"];
 const editorFinalidade = editorForm.elements["finalidade"];
@@ -1512,6 +1604,10 @@ function atualizarOpcoesCondicionaisEditor(){
 
 function preencherEditor(){
   if(!imovelAtual)return; const f=editorForm;
+  editorMidias.forEach(item=>{if(item.kind==="new")URL.revokeObjectURL(item.url);});
+  const listaFotos=Array.isArray(imovelAtual.fotos)?imovelAtual.fotos:(imovelAtual.fotos?[imovelAtual.fotos]:[]);
+  editorMidias=listaFotos.filter(Boolean).map(value=>({kind:"existing",value}));
+  renderizarMidiasEditor();
   f.titulo.value=imovelAtual.titulo||""; f.codigo.value=imovelAtual.codigo||""; f.tipo.value=imovelAtual.tipo||"Casa"; f.finalidade.value=imovelAtual.finalidade||"Comprar";
   f.cidade.value=imovelAtual.cidade||""; f.bairro.value=imovelAtual.bairro||""; f.rua.value=imovelAtual.rua||"";
   f.numero_casa.value=imovelAtual.numero_casa||""; f.ponto_referencia.value=imovelAtual.ponto_referencia||"";
@@ -1540,6 +1636,7 @@ function parsePrecoEditor(v){
 
 async function prepararFotoEditor(arquivo){
   const ext=(arquivo.name||"").split(".").pop().toLowerCase();
+  if(arquivo.type.startsWith("video/")||["mp4","webm","ogg","mov","m4v"].includes(ext)) return arquivo;
   if(["heic","heif"].includes(ext)||["image/heic","image/heif"].includes((arquivo.type||"").toLowerCase())) throw new Error(`"${arquivo.name}" está em HEIC/HEIF. Converta para JPG ou PNG.`);
   if(["image/jpeg","image/jpg"].includes((arquivo.type||"").toLowerCase())||["jpg","jpeg"].includes(ext)) return arquivo;
   try{
@@ -1557,7 +1654,7 @@ async function uploadFotosEditor(arquivos){
   for(const original of arquivos){
     const arquivo=await prepararFotoEditor(original);
     const caminho=`${id}/${Date.now()}-${Math.random().toString(36).slice(2)}-${arquivo.name}`;
-    try{await enviarMidia(caminho,arquivo,"image/jpeg");}
+    try{await enviarMidia(caminho,arquivo,arquivo.type||"application/octet-stream");}
     catch(error){throw new Error(`Falha ao enviar ${original.name}: ${error.message||"erro no armazenamento"}`);}
     paths.push(caminho);
   }
@@ -1598,12 +1695,17 @@ async function salvarEdicaoDireta(ev){
       descricao:fd.get("descricao")?.trim()||null
     };
     const {error}=await sb.from("imoveis").update(payload).eq("id",id); if(error) throw error;
-    const arquivos=[...(document.getElementById("editor-fotos").files||[])];
-    if(arquivos.length){
-      btn.textContent="Enviando fotos...";
-      const novas=await uploadFotosEditor(arquivos);
-      const fotosAtuais=Array.isArray(imovelAtual.fotos)?imovelAtual.fotos.filter(Boolean):[];
-      const {error:fotoError}=await sb.from("imoveis").update({fotos:[...fotosAtuais,...novas]}).eq("id",id); if(fotoError) throw fotoError;
+    const novas=editorMidias.filter(item=>item.kind==="new");
+    let novosCaminhos=[];
+    if(novas.length){btn.textContent="Enviando fotos e vídeos...";novosCaminhos=await uploadFotosEditor(novas.map(item=>item.file));}
+    let indiceNovo=0;
+    const fotosFinal=editorMidias.map(item=>item.kind==="existing"?item.value:novosCaminhos[indiceNovo++]);
+    const {error:fotoError}=await sb.from("imoveis").update({fotos:fotosFinal}).eq("id",id); if(fotoError) throw fotoError;
+    const originais=Array.isArray(imovelAtual.fotos)?imovelAtual.fotos:(imovelAtual.fotos?[imovelAtual.fotos]:[]);
+    const mantidas=new Set(editorMidias.filter(item=>item.kind==="existing").map(item=>item.value));
+    const removidas=originais.filter(value=>value&&!mantidas.has(value)&&!/^https?:\/\//i.test(String(value)));
+    if(removidas.length&&typeof excluirMidias==="function"){
+      try{await excluirMidias(removidas);}catch(storageError){console.warn("Não foi possível remover algumas mídias do armazenamento:",storageError);}
     }
     fecharEditor(); await carregar();
   }catch(e){console.error(e);mostrarEditorMensagem(editorSaveMsg,e?.message||"Não foi possível salvar as alterações.");}
