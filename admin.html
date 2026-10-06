@@ -1398,6 +1398,11 @@ tr:last-child td{
       <section class="form-section">
       <h3 class="form-section-heading"><span>🔒</span>Informações internas e opções</h3>
 
+      <div class="check-row">
+        <input type="checkbox" id="temos_chaves" name="temos_chaves">
+        <label style="margin:0;" for="temos_chaves">Temos as chaves desse imóvel?</label>
+      </div>
+
       <div class="form-grid">
         <div>
           <label>Proprietário (Interno)</label>
@@ -2752,6 +2757,9 @@ async function salvarImovel(ev) {
       aceita_financiamento:
         document.getElementById("aceita_financiamento").checked,
 
+      temos_chaves:
+        document.getElementById("temos_chaves").checked,
+
       destaque_manual:
         document.getElementById("destaque_manual").checked
     };
@@ -3043,6 +3051,9 @@ function editarImovel(id) {
   document.getElementById("aceita_financiamento").checked =
     Boolean(im.aceita_financiamento);
 
+  document.getElementById("temos_chaves").checked =
+    Boolean(im.temos_chaves);
+
   atualizarOpcoesCondicionais();
 
   document.getElementById(
@@ -3101,6 +3112,7 @@ function cancelarEdicao() {
 
   document.getElementById("aceita_animal").checked = false;
   document.getElementById("aceita_financiamento").checked = false;
+  document.getElementById("temos_chaves").checked = false;
   atualizarOpcoesCondicionais();
 
   document.getElementById(

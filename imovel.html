@@ -996,9 +996,18 @@
           <label for="editor-aceita-financiamento">Aceita Financiamento</label>
         </div>
 
+        <div class="full editor-check">
+          <input type="checkbox" id="editor-temos-chaves" name="temos_chaves">
+          <label for="editor-temos-chaves">Temos as chaves desse imóvel?</label>
+        </div>
+
         <div><label>Cidade</label><input name="cidade"></div>
         <div><label>Bairro</label><input name="bairro"></div>
         <div class="full"><label>Rua do imóvel</label><input name="rua"></div>
+        <div><label>Número da casa</label><input name="numero_casa" placeholder="Ex.: 123, 123A, s/n"></div>
+        <div><label>Ponto de referência</label><input name="ponto_referencia" placeholder="Ex.: Próximo à Praça Central"></div>
+        <div><label>Proprietário (interno)</label><input name="proprietario"></div>
+        <div><label>Telefone do proprietário</label><input name="proprietario_telefone" type="tel"></div>
         <div><label>Preço (R$)</label><input name="preco" inputmode="decimal"></div>
         <div><label>Área construída (m²)</label><input name="area_construida_m2" type="number" step="0.01"></div>
         <div><label>Área do terreno (m²)</label><input name="area_terreno_m2" type="number" step="0.01"></div>
@@ -1006,6 +1015,11 @@
         <div><label>Banheiros</label><input name="banheiros" type="number"></div>
         <div><label>Vagas</label><input name="vagas" type="number"></div>
         <div class="full"><label>Descrição</label><textarea name="descricao"></textarea></div>
+        <div class="full"><label>Observações internas</label><textarea name="observacoes_internas" placeholder="Anotações da imobiliária. Não aparecem para o cliente final."></textarea></div>
+        <div class="full editor-check">
+          <input type="checkbox" id="editor-destaque-manual" name="destaque_manual">
+          <label for="editor-destaque-manual">Forçar destaque na home (independente de visualizações)</label>
+        </div>
         <div class="full editor-files"><label for="editor-fotos">Adicionar novas fotos</label><input id="editor-fotos" name="fotos" type="file" accept=".jpg,.jpeg,.png,.webp,.gif,.bmp,.avif,.heic,.heif,image/*" multiple><small>As novas fotos são adicionadas às atuais. JPG, PNG e WebP são convertidos para JPG quando o navegador conseguir processá-los.</small></div>
       </div>
       <div class="editor-msg" id="editor-save-msg"></div>
@@ -1500,6 +1514,9 @@ function preencherEditor(){
   if(!imovelAtual)return; const f=editorForm;
   f.titulo.value=imovelAtual.titulo||""; f.codigo.value=imovelAtual.codigo||""; f.tipo.value=imovelAtual.tipo||"Casa"; f.finalidade.value=imovelAtual.finalidade||"Comprar";
   f.cidade.value=imovelAtual.cidade||""; f.bairro.value=imovelAtual.bairro||""; f.rua.value=imovelAtual.rua||"";
+  f.numero_casa.value=imovelAtual.numero_casa||""; f.ponto_referencia.value=imovelAtual.ponto_referencia||"";
+  f.proprietario.value=imovelAtual.proprietario||""; f.proprietario_telefone.value=imovelAtual.proprietario_telefone||"";
+  f.observacoes_internas.value=imovelAtual.observacoes_internas||"";
   f.preco.value=imovelAtual.preco!=null?Number(imovelAtual.preco).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}):"";
   f.area_construida_m2.value=imovelAtual.area_construida_m2??""; f.area_terreno_m2.value=imovelAtual.area_terreno_m2??""; f.quartos.value=imovelAtual.quartos??""; f.banheiros.value=imovelAtual.banheiros??""; f.vagas.value=imovelAtual.vagas??""; f.descricao.value=imovelAtual.descricao||"";
 
@@ -1508,6 +1525,10 @@ function preencherEditor(){
 
   document.getElementById("editor-aceita-financiamento").checked =
     Boolean(imovelAtual.aceita_financiamento);
+  document.getElementById("editor-temos-chaves").checked =
+    Boolean(imovelAtual.temos_chaves);
+  document.getElementById("editor-destaque-manual").checked =
+    Boolean(imovelAtual.destaque_manual);
 
   atualizarOpcoesCondicionaisEditor();
 }
@@ -1551,6 +1572,11 @@ async function salvarEdicaoDireta(ev){
     const payload={
       titulo:fd.get("titulo")?.trim()||"", codigo:fd.get("codigo")?.trim()||null, tipo:fd.get("tipo")||null, finalidade:fd.get("finalidade")||null,
       cidade:fd.get("cidade")?.trim()||null, bairro:fd.get("bairro")?.trim()||null, rua:fd.get("rua")?.trim()||null,
+      numero_casa:fd.get("numero_casa")?.trim()||null,
+      ponto_referencia:fd.get("ponto_referencia")?.trim()||null,
+      proprietario:fd.get("proprietario")?.trim()||null,
+      proprietario_telefone:fd.get("proprietario_telefone")?.trim()||null,
+      observacoes_internas:fd.get("observacoes_internas")?.trim()||null,
       preco:parsePrecoEditor(fd.get("preco")),
       area_construida_m2:fd.get("area_construida_m2")?Number(fd.get("area_construida_m2")):null,
       area_terreno_m2:fd.get("area_terreno_m2")?Number(fd.get("area_terreno_m2")):null,
@@ -1565,6 +1591,9 @@ async function salvarEdicaoDireta(ev){
         editorForm.elements["tipo"].value === "Terreno"
           ? document.getElementById("editor-aceita-financiamento").checked
           : false,
+
+      temos_chaves: document.getElementById("editor-temos-chaves").checked,
+      destaque_manual: document.getElementById("editor-destaque-manual").checked,
 
       descricao:fd.get("descricao")?.trim()||null
     };
