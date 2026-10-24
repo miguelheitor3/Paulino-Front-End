@@ -230,6 +230,17 @@
   .cta-band p{font-size:14px;color:rgba(255,255,255,.72);margin-top:10px;max-width:440px;}
   .btn-white{background:#fff;color:var(--green);font-size:13.5px;font-weight:700;padding:14px 26px;border-radius:8px;white-space:nowrap;}
   .btn-white:hover{background:var(--offwhite);}
+  .home-ctas{max-width:1240px;margin:0 auto 96px;padding:0 32px;display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .home-cta{display:flex;flex-direction:column;align-items:flex-start;min-height:240px;padding:30px;border-radius:18px;transition:transform .18s ease,box-shadow .18s ease;}
+  .home-cta:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(12,24,18,.12);}
+  .home-cta-financiamento{background:var(--green);color:#fff;}
+  .home-cta-anunciar{background:var(--offwhite);color:var(--ink);border:1px solid var(--line);}
+  .home-cta-kicker{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;opacity:.72;margin-bottom:12px;}
+  .home-cta h2{font:700 24px/1.2 Archivo,sans-serif;max-width:460px;}
+  .home-cta p{font-size:13.5px;line-height:1.6;margin-top:9px;max-width:480px;opacity:.78;}
+  .home-cta-link{display:inline-flex;align-items:center;gap:8px;margin-top:auto;padding-top:20px;font-size:13px;font-weight:800;}
+  .home-cta-link span{font-size:18px;transition:transform .18s ease;}
+  .home-cta:hover .home-cta-link span{transform:translateX(4px);}
 
   /* FAQ */
   .faq{padding-bottom:96px;}
@@ -261,6 +272,7 @@
     .grid{grid-template-columns:1fr 1fr;}
     .faq-grid{grid-template-columns:1fr;}
     .footer-grid{grid-template-columns:1fr 1fr;}
+    .home-ctas{grid-template-columns:1fr 1fr;}
     nav{display:none;}
     .mobile-nav-toggle{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--green);font:700 12px Inter;cursor:pointer;white-space:nowrap;}
     .header-inner.menu-aberto nav{display:flex;position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:110;flex-direction:column;gap:0;padding:8px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 28px rgba(12,24,18,.14);}
@@ -280,6 +292,9 @@
     .mobile-nav-toggle{justify-self:end;}
     .grid{grid-template-columns:1fr;}
     .cta-band{padding:36px 28px;}
+    .home-ctas{grid-template-columns:1fr;padding:0 20px;margin-bottom:68px;}
+    .home-cta{min-height:210px;padding:25px;}
+    .home-cta h2{font-size:22px;}
     .footer-grid{grid-template-columns:1fr;}
   }
 
@@ -484,14 +499,19 @@
   </div>
 </section>
 
-<div class="wrap">
-  <div class="cta-band">
-    <div>
-      <h2>Pensando em vender ou alugar seu imóvel?</h2>
-      <p>Cadastro gratuito, avaliação com base no mercado local e divulgação para nossa base ativa de interessados.</p>
-    </div>
-    <a class="btn-white" href="anunciar.html">Anunciar meu imóvel</a>
-  </div>
+<div class="home-ctas">
+  <a class="home-cta home-cta-financiamento" href="financiamento.html">
+    <span class="home-cta-kicker">Financiamento imobiliário</span>
+    <h2>Pronto para encontrar seu novo lar?</h2>
+    <p>Conheça as possibilidades de financiamento e peça uma simulação gratuita com o apoio da nossa equipe.</p>
+    <span class="home-cta-link">Conhecer financiamento <span aria-hidden="true">→</span></span>
+  </a>
+  <a class="home-cta home-cta-anunciar" href="anunciar.html">
+    <span class="home-cta-kicker">Para proprietários</span>
+    <h2>Pensando em vender ou alugar seu imóvel?</h2>
+    <p>Cadastro gratuito, avaliação com base no mercado local e divulgação para nossa base ativa de interessados.</p>
+    <span class="home-cta-link">Anunciar meu imóvel <span aria-hidden="true">→</span></span>
+  </a>
 </div>
 
 <section class="faq">

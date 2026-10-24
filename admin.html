@@ -802,6 +802,49 @@ tr:last-child td{
 
 }
 
+.leads-toolbar{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:20px;padding:16px;background:#fff;border:1px solid var(--line);border-radius:12px;}
+.leads-toolbar label{display:block;font-size:11px;font-weight:800;color:var(--ink-soft);margin-bottom:5px;}
+.leads-toolbar input,.leads-toolbar select,.lead-card select,.lead-card textarea{padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font:13px Inter,sans-serif;}
+.leads-toolbar input{min-width:220px;}
+.leads-intro{font-size:13px;color:var(--ink-soft);line-height:1.5;margin:0 0 16px;}
+.lead-list{display:grid;gap:18px;}
+.lead-card{overflow:hidden;background:#fff;border:1px solid #dce5df;border-radius:14px;box-shadow:0 5px 18px rgba(12,59,44,.07);}
+.lead-card-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:17px 20px;background:linear-gradient(110deg,#f1f6f2,#fbfcfb);border-bottom:1px solid var(--line);}
+.lead-identity{display:flex;align-items:center;gap:12px;min-width:0;}
+.lead-avatar{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border-radius:12px;background:var(--green);color:#fff;font:700 14px Archivo,sans-serif;letter-spacing:.03em;}
+.lead-card h3{font:700 17px Archivo,sans-serif;margin:0 0 4px;color:var(--ink);}
+.lead-card-contact,.lead-card-meta{font-size:12px;line-height:1.55;color:var(--ink-soft);}
+.lead-card-contact a{color:var(--green);font-weight:700;text-decoration:none;}
+.lead-card-contact a:hover{text-decoration:underline;}
+.lead-head-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.lead-status-pill,.lead-match-count{display:inline-flex;align-items:center;min-height:25px;padding:4px 9px;border-radius:999px;font-size:10px;font-weight:800;white-space:nowrap;}
+.lead-status-pill{background:#eaf4ed;color:#185c34;}
+.lead-status-pill.status-em_contato{background:#eaf2ff;color:#2456a3;}
+.lead-status-pill.status-simulacao{background:#fff4dc;color:#8b5a00;}
+.lead-status-pill.status-convertido{background:#e4f4ec;color:#17663a;}
+.lead-status-pill.status-encerrado{background:#f0f1f0;color:#616a64;}
+.lead-card-grid{display:grid;grid-template-columns:minmax(220px,.85fr) minmax(0,1.4fr);gap:12px;padding:17px 20px 0;}
+.lead-card-section{min-width:0;padding:14px 15px;background:#f8faf8;border:1px solid #e8eee9;border-radius:10px;}
+.lead-card h4{display:flex;align-items:center;gap:7px;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft);margin:0 0 9px;}
+.lead-match-count{min-height:21px;padding:3px 8px;background:#e8efeA;color:var(--green);font-size:10px;letter-spacing:0;}
+.lead-matches{display:grid;gap:7px;margin:0;padding:0;list-style:none;font-size:12px;line-height:1.45;}
+.lead-matches a{display:block;padding:9px 11px;background:#fff;border:1px solid var(--line);border-radius:8px;color:var(--green);font-weight:700;text-decoration:none;transition:border-color .15s,transform .15s;}
+.lead-matches a:hover{border-color:#9db5a5;transform:translateY(-1px);}
+.lead-more-matches{margin-top:9px;padding-top:8px;border-top:1px solid #e3e9e4;font-size:12px;}
+.lead-more-matches summary{color:var(--green);font-weight:800;cursor:pointer;}
+.lead-more-matches ul{display:grid;gap:7px;margin:9px 0 0;padding:0;list-style:none;line-height:1.45;}
+.lead-card-actions{display:grid;grid-template-columns:minmax(150px,.55fr) minmax(220px,1.35fr) auto auto;gap:10px;align-items:end;margin-top:17px;padding:15px 20px 18px;background:#fcfdfc;border-top:1px solid var(--line);}
+.lead-card-actions label{display:block;font-size:10px;font-weight:800;color:var(--ink-soft);margin-bottom:5px;}
+.lead-card-actions select,.lead-card-actions textarea{width:100%;}
+.lead-card-actions textarea{min-height:42px;resize:vertical;}
+.lead-card-actions button{min-height:39px;white-space:nowrap;}
+.lead-empty,.lead-error{padding:24px;background:#fff;border:1px solid var(--line);border-radius:10px;text-align:center;color:var(--ink-soft);font-size:13px;}
+.lead-error{color:var(--red);}
+.lead-card-save{padding:9px 13px;border:0;border-radius:7px;background:var(--green);color:#fff;font-weight:700;cursor:pointer;}
+.lead-card-save:disabled{opacity:.6;cursor:wait;}
+@media(max-width:900px){.lead-card-grid{grid-template-columns:1fr}.lead-card-actions{grid-template-columns:minmax(140px,.7fr) 1.3fr}.lead-card-actions button{width:100%}}
+@media(max-width:560px){.lead-card-head{align-items:flex-start;padding:15px}.lead-head-meta{width:100%;padding-left:54px}.lead-card-grid{padding:13px 14px 0}.lead-card-actions{grid-template-columns:1fr;padding:14px}.lead-card-actions textarea{min-height:70px}.leads-toolbar input{min-width:0;width:100%}}
+
 </style>
 
   <link rel="icon" type="image/png" href="assets/logo.png">
@@ -893,6 +936,29 @@ tr:last-child td{
       🏠 Imóveis
     </button>
 
+    <button class="tab-btn" type="button" data-tab="leads">
+      🤝 Financiamento
+    </button>
+
+  </div>
+
+  <div class="tab-panel" id="tab-leads">
+    <div class="card-form">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;">
+        <div>
+          <h2 style="margin-bottom:5px;">Interessados em financiamento</h2>
+          <p class="leads-intro">Acompanhe os pedidos recebidos e confira imóveis disponíveis que correspondem aos critérios informados pelo cliente.</p>
+        </div>
+        <button class="btn btn-outline" type="button" id="btn-atualizar-leads">Atualizar lista</button>
+      </div>
+      <div class="leads-toolbar">
+        <div><label for="filtro-lead-busca">Buscar</label><input id="filtro-lead-busca" type="search" placeholder="Nome, telefone ou cidade"></div>
+        <div><label for="filtro-lead-status">Situação</label><select id="filtro-lead-status"><option value="">Todas</option><option value="novo">Novo</option><option value="em_contato">Em contato</option><option value="simulacao">Simulação em andamento</option><option value="convertido">Convertido</option><option value="encerrado">Encerrado</option></select></div>
+        <span id="leads-contador" style="font-size:12px;color:var(--ink-soft);"></span>
+      </div>
+      <div id="leads-status" role="status" aria-live="polite" style="display:none;margin-bottom:12px;"></div>
+      <div class="lead-list" id="lista-leads"><div class="lead-empty">Abra esta aba para carregar os cadastros.</div></div>
+    </div>
   </div>
 
 
@@ -1690,7 +1756,7 @@ tr:last-child td{
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
-<script src="assets/config.js?v=20260930-r2-live"></script>
+<script src="assets/config.js?v=20261023-leads-v1"></script>
 
 <script src="assets/site.js?v=20260930-r2-live"></script>
 
@@ -1711,6 +1777,10 @@ let editandoId = null;
 
 let imoveisCache = [];
 
+let leadsCache = [];
+
+let leadsCarregados = false;
+
 let imoveisFiltrados = [];
 
 let carregandoTabela = false;
@@ -1729,6 +1799,186 @@ let dragIndexFoto = null;
 
 // Instâncias ativas dos gráficos do Dashboard (por id do canvas)
 const graficosDashboard = {};
+
+const LEAD_STATUS_LABELS = {
+  novo: "Novo",
+  em_contato: "Em contato",
+  simulacao: "Simulação em andamento",
+  convertido: "Convertido",
+  encerrado: "Encerrado"
+};
+
+function normalizarTextoLead(valor) {
+  return String(valor || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+}
+
+function imoveisCompativeisLead(lead) {
+  const cidade = normalizarTextoLead(lead.cidade);
+  const tipo = normalizarTextoLead(lead.tipo_imovel);
+  const maximo = Number(lead.valor_maximo) || null;
+  const quartos = lead.quartos_minimos == null ? null : Number(lead.quartos_minimos);
+  return imoveisCache.filter(im => {
+    if (!im.disponivel) return false;
+    if (normalizarTextoLead(im.finalidade) !== "comprar") return false;
+    if (cidade && normalizarTextoLead(im.cidade) !== cidade) return false;
+    if (tipo && normalizarTextoLead(im.tipo) !== tipo) return false;
+    if (maximo && (!Number(im.preco) || Number(im.preco) > maximo)) return false;
+    if (quartos && Number(im.quartos || 0) < quartos) return false;
+    return true;
+  });
+}
+
+function formatarDataLead(valor) {
+  const data = new Date(valor);
+  return Number.isNaN(data.getTime()) ? "Data não disponível" : data.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+}
+
+function obterDetalhesLead(lead) {
+  const partes = [];
+  if (lead.tipo_imovel) partes.push(lead.tipo_imovel);
+  if (lead.valor_maximo) partes.push(`até ${Number(lead.valor_maximo).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })}`);
+  if (lead.quartos_minimos) partes.push(`${lead.quartos_minimos}+ quartos`);
+  const entrada = { ate_20_mil: "entrada até R$ 20 mil", "20_a_50_mil": "entrada de R$ 20 mil a R$ 50 mil", "50_a_100_mil": "entrada de R$ 50 mil a R$ 100 mil", acima_100_mil: "entrada acima de R$ 100 mil" }[lead.entrada_faixa];
+  if (entrada) partes.push(entrada);
+  if (lead.pretende_usar_fgts === 1) partes.push("pretende usar FGTS");
+  if (lead.pretende_usar_fgts === 0) partes.push("não pretende usar FGTS");
+  return partes.length ? partes.join(" · ") : "Preferências adicionais não informadas";
+}
+
+function renderizarLeads() {
+  const lista = document.getElementById("lista-leads");
+  if (!lista) return;
+  const busca = normalizarTextoLead(document.getElementById("filtro-lead-busca")?.value);
+  const status = document.getElementById("filtro-lead-status")?.value || "";
+  const filtrados = leadsCache.filter(lead => {
+    if (status && lead.status !== status) return false;
+    const haystack = normalizarTextoLead(`${lead.nome} ${lead.telefone} ${lead.cidade} ${lead.email || ""}`);
+    return !busca || haystack.includes(busca);
+  });
+  const contador = document.getElementById("leads-contador");
+  if (contador) contador.textContent = `${filtrados.length} de ${leadsCache.length} cadastros`;
+  if (!filtrados.length) {
+    lista.innerHTML = `<div class="lead-empty">${leadsCache.length ? "Nenhum cadastro corresponde aos filtros." : "Ainda não há cadastros de financiamento."}</div>`;
+    return;
+  }
+  lista.innerHTML = filtrados.map(lead => {
+    const matches = imoveisCompativeisLead(lead);
+    const statusKey = Object.prototype.hasOwnProperty.call(LEAD_STATUS_LABELS, lead.status) ? lead.status : "novo";
+    const iniciais = String(lead.nome || "?").trim().split(/\s+/).slice(0, 2).map(parte => Array.from(parte)[0] || "").join("").toLocaleUpperCase("pt-BR");
+    const montarLinkImovel = im => `<li><a href="imovel.html?id=${encodeURIComponent(im.id)}" target="_blank" rel="noopener">${escapeHtml(im.titulo || "Imóvel")} — ${escapeHtml([im.bairro, im.cidade].filter(Boolean).join(", "))} — ${escapeHtml(fmtPreco(im.preco))}</a></li>`;
+    const linksVisiveis = matches.slice(0, 4).map(montarLinkImovel).join("");
+    const linksAdicionais = matches.slice(4).map(montarLinkImovel).join("");
+    const adicionaisExpansiveis = linksAdicionais ? `<details class="lead-more-matches"><summary>Ver mais ${matches.length - 4} imóvel(is)</summary><ul>${linksAdicionais}</ul></details>` : "";
+    return `<article class="lead-card" data-lead-id="${escapeHtml(lead.id)}">
+      <div class="lead-card-head">
+        <div class="lead-identity"><span class="lead-avatar" aria-hidden="true">${escapeHtml(iniciais)}</span><div><h3>${escapeHtml(lead.nome)}</h3><div class="lead-card-contact"><a href="https://wa.me/55${escapeHtml(String(lead.telefone).replace(/\D/g, "").replace(/^55/, ""))}" target="_blank" rel="noopener">${escapeHtml(lead.telefone)}</a>${lead.email ? ` · ${escapeHtml(lead.email)}` : ""}</div></div></div>
+        <div class="lead-head-meta"><span class="lead-status-pill status-${statusKey}">${escapeHtml(LEAD_STATUS_LABELS[statusKey])}</span><span class="lead-card-meta">Recebido em ${escapeHtml(formatarDataLead(lead.created_at))} · ${escapeHtml(lead.cidade)}</span></div>
+      </div>
+      <div class="lead-card-grid">
+        <section class="lead-card-section"><h4>O que procura</h4><div class="lead-card-meta">${escapeHtml(obterDetalhesLead(lead))}</div></section>
+        <section class="lead-card-section"><h4>Imóveis compatíveis <span class="lead-match-count">${matches.length}</span></h4>${matches.length ? `<ul class="lead-matches">${linksVisiveis}</ul>${adicionaisExpansiveis}` : `<div class="lead-card-meta">Nenhum imóvel disponível corresponde a todos os critérios atuais.</div>`}</section>
+      </div>
+      <div class="lead-card-actions"><div><label for="lead-status-${escapeHtml(lead.id)}">Situação</label><select id="lead-status-${escapeHtml(lead.id)}" data-lead-status>${Object.entries(LEAD_STATUS_LABELS).map(([key, label]) => `<option value="${key}" ${statusKey === key ? "selected" : ""}>${label}</option>`).join("")}</select></div><div><label for="lead-notes-${escapeHtml(lead.id)}">Observação interna</label><textarea id="lead-notes-${escapeHtml(lead.id)}" data-lead-notes maxlength="2000" placeholder="Anotações da equipe">${escapeHtml(lead.observacoes || "")}</textarea></div><button class="lead-card-save" type="button" data-action="save-lead">Salvar alterações</button><button class="btn btn-red btn-sm" type="button" data-action="delete-lead">Excluir cadastro</button></div>
+    </article>`;
+  }).join("");
+}
+
+async function requisicaoLeads(path, options = {}) {
+  if (!window.LEADS_WORKER_URL) throw new Error("O endereço da API de financiamento não está configurado em assets/config.js.");
+  const { data, error } = await sb.auth.getSession();
+  if (error || !data?.session?.access_token) throw new Error("Sua sessão expirou. Entre novamente.");
+  const response = await fetch(`${window.LEADS_WORKER_URL.replace(/\/$/, "")}${path}`, {
+    ...options,
+    headers: { Authorization: `Bearer ${data.session.access_token}`, "Content-Type": "application/json", ...(options.headers || {}) }
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || `Falha ao acessar os cadastros (HTTP ${response.status}).`);
+  return result;
+}
+
+function mostrarStatusLeads(mensagem, erro = false) {
+  const el = document.getElementById("leads-status");
+  if (!el) return;
+  el.textContent = mensagem;
+  el.style.display = "block";
+  el.style.padding = "10px 12px";
+  el.style.borderRadius = "7px";
+  el.style.background = erro ? "#fff0f0" : "#eaf4ed";
+  el.style.color = erro ? "var(--red)" : "var(--green)";
+}
+
+async function carregarLeads() {
+  const lista = document.getElementById("lista-leads");
+  if (lista) lista.innerHTML = '<div class="lead-empty">Carregando cadastros...</div>';
+  try {
+    const result = await requisicaoLeads("/api/admin/leads?limit=500");
+    leadsCache = Array.isArray(result.leads) ? result.leads : [];
+    leadsCarregados = true;
+    const statusEl = document.getElementById("leads-status");
+    if (statusEl) statusEl.style.display = "none";
+    renderizarLeads();
+  } catch (error) {
+    leadsCarregados = false;
+    if (lista) lista.innerHTML = `<div class="lead-error">${escapeHtml(error?.message || "Não foi possível carregar os cadastros.")}</div>`;
+  }
+}
+
+async function salvarLead(card) {
+  const button = card.querySelector("[data-action='save-lead']");
+  const id = card.dataset.leadId;
+  button.disabled = true;
+  button.textContent = "Salvando...";
+  try {
+    await requisicaoLeads(`/api/admin/leads/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status: card.querySelector("[data-lead-status]").value, observacoes: card.querySelector("[data-lead-notes]").value })
+    });
+    const lead = leadsCache.find(item => String(item.id) === String(id));
+    if (lead) {
+      lead.status = card.querySelector("[data-lead-status]").value;
+      lead.observacoes = card.querySelector("[data-lead-notes]").value;
+    }
+    mostrarStatusLeads("Cadastro atualizado.");
+    renderizarLeads();
+  } catch (error) {
+    mostrarStatusLeads(error?.message || "Não foi possível salvar este cadastro.", true);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Salvar";
+  }
+}
+
+async function excluirLead(card) {
+  const id = card.dataset.leadId;
+  const lead = leadsCache.find(item => String(item.id) === String(id));
+  if (!lead || !confirm(`Excluir o cadastro de ${lead.nome}? Esta ação não pode ser desfeita.`)) return;
+  const button = card.querySelector("[data-action='delete-lead']");
+  button.disabled = true;
+  button.textContent = "Excluindo...";
+  try {
+    await requisicaoLeads(`/api/admin/leads/${encodeURIComponent(id)}`, { method: "DELETE" });
+    leadsCache = leadsCache.filter(item => String(item.id) !== String(id));
+    mostrarStatusLeads("Cadastro excluído.");
+    renderizarLeads();
+  } catch (error) {
+    mostrarStatusLeads(error?.message || "Não foi possível excluir este cadastro.", true);
+  } finally {
+    if (button.isConnected) {
+      button.disabled = false;
+      button.textContent = "Excluir cadastro";
+    }
+  }
+}
+
+document.getElementById("lista-leads")?.addEventListener("click", event => {
+  const button = event.target.closest("[data-action='save-lead']");
+  if (button) salvarLead(button.closest(".lead-card"));
+  const deleteButton = event.target.closest("[data-action='delete-lead']");
+  if (deleteButton) excluirLead(deleteButton.closest(".lead-card"));
+});
+document.getElementById("btn-atualizar-leads")?.addEventListener("click", carregarLeads);
+document.getElementById("filtro-lead-busca")?.addEventListener("input", renderizarLeads);
+document.getElementById("filtro-lead-status")?.addEventListener("change", renderizarLeads);
 
 function novoFotoId() {
   contadorFotoId += 1;
@@ -5010,6 +5260,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const targetPanel = document.getElementById(`tab-${targetTab}`);
       if (targetPanel) {
         targetPanel.classList.add("active");
+      }
+      if (targetTab === "leads" && !leadsCarregados) {
+        carregarLeads();
       }
     });
   });

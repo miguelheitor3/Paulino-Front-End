@@ -75,6 +75,29 @@
   .stat-num{font-family:'Archivo',sans-serif;font-weight:800;font-size:24px;color:var(--green);}
   .stat-label{font-size:12px;color:var(--ink-soft);margin-top:2px;max-width:150px;}
   .destaque-regiao{color:var(--green);font-weight:700;background:var(--green-tint);padding:3px 8px;border-radius:5px;}
+  .cadastro-section{padding:54px 0;background:var(--offwhite);scroll-margin-top:24px;}
+  .cadastro-card{max-width:900px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:30px;box-shadow:0 8px 24px rgba(0,0,0,.04);}
+  .cadastro-head{margin-bottom:22px;}
+  .cadastro-head h2{font:800 28px Archivo,sans-serif;margin:7px 0;color:var(--ink);}
+  .cadastro-head p{color:var(--ink-soft);font-size:14px;line-height:1.55;max-width:720px;}
+  .cadastro-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;}
+  .cadastro-field.full{grid-column:1/-1;}
+  .cadastro-field label{display:block;font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;}
+  .cadastro-field input,.cadastro-field select{width:100%;min-height:43px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font:14px Inter,sans-serif;}
+  .cadastro-field input:focus,.cadastro-field select:focus{outline:2px solid rgba(12,59,44,.18);border-color:var(--green);}
+  .cadastro-consent{display:flex;align-items:flex-start;gap:10px;margin:18px 0;color:var(--ink-soft);font-size:12px;line-height:1.5;}
+  .cadastro-consent input{margin-top:3px;accent-color:var(--green);flex:0 0 auto;}
+  .cadastro-submit{background:var(--green);color:#fff;border:0;border-radius:8px;padding:13px 20px;font:700 14px Inter,sans-serif;cursor:pointer;}
+  .cadastro-submit:disabled{opacity:.65;cursor:wait;}
+  .cadastro-feedback{display:none;margin-top:14px;padding:12px 14px;border-radius:8px;font-size:13px;line-height:1.45;}
+  .cadastro-feedback.ok{display:block;background:#eaf4ed;color:#185c34;}
+  .cadastro-feedback.erro{display:block;background:#fff0f0;color:#a21b24;}
+  .cadastro-nota{font-size:11px;color:var(--ink-soft);margin-top:12px;line-height:1.5;}
+  .cadastro-nota a,.aviso-privacidade a{color:var(--green);font-weight:700;text-decoration:underline;}
+  .aviso-privacidade{margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;font-size:12px;color:var(--ink-soft);line-height:1.55;}
+  .aviso-privacidade summary{cursor:pointer;color:var(--green);font-weight:700;}
+  .aviso-privacidade p{margin-top:8px;}
+  .form-honeypot{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;}
 
   /* PARCEIRO BANCO */
   .parceiro-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px;box-shadow:0 24px 48px rgba(12,24,18,.08);}
@@ -96,44 +119,24 @@
   .numeros-item h3{font-size:15px;font-weight:600;margin-bottom:8px;}
   .numeros-item p{font-size:13.5px;color:var(--ink-soft);line-height:1.6;}
 
-  /* COMO FUNCIONA — GUIADO PELA ERICA E PELO ANTÔNIO */
-  .como{padding:16px 0 88px;background:var(--offwhite);}
-  .como-head{margin-bottom:44px;max-width:600px;}
-  .como-head h2{font-family:'Archivo',sans-serif;font-weight:700;font-size:26px;margin-top:12px;}
-
-  .como-etapa{
-    display:grid;
-    grid-template-columns:200px 1fr;
-    gap:32px;
-    align-items:center;
-    background:#fff;
-    border:1px solid var(--line);
-    border-radius:18px;
-    padding:28px;
-    margin-bottom:24px;
-    box-shadow:0 18px 40px rgba(12,24,18,.05);
-  }
-  .como-etapa.inverso{grid-template-columns:1fr 200px;}
-  .como-etapa.inverso .como-persona{order:2;}
-  .como-etapa.inverso .como-passos{order:1;}
-
-  .como-persona{text-align:center;}
-  .como-persona-foto{width:100%;aspect-ratio:1/1;border-radius:14px;overflow:hidden;background:var(--green-tint);margin-bottom:12px;}
-  .como-persona-foto img{width:100%;height:100%;object-fit:cover;object-position:top center;}
-  .como-persona-nome{font-family:'Archivo',sans-serif;font-weight:800;font-size:16px;}
-  .como-persona-cargo{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
-  .como-persona-bubble{position:relative;display:inline-block;background:var(--green-tint);color:var(--green);font-size:11.5px;font-weight:700;padding:7px 14px;border-radius:20px;margin-top:12px;}
-  .como-persona-bubble::after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:-5px;border-width:6px 6px 0 6px;border-style:solid;border-color:var(--green-tint) transparent transparent transparent;}
-
-  .como-passos{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-  .como-passo{padding-left:16px;border-left:3px solid var(--green-tint);}
-  .como-etapa.inverso .como-passo{border-left:none;border-right:3px solid var(--green-tint);padding-left:0;padding-right:16px;text-align:right;}
-  .como-num{font-family:'Archivo',sans-serif;font-weight:800;font-size:13px;color:var(--red);margin-bottom:8px;}
-  .como-passo h3{font-size:15px;font-weight:600;margin-bottom:6px;}
-  .como-passo p{font-size:13px;color:var(--ink-soft);line-height:1.6;}
-
-  .como-final{text-align:center;margin-top:8px;}
-  .como-final p{font-size:13.5px;color:var(--ink-soft);}
+  /* PASSO A PASSO */
+  .como{padding:76px 0 84px;background:linear-gradient(180deg,#f6f7f5 0%,#eef3ef 100%);}
+  .como-head{max-width:720px;margin:0 auto 36px;text-align:center;}
+  .como-head h2{font-family:'Archivo',sans-serif;font-weight:800;font-size:clamp(27px,3vw,36px);line-height:1.16;margin-top:10px;}
+  .como-head p{max-width:600px;margin:13px auto 0;color:var(--ink-soft);font-size:14px;line-height:1.65;}
+  .como-etapas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;}
+  .como-card{display:flex;flex-direction:column;min-height:250px;padding:21px 19px;background:#fff;border:1px solid #e0e7e1;border-radius:15px;box-shadow:0 9px 24px rgba(12,59,44,.055);}
+  .como-card-top{display:flex;justify-content:flex-start;align-items:center;gap:8px;margin-bottom:22px;}
+  .como-num{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:var(--green);color:#fff;font:800 13px Archivo,sans-serif;}
+  .como-responsavel{display:flex;align-items:center;gap:11px;margin-top:auto;padding-top:14px;border-top:1px solid var(--line);color:var(--ink-soft);font-size:12px;font-weight:700;}
+  .como-responsavel img{width:72px;height:72px;flex:0 0 72px;object-fit:cover;object-position:top center;border-radius:15px;border:2px solid var(--green-tint);}
+  .como-responsavel-info{display:grid;gap:3px;}
+  .como-responsavel-info strong{font-size:12px;color:var(--ink);}
+  .como-responsavel-info small{font-size:11px;font-weight:500;color:var(--ink-soft);}
+  .como-card h3{font:700 17px Archivo,sans-serif;line-height:1.25;margin-bottom:9px;color:var(--ink);}
+  .como-card p{font-size:13px;color:var(--ink-soft);line-height:1.6;}
+  .como-equipe-note{display:flex;align-items:center;justify-content:center;gap:9px;margin:25px auto 0;color:var(--green);font-size:13px;font-weight:700;text-align:center;}
+  .como-equipe-note span{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#dce9df;font-size:13px;}
 
   /* CTA BAND */
   .cta-band{background:var(--green);border-radius:20px;padding:56px;margin:0 32px 96px;max-width:1176px;margin-left:auto;margin-right:auto;display:flex;justify-content:space-between;align-items:center;gap:32px;flex-wrap:wrap;}
@@ -166,9 +169,7 @@
   @media (max-width:960px){
     .hero-grid{grid-template-columns:1fr;}
     .numeros-grid{grid-template-columns:1fr;}
-    .como-etapa,.como-etapa.inverso{grid-template-columns:140px 1fr;}
-    .como-etapa.inverso .como-persona{order:0;}
-    .como-etapa.inverso .como-passos{order:1;}
+    .como-etapas{grid-template-columns:repeat(2,minmax(0,1fr));}
     .faq-grid{grid-template-columns:1fr;}
     .footer-grid{grid-template-columns:1fr 1fr;}
     nav{display:none;}
@@ -190,10 +191,15 @@
     .mobile-nav-toggle{justify-self:end;}
     .cta-band{padding:36px 28px;}
     .footer-grid{grid-template-columns:1fr;}
-    .como-etapa,.como-etapa.inverso{grid-template-columns:1fr;text-align:center;}
-    .como-persona-foto{width:120px;margin:0 auto 12px;}
-    .como-passos{grid-template-columns:1fr;}
-    .como-etapa.inverso .como-passo{border-right:none;border-left:3px solid var(--green-tint);padding-right:0;padding-left:16px;text-align:left;}
+    .como{padding:58px 0 64px;}
+    .como-head{margin-bottom:26px;}
+    .como-etapas{grid-template-columns:1fr;gap:12px;}
+    .como-card{min-height:0;padding:18px;}
+    .como-card-top{margin-bottom:17px;}
+    .cadastro-card{padding:22px 18px;}
+    .cadastro-grid{grid-template-columns:1fr;}
+    .cadastro-field.full{grid-column:auto;}
+    .cadastro-head h2{font-size:24px;}
   }
 </style>
 </head>
@@ -233,7 +239,7 @@
         <h1 class="hero-title">Quer sair do aluguel e <span class="destaque-regiao">conquistar sua casa própria?</span></h1>
         <p class="hero-sub">O financiamento imobiliário, em parceria com o Banco do Brasil, é uma excelente oportunidade para você deixar de pagar aluguel e realizar o sonho da casa própria. Não perca tempo — solicite sua simulação de forma rápida e gratuita.</p>
         <div class="hero-actions">
-          <a class="btn-green" href="https://wa.me/5535997097389?text=Ol%C3%A1%2C%20gostaria%20de%20solicitar%20uma%20simula%C3%A7%C3%A3o%20de%20financiamento%20imobili%C3%A1rio." target="_blank" rel="noopener">Solicitar simulação gratuita</a>
+          <a class="btn-green" href="#cadastro-financiamento">Solicitar simulação gratuita</a>
           <a class="btn-outline-header" style="border:1px solid var(--line);" href="tel:3532661985">Ligar agora</a>
         </div>
         <div class="hero-stats">
@@ -261,6 +267,41 @@
         </div>
       </div>
     </div>
+  </div>
+</section>
+
+<section class="cadastro-section" id="cadastro-financiamento">
+  <div class="wrap">
+    <form class="cadastro-card" id="form-cadastro-financiamento">
+      <div class="cadastro-head">
+        <span class="eyebrow">Vamos conversar</span>
+        <h2>Conte o que você procura</h2>
+        <p>Deixe seus dados e preferências para que nossa equipe possa entrar em contato e ajudar a encontrar imóveis compatíveis com seu perfil.</p>
+      </div>
+      <div class="cadastro-grid">
+        <div class="cadastro-field"><label for="lead-nome">Nome completo *</label><input id="lead-nome" name="nome" maxlength="100" autocomplete="name" required></div>
+        <div class="cadastro-field"><label for="lead-telefone">Telefone ou WhatsApp *</label><input id="lead-telefone" name="telefone" type="tel" maxlength="20" autocomplete="tel" placeholder="(35) 99999-9999" required></div>
+        <div class="cadastro-field"><label for="lead-email">E-mail (opcional)</label><input id="lead-email" name="email" type="email" maxlength="254" autocomplete="email"></div>
+        <div class="cadastro-field"><label for="lead-cidade">Cidade onde procura *</label><input id="lead-cidade" name="cidade" maxlength="100" autocomplete="address-level2" placeholder="Ex.: Três Pontas" required></div>
+        <div class="cadastro-field"><label for="lead-tipo">Tipo de imóvel</label><select id="lead-tipo" name="tipo_imovel"><option value="">Ainda não defini</option><option>Casa</option><option>Apartamento</option><option>Barracão</option><option>Ponto Comercial</option><option>Sítio/Fazenda</option><option>Terreno</option><option>Área de Lazer</option></select></div>
+        <div class="cadastro-field"><label for="lead-valor">Valor máximo que pretende buscar (R$)</label><input id="lead-valor" name="valor_maximo" type="text" inputmode="numeric" autocomplete="off" maxlength="11" aria-describedby="lead-valor-ajuda" placeholder="Ex.: 350.000"><small id="lead-valor-ajuda" class="cadastro-nota">Digite apenas números; os pontos de milhar aparecem automaticamente.</small></div>
+        <div class="cadastro-field"><label for="lead-quartos">Quantidade mínima de quartos</label><select id="lead-quartos" name="quartos_minimos"><option value="">Qualquer quantidade</option><option value="0">Não é um critério</option><option value="1">1 ou mais</option><option value="2">2 ou mais</option><option value="3">3 ou mais</option><option value="4">4 ou mais</option></select></div>
+        <div class="cadastro-field"><label for="lead-entrada">Faixa aproximada de entrada disponível</label><select id="lead-entrada" name="entrada_faixa"><option value="">Prefiro não informar</option><option value="ate_20_mil">Até R$ 20 mil</option><option value="20_a_50_mil">De R$ 20 mil a R$ 50 mil</option><option value="50_a_100_mil">De R$ 50 mil a R$ 100 mil</option><option value="acima_100_mil">Acima de R$ 100 mil</option></select></div>
+        <div class="cadastro-field"><label for="lead-fgts">Pretende usar FGTS?</label><select id="lead-fgts" name="pretende_usar_fgts"><option value="">Ainda não sei / prefiro não informar</option><option value="sim">Sim</option><option value="nao">Não</option></select></div>
+        <div class="form-honeypot" aria-hidden="true"><label for="lead-website">Deixe este campo vazio</label><input id="lead-website" name="website" tabindex="-1" autocomplete="off"></div>
+      </div>
+      <label class="cadastro-consent"><input type="checkbox" name="consentiu_contato" required><span>Autorizo a Paulino Imóveis a usar os dados informados para responder a esta solicitação e entrar em contato comigo sobre financiamento e imóveis compatíveis. *</span></label>
+      <button class="cadastro-submit" type="submit">Enviar solicitação</button>
+      <div class="cadastro-feedback" id="cadastro-feedback" role="status" aria-live="polite"></div>
+      <p class="cadastro-nota">Não envie CPF, documentos ou comprovantes por este formulário. As informações de entrada e FGTS são opcionais. Para dúvidas, você também pode falar conosco pelo WhatsApp.</p>
+      <p class="cadastro-nota"><a href="#aviso-privacidade">Leia o aviso de privacidade deste cadastro</a>.</p>
+      <details class="aviso-privacidade" id="aviso-privacidade">
+        <summary>Aviso de privacidade</summary>
+        <p>A Paulino Imóveis utiliza as informações enviadas neste formulário para responder ao pedido de financiamento, entrar em contato com você e identificar imóveis disponíveis que possam corresponder às preferências informadas.</p>
+        <p>O formulário coleta nome, telefone, cidade e preferências de imóvel; e-mail, faixa aproximada para entrada e intenção de uso do FGTS são opcionais. Os dados ficam armazenados em banco protegido na Cloudflare e podem ser consultados pela equipe autorizada da imobiliária. Este cadastro não realiza análise ou decisão automática de crédito nem envia documentos a instituições financeiras.</p>
+        <p>As informações serão mantidas enquanto forem necessárias para atender à solicitação e cumprir obrigações aplicáveis. Para solicitar acesso, correção ou exclusão, escreva para <a href="mailto:imobiliariapaulino@gmail.com">imobiliariapaulino@gmail.com</a>. O envio não autoriza campanhas ou ofertas automáticas futuras por WhatsApp.</p>
+      </details>
+    </form>
   </div>
 </section>
 
@@ -294,54 +335,37 @@
   <div class="wrap">
     <div class="como-head">
       <span class="eyebrow">Passo a passo</span>
-      <h2>Como funciona a simulação do seu financiamento</h2>
+      <h2>Da primeira conversa à assinatura, você sabe o que vem a seguir</h2>
+      <p>Nossa equipe acompanha cada etapa e explica as condições para você decidir com tranquilidade.</p>
     </div>
 
-    <div class="como-etapa">
-      <div class="como-persona">
-        <div class="como-persona-foto"><img src="assets/Erica.png" alt="Erica — Paulino Imóveis"></div>
-        <div class="como-persona-nome">Erica</div>
-        <div class="como-persona-cargo">Corretora</div>
-        <div class="como-persona-bubble">"Vamos começar sua simulação?"</div>
-      </div>
-      <div class="como-passos">
-        <div class="como-passo">
-          <div class="como-num">01</div>
-          <h3>Entre em contato</h3>
-          <p>Fale com a Erica pelo WhatsApp ou telefone e conte qual imóvel você tem interesse em financiar.</p>
-        </div>
-        <div class="como-passo">
-          <div class="como-num">02</div>
-          <h3>Envie seus dados</h3>
-          <p>Ela reúne as informações necessárias e monta a sua simulação junto ao Banco do Brasil.</p>
-        </div>
-      </div>
+    <div class="como-etapas">
+      <article class="como-card">
+        <div class="como-card-top"><span class="como-num">01</span></div>
+        <h3>Conte o que você procura</h3>
+        <p>Fale com a Erica sobre o imóvel de interesse e o que você espera do financiamento.</p>
+        <div class="como-responsavel"><img src="assets/Erica.png" alt="Retrato de Erica"><span class="como-responsavel-info"><strong>Erica</strong><small>Corretora</small></span></div>
+      </article>
+      <article class="como-card">
+        <div class="como-card-top"><span class="como-num">02</span></div>
+        <h3>Faça sua simulação</h3>
+        <p>Com as informações necessárias, ela consulta as possibilidades junto ao Banco do Brasil.</p>
+        <div class="como-responsavel"><img src="assets/Erica.png" alt="Retrato de Erica"><span class="como-responsavel-info"><strong>Erica</strong><small>Corretora</small></span></div>
+      </article>
+      <article class="como-card">
+        <div class="como-card-top"><span class="como-num">03</span></div>
+        <h3>Conheça as condições</h3>
+        <p>Veja a estimativa de entrada, parcelas e prazo, sem custo para solicitar a simulação.</p>
+        <div class="como-responsavel"><img src="assets/Antonio.png" alt="Retrato de Antônio"><span class="como-responsavel-info"><strong>Antônio</strong><small>Corretor</small></span></div>
+      </article>
+      <article class="como-card">
+        <div class="como-card-top"><span class="como-num">04</span></div>
+        <h3>Avance para o contrato</h3>
+        <p>O Antônio orienta você com a documentação e acompanha a negociação até a assinatura.</p>
+        <div class="como-responsavel"><img src="assets/Antonio.png" alt="Retrato de Antônio"><span class="como-responsavel-info"><strong>Antônio</strong><small>Corretor</small></span></div>
+      </article>
     </div>
-
-    <div class="como-etapa inverso">
-      <div class="como-passos">
-        <div class="como-passo">
-          <div class="como-num">03</div>
-          <h3>Receba a simulação</h3>
-          <p>Você recebe, de forma gratuita e rápida, as condições de valor de entrada, parcelas e prazo.</p>
-        </div>
-        <div class="como-passo">
-          <div class="como-num">04</div>
-          <h3>Feche seu contrato</h3>
-          <p>O Antônio acompanha toda a parte de documentação e negociação até a assinatura do contrato.</p>
-        </div>
-      </div>
-      <div class="como-persona">
-        <div class="como-persona-foto"><img src="assets/Antonio.png" alt="Antônio — Paulino Imóveis"></div>
-        <div class="como-persona-nome">Antônio</div>
-        <div class="como-persona-cargo">Corretor</div>
-        <div class="como-persona-bubble">"Eu cuido de fechar com você."</div>
-      </div>
-    </div>
-
-    <div class="como-final">
-      <p>Erica e Antônio acompanham o seu financiamento do primeiro contato até as chaves na mão.</p>
-    </div>
+    <div class="como-equipe-note"><span aria-hidden="true">✓</span> Erica e Antônio acompanham você do primeiro contato à assinatura.</div>
   </div>
 </section>
 
@@ -351,7 +375,7 @@
       <h2>Não perca tempo. Solicite sua simulação agora mesmo.</h2>
       <p>Simulação rápida e gratuita, com o suporte da nossa equipe do início ao fim do processo.</p>
     </div>
-    <a class="btn-white" href="https://wa.me/5535997097389?text=Ol%C3%A1%2C%20gostaria%20de%20solicitar%20uma%20simula%C3%A7%C3%A3o%20de%20financiamento%20imobili%C3%A1rio." target="_blank" rel="noopener">Solicitar simulação gratuita</a>
+    <a class="btn-white" href="#cadastro-financiamento">Solicitar simulação gratuita</a>
   </div>
 </div>
 
@@ -436,7 +460,7 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="assets/config.js?v=20260930-r2-live"></script>
+<script src="assets/config.js?v=20261023-leads-v1"></script>
 <script src="assets/site.js?v=20260930-r2-live"></script>
 <script>
 /* ============================================================
@@ -550,6 +574,63 @@ if (menuMobileBotao && menuMobileNav) {
 }
 
 atualizarLoginHeader();
+
+const cadastroFinanciamento = document.getElementById("form-cadastro-financiamento");
+const feedbackCadastro = document.getElementById("cadastro-feedback");
+const valorMaximoInput = document.getElementById("lead-valor");
+valorMaximoInput?.addEventListener("input", () => {
+  const cursor = valorMaximoInput.selectionStart ?? valorMaximoInput.value.length;
+  const digitosAntesCursor = valorMaximoInput.value.slice(0, cursor).replace(/\D/g, "").length;
+  const digitos = valorMaximoInput.value.replace(/\D/g, "").slice(0, 9);
+  const formatado = digitos.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  valorMaximoInput.value = formatado;
+  let novaPosicao = 0;
+  let digitosContados = 0;
+  while (novaPosicao < formatado.length && digitosContados < digitosAntesCursor) {
+    if (/\d/.test(formatado[novaPosicao])) digitosContados++;
+    novaPosicao++;
+  }
+  valorMaximoInput.setSelectionRange(novaPosicao, novaPosicao);
+  valorMaximoInput.setCustomValidity(Number(digitos) > 100000000 ? "O valor máximo permitido é R$ 100.000.000." : "");
+});
+cadastroFinanciamento?.addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!cadastroFinanciamento.reportValidity()) return;
+  feedbackCadastro.className = "cadastro-feedback";
+  feedbackCadastro.textContent = "";
+  const button = cadastroFinanciamento.querySelector(".cadastro-submit");
+  button.disabled = true;
+  button.textContent = "Enviando...";
+  const form = new FormData(cadastroFinanciamento);
+  const valorRaw = String(form.get("valor_maximo") || "").replace(/\D/g, "");
+  const payload = {
+    nome: form.get("nome"), telefone: form.get("telefone"), email: form.get("email"),
+    cidade: form.get("cidade"), tipo_imovel: form.get("tipo_imovel"),
+    valor_maximo: valorRaw ? Number(valorRaw) : null,
+    quartos_minimos: form.get("quartos_minimos") === "" ? null : Number(form.get("quartos_minimos")),
+    entrada_faixa: form.get("entrada_faixa") || null,
+    pretende_usar_fgts: form.get("pretende_usar_fgts") || null,
+    consentiu_contato: form.get("consentiu_contato") === "on",
+    website: form.get("website")
+  };
+  try {
+    if (!window.LEADS_WORKER_URL) throw new Error("O serviço de cadastro ainda não está configurado.");
+    const response = await fetch(`${window.LEADS_WORKER_URL.replace(/\/$/, "")}/api/leads`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || "Não foi possível enviar agora. Tente novamente ou fale conosco pelo WhatsApp.");
+    cadastroFinanciamento.reset();
+    feedbackCadastro.textContent = "Solicitação enviada. Nossa equipe entrará em contato para conversar sobre seu financiamento e os imóveis que podem combinar com o que você procura.";
+    feedbackCadastro.className = "cadastro-feedback ok";
+  } catch (error) {
+    feedbackCadastro.textContent = error?.message || "Não foi possível enviar agora. Tente novamente ou fale conosco pelo WhatsApp.";
+    feedbackCadastro.className = "cadastro-feedback erro";
+  } finally {
+    button.disabled = false;
+    button.textContent = "Enviar solicitação";
+  }
+});
 </script>
 </body>
 </html>
