@@ -807,6 +807,22 @@ tr:last-child td{
 .leads-toolbar input,.leads-toolbar select,.lead-card select,.lead-card textarea{padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font:13px Inter,sans-serif;}
 .leads-toolbar input{min-width:220px;}
 .leads-intro{font-size:13px;color:var(--ink-soft);line-height:1.5;margin:0 0 16px;}
+.lead-manual{margin:0 0 18px;background:#f8faf8;border:1px solid #dce5df;border-radius:12px;overflow:hidden;}
+.lead-manual summary{padding:13px 16px;color:var(--green);font-size:13px;font-weight:800;cursor:pointer;list-style:none;}
+.lead-manual summary::-webkit-details-marker{display:none;}
+.lead-manual summary::before{content:"＋";display:inline-grid;place-items:center;width:23px;height:23px;margin-right:8px;border-radius:7px;background:#e2eee5;}
+.lead-manual[open] summary{border-bottom:1px solid #dce5df;}
+.lead-manual-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:16px;}
+.lead-manual-field label{display:block;margin-bottom:5px;color:var(--ink-soft);font-size:10px;font-weight:800;}
+.lead-manual-form input,.lead-manual-form select,.lead-manual-form textarea{width:100%;min-height:39px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font:13px Inter,sans-serif;}
+.lead-manual-form textarea{min-height:68px;resize:vertical;}
+.lead-manual-full{grid-column:1/-1;}
+.lead-manual-field .lead-manual-consent{display:flex;align-items:flex-start;gap:9px;color:var(--ink-soft);font-size:11px;line-height:1.5;}
+.lead-manual-consent input{width:auto;min-height:0;margin-top:2px;accent-color:var(--green);}
+.lead-manual-actions{display:flex;justify-content:flex-end;align-items:center;gap:10px;}
+.lead-manual-hint{color:var(--ink-soft);font-size:11px;}
+.lead-manual-save{min-height:40px;padding:10px 16px;border:0;border-radius:8px;background:var(--green);color:#fff;font:700 13px Inter,sans-serif;cursor:pointer;}
+.lead-manual-save:disabled{opacity:.65;cursor:wait;}
 .lead-list{display:grid;gap:18px;}
 .lead-card{overflow:hidden;background:#fff;border:1px solid #dce5df;border-radius:14px;box-shadow:0 5px 18px rgba(12,59,44,.07);}
 .lead-card-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:17px 20px;background:linear-gradient(110deg,#f1f6f2,#fbfcfb);border-bottom:1px solid var(--line);}
@@ -823,6 +839,11 @@ tr:last-child td{
 .lead-status-pill.status-simulacao{background:#fff4dc;color:#8b5a00;}
 .lead-status-pill.status-convertido{background:#e4f4ec;color:#17663a;}
 .lead-status-pill.status-encerrado{background:#f0f1f0;color:#616a64;}
+.lead-type-pill,.lead-source-pill{display:inline-flex;align-items:center;min-height:25px;padding:4px 9px;border-radius:999px;font-size:10px;font-weight:800;white-space:nowrap;}
+.lead-type-pill.type-financiamento{background:#e8efeA;color:var(--green);}
+.lead-type-pill.type-compra{background:#e9efff;color:#31529a;}
+.lead-type-pill.type-aluguel{background:#fff1df;color:#8b5600;}
+.lead-source-pill{background:#f0f1f0;color:#616a64;}
 .lead-card-grid{display:grid;grid-template-columns:minmax(220px,.85fr) minmax(0,1.4fr);gap:12px;padding:17px 20px 0;}
 .lead-card-section{min-width:0;padding:14px 15px;background:#f8faf8;border:1px solid #e8eee9;border-radius:10px;}
 .lead-card h4{display:flex;align-items:center;gap:7px;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft);margin:0 0 9px;}
@@ -843,7 +864,8 @@ tr:last-child td{
 .lead-card-save{padding:9px 13px;border:0;border-radius:7px;background:var(--green);color:#fff;font-weight:700;cursor:pointer;}
 .lead-card-save:disabled{opacity:.6;cursor:wait;}
 @media(max-width:900px){.lead-card-grid{grid-template-columns:1fr}.lead-card-actions{grid-template-columns:minmax(140px,.7fr) 1.3fr}.lead-card-actions button{width:100%}}
-@media(max-width:560px){.lead-card-head{align-items:flex-start;padding:15px}.lead-head-meta{width:100%;padding-left:54px}.lead-card-grid{padding:13px 14px 0}.lead-card-actions{grid-template-columns:1fr;padding:14px}.lead-card-actions textarea{min-height:70px}.leads-toolbar input{min-width:0;width:100%}}
+@media(max-width:760px){.lead-manual-form{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.lead-card-head{align-items:flex-start;padding:15px}.lead-head-meta{width:100%;padding-left:54px}.lead-card-grid{padding:13px 14px 0}.lead-card-actions{grid-template-columns:1fr;padding:14px}.lead-card-actions textarea{min-height:70px}.leads-toolbar input{min-width:0;width:100%}.lead-manual-form{grid-template-columns:1fr}.lead-manual-full{grid-column:auto}.lead-manual-actions{align-items:stretch;flex-direction:column}.lead-manual-actions button{width:100%}}
 
 </style>
 
@@ -937,7 +959,7 @@ tr:last-child td{
     </button>
 
     <button class="tab-btn" type="button" data-tab="leads">
-      🤝 Financiamento
+      👥 Clientes
     </button>
 
   </div>
@@ -946,13 +968,30 @@ tr:last-child td{
     <div class="card-form">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;">
         <div>
-          <h2 style="margin-bottom:5px;">Interessados em financiamento</h2>
-          <p class="leads-intro">Acompanhe os pedidos recebidos e confira imóveis disponíveis que correspondem aos critérios informados pelo cliente.</p>
+          <h2 style="margin-bottom:5px;">Clientes e interessados</h2>
+          <p class="leads-intro">Consulte os contatos recebidos pelo site e registre clientes atendidos por outros canais. Os imóveis compatíveis seguem a categoria e as preferências informadas.</p>
         </div>
         <button class="btn btn-outline" type="button" id="btn-atualizar-leads">Atualizar lista</button>
       </div>
+      <details class="lead-manual" id="lead-manual-wrap">
+        <summary>Cadastrar cliente manualmente</summary>
+        <form class="lead-manual-form" id="form-lead-manual">
+          <div class="lead-manual-field"><label for="lead-manual-nome">Nome *</label><input id="lead-manual-nome" name="nome" maxlength="100" autocomplete="name" required></div>
+          <div class="lead-manual-field"><label for="lead-manual-telefone">Telefone ou WhatsApp *</label><input id="lead-manual-telefone" name="telefone" type="tel" maxlength="20" autocomplete="tel" required></div>
+          <div class="lead-manual-field"><label for="lead-manual-cidade">Cidade *</label><input id="lead-manual-cidade" name="cidade" maxlength="100" required></div>
+          <div class="lead-manual-field"><label for="lead-manual-tipo-atendimento">Interesse do cliente *</label><select id="lead-manual-tipo-atendimento" name="tipo_atendimento" required><option value="">Selecione uma categoria</option><option value="compra">Compra</option><option value="aluguel">Aluguel</option><option value="financiamento">Financiamento</option></select></div>
+          <div class="lead-manual-field"><label for="lead-manual-email">E-mail (opcional)</label><input id="lead-manual-email" name="email" type="email" maxlength="254" autocomplete="email"></div>
+          <div class="lead-manual-field"><label for="lead-manual-imovel">Tipo de imóvel</label><select id="lead-manual-imovel" name="tipo_imovel"><option value="">Não informado</option><option>Casa</option><option>Apartamento</option><option>Barracão</option><option>Ponto Comercial</option><option>Sítio/Fazenda</option><option>Terreno</option><option>Área de Lazer</option></select></div>
+          <div class="lead-manual-field"><label id="lead-manual-valor-label" for="lead-manual-valor">Valor máximo (R$)</label><input id="lead-manual-valor" name="valor_maximo" type="text" inputmode="numeric" maxlength="11" placeholder="Ex.: 350.000"></div>
+          <div class="lead-manual-field"><label for="lead-manual-quartos">Quartos mínimos</label><select id="lead-manual-quartos" name="quartos_minimos"><option value="">Qualquer quantidade</option><option value="0">Sem preferência</option><option value="1">1 ou mais</option><option value="2">2 ou mais</option><option value="3">3 ou mais</option><option value="4">4 ou mais</option></select></div>
+          <div class="lead-manual-field lead-manual-full"><label for="lead-manual-observacoes">Observação inicial (opcional)</label><textarea id="lead-manual-observacoes" name="observacoes" maxlength="2000" placeholder="Ex.: veio pelo WhatsApp, procura casa com garagem..."></textarea></div>
+          <div class="lead-manual-field lead-manual-full"><label class="lead-manual-consent"><input type="checkbox" name="consentiu_contato" required><span>Confirmo que o cliente autorizou o registro dos dados e o contato da equipe para este atendimento. *</span></label></div>
+          <div class="lead-manual-actions lead-manual-full"><span class="lead-manual-hint">O cadastro ficará marcado como incluído manualmente.</span><button class="lead-manual-save" type="submit">Salvar cliente</button></div>
+        </form>
+      </details>
       <div class="leads-toolbar">
         <div><label for="filtro-lead-busca">Buscar</label><input id="filtro-lead-busca" type="search" placeholder="Nome, telefone ou cidade"></div>
+        <div><label for="filtro-lead-tipo">Interesse</label><select id="filtro-lead-tipo"><option value="">Todos</option><option value="compra">Compra</option><option value="aluguel">Aluguel</option><option value="financiamento">Financiamento</option></select></div>
         <div><label for="filtro-lead-status">Situação</label><select id="filtro-lead-status"><option value="">Todas</option><option value="novo">Novo</option><option value="em_contato">Em contato</option><option value="simulacao">Simulação em andamento</option><option value="convertido">Convertido</option><option value="encerrado">Encerrado</option></select></div>
         <span id="leads-contador" style="font-size:12px;color:var(--ink-soft);"></span>
       </div>
@@ -1807,6 +1846,11 @@ const LEAD_STATUS_LABELS = {
   convertido: "Convertido",
   encerrado: "Encerrado"
 };
+const LEAD_TYPE_LABELS = {
+  compra: "Compra",
+  aluguel: "Aluguel",
+  financiamento: "Financiamento"
+};
 
 function normalizarTextoLead(valor) {
   return String(valor || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
@@ -1817,9 +1861,10 @@ function imoveisCompativeisLead(lead) {
   const tipo = normalizarTextoLead(lead.tipo_imovel);
   const maximo = Number(lead.valor_maximo) || null;
   const quartos = lead.quartos_minimos == null ? null : Number(lead.quartos_minimos);
+  const finalidadeEsperada = lead.tipo_atendimento === "aluguel" ? "alugar" : "comprar";
   return imoveisCache.filter(im => {
     if (!im.disponivel) return false;
-    if (normalizarTextoLead(im.finalidade) !== "comprar") return false;
+    if (normalizarTextoLead(im.finalidade) !== finalidadeEsperada) return false;
     if (cidade && normalizarTextoLead(im.cidade) !== cidade) return false;
     if (tipo && normalizarTextoLead(im.tipo) !== tipo) return false;
     if (maximo && (!Number(im.preco) || Number(im.preco) > maximo)) return false;
@@ -1836,7 +1881,10 @@ function formatarDataLead(valor) {
 function obterDetalhesLead(lead) {
   const partes = [];
   if (lead.tipo_imovel) partes.push(lead.tipo_imovel);
-  if (lead.valor_maximo) partes.push(`até ${Number(lead.valor_maximo).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })}`);
+  if (lead.valor_maximo) {
+    const rotuloValor = lead.tipo_atendimento === "aluguel" ? "aluguel até" : "imóvel até";
+    partes.push(`${rotuloValor} ${Number(lead.valor_maximo).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })}`);
+  }
   if (lead.quartos_minimos) partes.push(`${lead.quartos_minimos}+ quartos`);
   const entrada = { ate_20_mil: "entrada até R$ 20 mil", "20_a_50_mil": "entrada de R$ 20 mil a R$ 50 mil", "50_a_100_mil": "entrada de R$ 50 mil a R$ 100 mil", acima_100_mil: "entrada acima de R$ 100 mil" }[lead.entrada_faixa];
   if (entrada) partes.push(entrada);
@@ -1850,20 +1898,24 @@ function renderizarLeads() {
   if (!lista) return;
   const busca = normalizarTextoLead(document.getElementById("filtro-lead-busca")?.value);
   const status = document.getElementById("filtro-lead-status")?.value || "";
+  const tipoAtendimento = document.getElementById("filtro-lead-tipo")?.value || "";
   const filtrados = leadsCache.filter(lead => {
     if (status && lead.status !== status) return false;
+    if (tipoAtendimento && lead.tipo_atendimento !== tipoAtendimento) return false;
     const haystack = normalizarTextoLead(`${lead.nome} ${lead.telefone} ${lead.cidade} ${lead.email || ""}`);
     return !busca || haystack.includes(busca);
   });
   const contador = document.getElementById("leads-contador");
   if (contador) contador.textContent = `${filtrados.length} de ${leadsCache.length} cadastros`;
   if (!filtrados.length) {
-    lista.innerHTML = `<div class="lead-empty">${leadsCache.length ? "Nenhum cadastro corresponde aos filtros." : "Ainda não há cadastros de financiamento."}</div>`;
+    lista.innerHTML = `<div class="lead-empty">${leadsCache.length ? "Nenhum cadastro corresponde aos filtros." : "Ainda não há clientes ou interessados cadastrados."}</div>`;
     return;
   }
   lista.innerHTML = filtrados.map(lead => {
     const matches = imoveisCompativeisLead(lead);
     const statusKey = Object.prototype.hasOwnProperty.call(LEAD_STATUS_LABELS, lead.status) ? lead.status : "novo";
+    const tipoKey = Object.prototype.hasOwnProperty.call(LEAD_TYPE_LABELS, lead.tipo_atendimento) ? lead.tipo_atendimento : "financiamento";
+    const origemLabel = lead.origem_cadastro === "painel" ? "Cadastro manual" : "Site";
     const iniciais = String(lead.nome || "?").trim().split(/\s+/).slice(0, 2).map(parte => Array.from(parte)[0] || "").join("").toLocaleUpperCase("pt-BR");
     const montarLinkImovel = im => `<li><a href="imovel.html?id=${encodeURIComponent(im.id)}" target="_blank" rel="noopener">${escapeHtml(im.titulo || "Imóvel")} — ${escapeHtml([im.bairro, im.cidade].filter(Boolean).join(", "))} — ${escapeHtml(fmtPreco(im.preco))}</a></li>`;
     const linksVisiveis = matches.slice(0, 4).map(montarLinkImovel).join("");
@@ -1872,7 +1924,7 @@ function renderizarLeads() {
     return `<article class="lead-card" data-lead-id="${escapeHtml(lead.id)}">
       <div class="lead-card-head">
         <div class="lead-identity"><span class="lead-avatar" aria-hidden="true">${escapeHtml(iniciais)}</span><div><h3>${escapeHtml(lead.nome)}</h3><div class="lead-card-contact"><a href="https://wa.me/55${escapeHtml(String(lead.telefone).replace(/\D/g, "").replace(/^55/, ""))}" target="_blank" rel="noopener">${escapeHtml(lead.telefone)}</a>${lead.email ? ` · ${escapeHtml(lead.email)}` : ""}</div></div></div>
-        <div class="lead-head-meta"><span class="lead-status-pill status-${statusKey}">${escapeHtml(LEAD_STATUS_LABELS[statusKey])}</span><span class="lead-card-meta">Recebido em ${escapeHtml(formatarDataLead(lead.created_at))} · ${escapeHtml(lead.cidade)}</span></div>
+        <div class="lead-head-meta"><span class="lead-type-pill type-${tipoKey}">${escapeHtml(LEAD_TYPE_LABELS[tipoKey])}</span><span class="lead-status-pill status-${statusKey}">${escapeHtml(LEAD_STATUS_LABELS[statusKey])}</span><span class="lead-source-pill">${origemLabel}</span><span class="lead-card-meta">${escapeHtml(formatarDataLead(lead.created_at))} · ${escapeHtml(lead.cidade)}</span></div>
       </div>
       <div class="lead-card-grid">
         <section class="lead-card-section"><h4>O que procura</h4><div class="lead-card-meta">${escapeHtml(obterDetalhesLead(lead))}</div></section>
@@ -1979,6 +2031,72 @@ document.getElementById("lista-leads")?.addEventListener("click", event => {
 document.getElementById("btn-atualizar-leads")?.addEventListener("click", carregarLeads);
 document.getElementById("filtro-lead-busca")?.addEventListener("input", renderizarLeads);
 document.getElementById("filtro-lead-status")?.addEventListener("change", renderizarLeads);
+document.getElementById("filtro-lead-tipo")?.addEventListener("change", renderizarLeads);
+
+const formularioLeadManual = document.getElementById("form-lead-manual");
+const tipoAtendimentoManual = document.getElementById("lead-manual-tipo-atendimento");
+const valorManualInput = document.getElementById("lead-manual-valor");
+function atualizarRotuloValorManual() {
+  const rotulos = {
+    compra: "Preço máximo do imóvel (R$)",
+    aluguel: "Aluguel mensal máximo (R$)",
+    financiamento: "Valor máximo do imóvel (R$)"
+  };
+  const label = document.getElementById("lead-manual-valor-label");
+  if (label) label.textContent = rotulos[tipoAtendimentoManual?.value] || "Valor máximo (R$)";
+}
+tipoAtendimentoManual?.addEventListener("change", atualizarRotuloValorManual);
+valorManualInput?.addEventListener("input", () => {
+  const cursor = valorManualInput.selectionStart ?? valorManualInput.value.length;
+  const digitosAntesCursor = valorManualInput.value.slice(0, cursor).replace(/\D/g, "").length;
+  const digitos = valorManualInput.value.replace(/\D/g, "").slice(0, 9);
+  const formatado = digitos.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  valorManualInput.value = formatado;
+  let novaPosicao = 0;
+  let digitosContados = 0;
+  while (novaPosicao < formatado.length && digitosContados < digitosAntesCursor) {
+    if (/\d/.test(formatado[novaPosicao])) digitosContados++;
+    novaPosicao++;
+  }
+  valorManualInput.setSelectionRange(novaPosicao, novaPosicao);
+  valorManualInput.setCustomValidity(Number(digitos) > 100000000 ? "O valor máximo permitido é R$ 100.000.000." : "");
+});
+formularioLeadManual?.addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!formularioLeadManual.reportValidity()) return;
+  const form = new FormData(formularioLeadManual);
+  const valorDigitos = String(form.get("valor_maximo") || "").replace(/\D/g, "");
+  if (valorDigitos && Number(valorDigitos) > 100000000) {
+    valorManualInput?.setCustomValidity("O valor máximo permitido é R$ 100.000.000.");
+    valorManualInput?.reportValidity();
+    return;
+  }
+  const button = formularioLeadManual.querySelector("button[type='submit']");
+  button.disabled = true;
+  button.textContent = "Salvando...";
+  try {
+    await requisicaoLeads("/api/admin/leads", {
+      method: "POST",
+      body: JSON.stringify({
+        nome: form.get("nome"), telefone: form.get("telefone"), email: form.get("email"),
+        cidade: form.get("cidade"), tipo_atendimento: form.get("tipo_atendimento"),
+        tipo_imovel: form.get("tipo_imovel"), valor_maximo: valorDigitos ? Number(valorDigitos) : null,
+        quartos_minimos: form.get("quartos_minimos") === "" ? null : Number(form.get("quartos_minimos")),
+        observacoes: form.get("observacoes"), consentiu_contato: form.get("consentiu_contato") === "on"
+      })
+    });
+    formularioLeadManual.reset();
+    atualizarRotuloValorManual();
+    document.getElementById("lead-manual-wrap").open = false;
+    await carregarLeads();
+    mostrarStatusLeads(leadsCarregados ? "Cliente cadastrado e marcado como inclusão manual." : "Cliente cadastrado. Atualize a lista para carregar os contatos.", !leadsCarregados);
+  } catch (error) {
+    mostrarStatusLeads(error?.message || "Não foi possível cadastrar o cliente.", true);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Salvar cliente";
+  }
+});
 
 function novoFotoId() {
   contadorFotoId += 1;

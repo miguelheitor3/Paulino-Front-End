@@ -4,6 +4,7 @@ const PROPERTY_TYPES = new Set([
   "Sítio/Fazenda", "Terreno", "Área de Lazer"
 ]);
 const ENTRY_RANGES = new Set(["ate_20_mil", "20_a_50_mil", "50_a_100_mil", "acima_100_mil"]);
+const LEAD_TYPES = new Set(["compra", "aluguel", "financiamento"]);
 const MAX_BODY_BYTES = 12_000;
 
 function responseJson(body, status, cors) {
@@ -58,7 +59,7 @@ async function lerJsonLimitado(request) {
   try { return JSON.parse(body); } catch { throw new Error("Envie um cadastro válido."); }
 }
 
-function normalizarCadastro(body) {
+function normalizarCadastro(body, manual = false) {
   const nome = String(body?.nome || "").trim().replace(/\s+/g, " ");
   const telefone = String(body?.telefone || "").replace(/\D/g, "");
   const email = String(body?.email || "").trim().toLowerCase();
@@ -67,28 +68,33 @@ function normalizarCadastro(body) {
   const valor = body?.valor_maximo === "" || body?.valor_maximo == null ? null : Number(body.valor_maximo);
   const quartos = body?.quartos_minimos === "" || body?.quartos_minimos == null ? null : Number(body.quartos_minimos);
   const entrada = String(body?.entrada_faixa || "").trim() || null;
+  const observacoes = manual ? String(body?.observacoes || "").trim() : "";
   const fgts = body?.pretende_usar_fgts === "" || body?.pretende_usar_fgts == null
     ? null
     : body.pretende_usar_fgts === true || body.pretende_usar_fgts === "sim"
       ? 1
       : body.pretende_usar_fgts === false || body.pretende_usar_fgts === "nao"
         ? 0 : NaN;
+  const tipoAtendimento = manual ? String(body?.tipo_atendimento || "").trim() : "financiamento";
 
   if (String(body?.website || "").trim()) return { spam: true };
   if (nome.length < 2 || nome.length > 100) throw new Error("Informe seu nome (até 100 caracteres).");
   if (telefone.length < 10 || telefone.length > 13) throw new Error("Informe um telefone com DDD.");
   if (email && (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) throw new Error("Confira o e-mail informado.");
   if (cidade.length < 2 || cidade.length > 100) throw new Error("Informe a cidade desejada.");
+  if (!LEAD_TYPES.has(tipoAtendimento)) throw new Error("Selecione compra, aluguel ou financiamento.");
   if (tipo && !PROPERTY_TYPES.has(tipo)) throw new Error("Selecione um tipo de imóvel válido.");
   if (valor !== null && (!Number.isSafeInteger(valor) || valor < 1 || valor > 100_000_000)) throw new Error("Confira o valor máximo do imóvel.");
   if (quartos !== null && (!Number.isInteger(quartos) || quartos < 0 || quartos > 20)) throw new Error("Confira a quantidade mínima de quartos.");
   if (entrada && !ENTRY_RANGES.has(entrada)) throw new Error("Selecione uma faixa de entrada válida.");
   if (Number.isNaN(fgts)) throw new Error("Selecione uma opção válida sobre o FGTS.");
   if (body?.consentiu_contato !== true) throw new Error("É necessário autorizar o contato para enviar a solicitação.");
+  if (observacoes.length > 2000) throw new Error("As observações podem ter até 2.000 caracteres.");
 
   return { nome, telefone, email: email || null, cidade, tipo_imovel: tipo || null,
     valor_maximo: valor, quartos_minimos: quartos, entrada_faixa: entrada,
-    pretende_usar_fgts: fgts, consentiu_contato: 1, versao_aviso_privacidade: "2026-10-v1" };
+    pretende_usar_fgts: fgts, consentiu_contato: 1, versao_aviso_privacidade: "2026-10-v1",
+    tipo_atendimento: tipoAtendimento, origem_cadastro: manual ? "painel" : "site", observacoes };
 }
 
 async function criarLead(request, env, cors) {
@@ -113,14 +119,41 @@ async function criarLead(request, env, cors) {
   try {
     await env.DB.prepare(`INSERT INTO financing_leads
       (id, nome, telefone, email, cidade, tipo_imovel, valor_maximo, quartos_minimos,
-       entrada_faixa, pretende_usar_fgts, consentiu_contato, versao_aviso_privacidade)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+       entrada_faixa, pretende_usar_fgts, consentiu_contato, versao_aviso_privacidade,
+       tipo_atendimento, origem_cadastro, observacoes)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
       .bind(id, lead.nome, lead.telefone, lead.email, lead.cidade, lead.tipo_imovel,
         lead.valor_maximo, lead.quartos_minimos, lead.entrada_faixa, lead.pretende_usar_fgts,
-        lead.consentiu_contato, lead.versao_aviso_privacidade).run();
+        lead.consentiu_contato, lead.versao_aviso_privacidade, lead.tipo_atendimento, lead.origem_cadastro, lead.observacoes).run();
   } catch (error) {
     console.error("Falha ao gravar lead de financiamento:", error);
     return responseJson({ error: "Não foi possível salvar sua solicitação agora. Tente novamente." }, 503, cors);
+  }
+  return responseJson({ ok: true, id }, 201, cors);
+}
+
+async function criarLeadManual(request, env, cors) {
+  const auth = await validarAdmin(request, env);
+  if (!auth.ok) return responseJson({ error: auth.error }, auth.status, cors);
+  let body;
+  try { body = await lerJsonLimitado(request); }
+  catch (error) { return responseJson({ error: error.message }, 400, cors); }
+  let lead;
+  try { lead = normalizarCadastro(body, true); }
+  catch (error) { return responseJson({ error: error.message }, 400, cors); }
+  const id = crypto.randomUUID();
+  try {
+    await env.DB.prepare(`INSERT INTO financing_leads
+      (id, nome, telefone, email, cidade, tipo_imovel, valor_maximo, quartos_minimos,
+       entrada_faixa, pretende_usar_fgts, consentiu_contato, versao_aviso_privacidade,
+       tipo_atendimento, origem_cadastro, observacoes)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      .bind(id, lead.nome, lead.telefone, lead.email, lead.cidade, lead.tipo_imovel,
+        lead.valor_maximo, lead.quartos_minimos, lead.entrada_faixa, lead.pretende_usar_fgts,
+        lead.consentiu_contato, lead.versao_aviso_privacidade, lead.tipo_atendimento, lead.origem_cadastro, lead.observacoes).run();
+  } catch (error) {
+    console.error("Falha ao gravar cadastro manual:", error);
+    return responseJson({ error: "Não foi possível salvar o cadastro agora." }, 503, cors);
   }
   return responseJson({ ok: true, id }, 201, cors);
 }
@@ -155,7 +188,7 @@ async function listarLeads(request, env, cors) {
   try {
     const { results } = await env.DB.prepare(`SELECT id, created_at, updated_at, nome, telefone,
       email, cidade, tipo_imovel, valor_maximo, quartos_minimos, entrada_faixa,
-      pretende_usar_fgts, status, observacoes
+      pretende_usar_fgts, status, observacoes, tipo_atendimento, origem_cadastro
       FROM financing_leads ORDER BY created_at DESC LIMIT ?`).bind(limit).all();
     return responseJson({ leads: results || [] }, 200, cors);
   } catch (error) {
@@ -208,6 +241,7 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
     const path = new URL(request.url).pathname.replace(/\/$/, "") || "/";
     if (request.method === "POST" && path === "/api/leads") return criarLead(request, env, cors);
+    if (request.method === "POST" && path === "/api/admin/leads") return criarLeadManual(request, env, cors);
     if (request.method === "GET" && path === "/api/admin/leads") return listarLeads(request, env, cors);
     const match = path.match(/^\/api\/admin\/leads\/([^/]+)$/);
     if (request.method === "PATCH" && match) return atualizarLead(request, env, cors, match[1]);
