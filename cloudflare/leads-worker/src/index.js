@@ -208,10 +208,24 @@ async function atualizarLead(request, env, cors, id) {
   const observacoes = String(body?.observacoes || "").trim();
   if (!STATUS.has(status)) return responseJson({ error: "Selecione uma situação válida." }, 400, cors);
   if (observacoes.length > 2000) return responseJson({ error: "As observações podem ter até 2.000 caracteres." }, 400, cors);
+  let cadastro = null;
+  if (Object.prototype.hasOwnProperty.call(body || {}, "tipo_atendimento")) {
+    try { cadastro = normalizarCadastro({ ...body, consentiu_contato: true }, true); }
+    catch (error) { return responseJson({ error: error.message }, 400, cors); }
+  }
   try {
-    const result = await env.DB.prepare(`UPDATE financing_leads
-      SET status = ?, observacoes = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
-      WHERE id = ?`).bind(status, observacoes, id).run();
+    const result = cadastro
+      ? await env.DB.prepare(`UPDATE financing_leads SET
+          nome = ?, telefone = ?, email = ?, cidade = ?, tipo_imovel = ?, valor_maximo = ?,
+          quartos_minimos = ?, entrada_faixa = ?, pretende_usar_fgts = ?, tipo_atendimento = ?,
+          status = ?, observacoes = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+          WHERE id = ?`).bind(cadastro.nome, cadastro.telefone, cadastro.email, cadastro.cidade,
+          cadastro.tipo_imovel, cadastro.valor_maximo, cadastro.quartos_minimos,
+          cadastro.entrada_faixa, cadastro.pretende_usar_fgts, cadastro.tipo_atendimento,
+          status, observacoes, id).run()
+      : await env.DB.prepare(`UPDATE financing_leads
+          SET status = ?, observacoes = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+          WHERE id = ?`).bind(status, observacoes, id).run();
     if (!result.meta?.changes) return responseJson({ error: "Cadastro não encontrado." }, 404, cors);
     return responseJson({ ok: true }, 200, cors);
   } catch (error) {

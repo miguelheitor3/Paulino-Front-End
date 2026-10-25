@@ -859,13 +859,24 @@ tr:last-child td{
 .lead-card-actions select,.lead-card-actions textarea{width:100%;}
 .lead-card-actions textarea{min-height:42px;resize:vertical;}
 .lead-card-actions button{min-height:39px;white-space:nowrap;}
+.lead-edit-wrap{margin:0 20px;background:#fbfcfb;border:1px solid #e5ebe6;border-radius:10px;}
+.lead-edit-wrap summary{padding:12px 14px;color:var(--green);font-size:12px;font-weight:800;cursor:pointer;}
+.lead-edit-wrap[open] summary{border-bottom:1px solid #e5ebe6;}
+.lead-edit-form{padding:14px;}
+.lead-edit-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;}
+.lead-edit-field label{display:block;margin-bottom:5px;color:var(--ink-soft);font-size:10px;font-weight:800;}
+.lead-edit-field input,.lead-edit-field select{width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font:12px Inter,sans-serif;}
+.lead-edit-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:13px;}
+.lead-edit-actions span{font-size:11px;color:var(--ink-soft);}
+.lead-edit-save{min-height:38px;padding:9px 13px;border:0;border-radius:8px;background:var(--green);color:#fff;font:700 12px Inter,sans-serif;cursor:pointer;}
+.lead-edit-save:disabled{opacity:.65;cursor:wait;}
 .lead-empty,.lead-error{padding:24px;background:#fff;border:1px solid var(--line);border-radius:10px;text-align:center;color:var(--ink-soft);font-size:13px;}
 .lead-error{color:var(--red);}
 .lead-card-save{padding:9px 13px;border:0;border-radius:7px;background:var(--green);color:#fff;font-weight:700;cursor:pointer;}
 .lead-card-save:disabled{opacity:.6;cursor:wait;}
-@media(max-width:900px){.lead-card-grid{grid-template-columns:1fr}.lead-card-actions{grid-template-columns:minmax(140px,.7fr) 1.3fr}.lead-card-actions button{width:100%}}
+@media(max-width:900px){.lead-card-grid{grid-template-columns:1fr}.lead-card-actions{grid-template-columns:minmax(140px,.7fr) 1.3fr}.lead-card-actions button{width:100%}.lead-edit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.lead-manual-form{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:560px){.lead-card-head{align-items:flex-start;padding:15px}.lead-head-meta{width:100%;padding-left:54px}.lead-card-grid{padding:13px 14px 0}.lead-card-actions{grid-template-columns:1fr;padding:14px}.lead-card-actions textarea{min-height:70px}.leads-toolbar input{min-width:0;width:100%}.lead-manual-form{grid-template-columns:1fr}.lead-manual-full{grid-column:auto}.lead-manual-actions{align-items:stretch;flex-direction:column}.lead-manual-actions button{width:100%}}
+@media(max-width:560px){.lead-card-head{align-items:flex-start;padding:15px}.lead-head-meta{width:100%;padding-left:54px}.lead-card-grid{padding:13px 14px 0}.lead-card-actions{grid-template-columns:1fr;padding:14px}.lead-card-actions textarea{min-height:70px}.leads-toolbar input{min-width:0;width:100%}.lead-manual-form{grid-template-columns:1fr}.lead-manual-full{grid-column:auto}.lead-manual-actions{align-items:stretch;flex-direction:column}.lead-manual-actions button{width:100%}.lead-edit-wrap{margin:0 14px}.lead-edit-grid{grid-template-columns:1fr}.lead-edit-actions{align-items:stretch;flex-direction:column}.lead-edit-actions button{width:100%}}
 
 </style>
 
@@ -1893,6 +1904,35 @@ function obterDetalhesLead(lead) {
   return partes.length ? partes.join(" · ") : "Preferências adicionais não informadas";
 }
 
+function renderizarFormularioEdicaoLead(lead) {
+  const id = escapeHtml(lead.id);
+  const valor = lead.valor_maximo ? Number(lead.valor_maximo).toLocaleString("pt-BR", { maximumFractionDigits: 0 }) : "";
+  const selecionado = (atual, opcao) => String(atual ?? "") === String(opcao ?? "") ? "selected" : "";
+  const tiposImovel = ["Casa", "Apartamento", "Barracão", "Ponto Comercial", "Sítio/Fazenda", "Terreno", "Área de Lazer"];
+  const quartos = ["", "0", "1", "2", "3", "4"];
+  const faixasEntrada = [
+    ["", "Não informado"], ["ate_20_mil", "Até R$ 20 mil"], ["20_a_50_mil", "R$ 20 mil a R$ 50 mil"],
+    ["50_a_100_mil", "R$ 50 mil a R$ 100 mil"], ["acima_100_mil", "Acima de R$ 100 mil"]
+  ];
+  return `<details class="lead-edit-wrap"><summary>Editar dados do cliente</summary>
+    <form class="lead-edit-form" data-lead-edit-form data-lead-id="${id}">
+      <div class="lead-edit-grid">
+        <div class="lead-edit-field"><label for="lead-edit-nome-${id}">Nome *</label><input id="lead-edit-nome-${id}" name="nome" maxlength="100" value="${escapeHtml(lead.nome)}" required></div>
+        <div class="lead-edit-field"><label for="lead-edit-telefone-${id}">Telefone ou WhatsApp *</label><input id="lead-edit-telefone-${id}" name="telefone" type="tel" maxlength="20" value="${escapeHtml(lead.telefone)}" required></div>
+        <div class="lead-edit-field"><label for="lead-edit-email-${id}">E-mail</label><input id="lead-edit-email-${id}" name="email" type="email" maxlength="254" value="${escapeHtml(lead.email || "")}"></div>
+        <div class="lead-edit-field"><label for="lead-edit-cidade-${id}">Cidade *</label><input id="lead-edit-cidade-${id}" name="cidade" maxlength="100" value="${escapeHtml(lead.cidade)}" required></div>
+        <div class="lead-edit-field"><label for="lead-edit-categoria-${id}">Interesse *</label><select id="lead-edit-categoria-${id}" name="tipo_atendimento" required>${Object.entries(LEAD_TYPE_LABELS).map(([key, label]) => `<option value="${key}" ${selecionado(lead.tipo_atendimento, key)}>${label}</option>`).join("")}</select></div>
+        <div class="lead-edit-field"><label for="lead-edit-imovel-${id}">Tipo de imóvel</label><select id="lead-edit-imovel-${id}" name="tipo_imovel"><option value="">Não informado</option>${tiposImovel.map(tipo => `<option value="${escapeHtml(tipo)}" ${selecionado(lead.tipo_imovel, tipo)}>${escapeHtml(tipo)}</option>`).join("")}</select></div>
+        <div class="lead-edit-field"><label for="lead-edit-valor-${id}">Valor máximo (R$)</label><input id="lead-edit-valor-${id}" name="valor_maximo" type="text" inputmode="numeric" maxlength="11" value="${escapeHtml(valor)}" data-lead-edit-price></div>
+        <div class="lead-edit-field"><label for="lead-edit-quartos-${id}">Quartos mínimos</label><select id="lead-edit-quartos-${id}" name="quartos_minimos">${quartos.map(q => `<option value="${q}" ${selecionado(lead.quartos_minimos, q)}>${q === "" ? "Qualquer quantidade" : q === "0" ? "Sem preferência" : `${q} ou mais`}</option>`).join("")}</select></div>
+        <div class="lead-edit-field"><label for="lead-edit-entrada-${id}">Faixa de entrada</label><select id="lead-edit-entrada-${id}" name="entrada_faixa">${faixasEntrada.map(([value, label]) => `<option value="${value}" ${selecionado(lead.entrada_faixa, value)}>${label}</option>`).join("")}</select></div>
+        <div class="lead-edit-field"><label for="lead-edit-fgts-${id}">Pretende usar FGTS?</label><select id="lead-edit-fgts-${id}" name="pretende_usar_fgts"><option value="" ${selecionado(lead.pretende_usar_fgts, "")}>Não informado</option><option value="sim" ${selecionado(lead.pretende_usar_fgts, 1)}>Sim</option><option value="nao" ${selecionado(lead.pretende_usar_fgts, 0)}>Não</option></select></div>
+      </div>
+      <div class="lead-edit-actions"><span>Os dados de contato e preferências serão atualizados.</span><button class="lead-edit-save" type="submit">Salvar dados do cliente</button></div>
+    </form>
+  </details>`;
+}
+
 function renderizarLeads() {
   const lista = document.getElementById("lista-leads");
   if (!lista) return;
@@ -1930,6 +1970,7 @@ function renderizarLeads() {
         <section class="lead-card-section"><h4>O que procura</h4><div class="lead-card-meta">${escapeHtml(obterDetalhesLead(lead))}</div></section>
         <section class="lead-card-section"><h4>Imóveis compatíveis <span class="lead-match-count">${matches.length}</span></h4>${matches.length ? `<ul class="lead-matches">${linksVisiveis}</ul>${adicionaisExpansiveis}` : `<div class="lead-card-meta">Nenhum imóvel disponível corresponde a todos os critérios atuais.</div>`}</section>
       </div>
+      ${renderizarFormularioEdicaoLead(lead)}
       <div class="lead-card-actions"><div><label for="lead-status-${escapeHtml(lead.id)}">Situação</label><select id="lead-status-${escapeHtml(lead.id)}" data-lead-status>${Object.entries(LEAD_STATUS_LABELS).map(([key, label]) => `<option value="${key}" ${statusKey === key ? "selected" : ""}>${label}</option>`).join("")}</select></div><div><label for="lead-notes-${escapeHtml(lead.id)}">Observação interna</label><textarea id="lead-notes-${escapeHtml(lead.id)}" data-lead-notes maxlength="2000" placeholder="Anotações da equipe">${escapeHtml(lead.observacoes || "")}</textarea></div><button class="lead-card-save" type="button" data-action="save-lead">Salvar alterações</button><button class="btn btn-red btn-sm" type="button" data-action="delete-lead">Excluir cadastro</button></div>
     </article>`;
   }).join("");
@@ -2000,6 +2041,70 @@ async function salvarLead(card) {
   }
 }
 
+function formatarPrecoLeadEdicao(input) {
+  const cursor = input.selectionStart ?? input.value.length;
+  const digitosAntesCursor = input.value.slice(0, cursor).replace(/\D/g, "").length;
+  const digitos = input.value.replace(/\D/g, "").slice(0, 9);
+  const formatado = digitos.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  input.value = formatado;
+  let posicao = 0;
+  let contagem = 0;
+  while (posicao < formatado.length && contagem < digitosAntesCursor) {
+    if (/\d/.test(formatado[posicao])) contagem++;
+    posicao++;
+  }
+  input.setSelectionRange(posicao, posicao);
+}
+
+async function salvarDadosLead(form) {
+  if (!form.reportValidity()) return;
+  const card = form.closest(".lead-card");
+  const id = form.dataset.leadId;
+  const button = form.querySelector("[type='submit']");
+  const dados = new FormData(form);
+  const valorDigitos = String(dados.get("valor_maximo") || "").replace(/\D/g, "");
+  const status = card.querySelector("[data-lead-status]").value;
+  const observacoes = card.querySelector("[data-lead-notes]").value;
+  const registro = leadsCache.find(item => String(item.id) === String(id));
+  button.disabled = true;
+  button.textContent = "Salvando...";
+  try {
+    await requisicaoLeads(`/api/admin/leads/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        nome: dados.get("nome"), telefone: dados.get("telefone"), email: dados.get("email"),
+        cidade: dados.get("cidade"), tipo_atendimento: dados.get("tipo_atendimento"),
+        tipo_imovel: dados.get("tipo_imovel"), valor_maximo: valorDigitos ? Number(valorDigitos) : null,
+        quartos_minimos: dados.get("quartos_minimos") === "" ? null : Number(dados.get("quartos_minimos")),
+        entrada_faixa: dados.get("entrada_faixa") || null,
+        pretende_usar_fgts: dados.get("pretende_usar_fgts") || null,
+        status, observacoes
+      })
+    });
+    if (registro) {
+      Object.assign(registro, {
+        nome: String(dados.get("nome")).trim(), telefone: String(dados.get("telefone")).replace(/\D/g, ""),
+        email: String(dados.get("email") || "").trim() || null, cidade: String(dados.get("cidade")).trim(),
+        tipo_atendimento: dados.get("tipo_atendimento"), tipo_imovel: dados.get("tipo_imovel") || null,
+        valor_maximo: valorDigitos ? Number(valorDigitos) : null,
+        quartos_minimos: dados.get("quartos_minimos") === "" ? null : Number(dados.get("quartos_minimos")),
+        entrada_faixa: dados.get("entrada_faixa") || null,
+        pretende_usar_fgts: dados.get("pretende_usar_fgts") === "sim" ? 1 : dados.get("pretende_usar_fgts") === "nao" ? 0 : null,
+        status, observacoes
+      });
+    }
+    mostrarStatusLeads("Dados do cliente atualizados.");
+    renderizarLeads();
+  } catch (error) {
+    mostrarStatusLeads(error?.message || "Não foi possível atualizar os dados do cliente.", true);
+  } finally {
+    if (button.isConnected) {
+      button.disabled = false;
+      button.textContent = "Salvar dados do cliente";
+    }
+  }
+}
+
 async function excluirLead(card) {
   const id = card.dataset.leadId;
   const lead = leadsCache.find(item => String(item.id) === String(id));
@@ -2027,6 +2132,17 @@ document.getElementById("lista-leads")?.addEventListener("click", event => {
   if (button) salvarLead(button.closest(".lead-card"));
   const deleteButton = event.target.closest("[data-action='delete-lead']");
   if (deleteButton) excluirLead(deleteButton.closest(".lead-card"));
+});
+document.getElementById("lista-leads")?.addEventListener("input", event => {
+  const input = event.target.closest("[data-lead-edit-price]");
+  if (input) formatarPrecoLeadEdicao(input);
+});
+document.getElementById("lista-leads")?.addEventListener("submit", event => {
+  const form = event.target.closest("[data-lead-edit-form]");
+  if (form) {
+    event.preventDefault();
+    salvarDadosLead(form);
+  }
 });
 document.getElementById("btn-atualizar-leads")?.addEventListener("click", carregarLeads);
 document.getElementById("filtro-lead-busca")?.addEventListener("input", renderizarLeads);

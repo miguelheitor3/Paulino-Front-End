@@ -26,7 +26,7 @@ O formulário aceita até cinco envios por endereço de rede a cada dez minutos;
 - `POST /api/leads`: recebe um cadastro público validado.
 - `POST /api/admin/leads`: cria um contato manual classificado como compra, aluguel ou financiamento; exige sessão de administrador e confirmação de autorização do cliente.
 - `GET /api/admin/leads`: lista até 500 cadastros; exige sessão de administrador.
-- `PATCH /api/admin/leads/:id`: atualiza situação e observações; exige sessão de administrador.
+- `PATCH /api/admin/leads/:id`: atualiza situação e observações; também pode atualizar contato, interesse e preferências; exige sessão de administrador.
 - `DELETE /api/admin/leads/:id`: exclui um cadastro mediante confirmação no painel; exige sessão de administrador.
 
 As origens permitidas ficam em `ALLOWED_ORIGINS`. A configuração inclui o domínio público e endereços comuns de desenvolvimento local (`localhost` nas portas 5500 e 8000). Se o domínio público ou a porta local mudar, ajuste essa variável e publique novamente com `npx wrangler deploy`.
