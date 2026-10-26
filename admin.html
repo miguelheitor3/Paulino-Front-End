@@ -991,6 +991,7 @@ tr:last-child td{
           <div class="lead-manual-field"><label for="lead-manual-telefone">Telefone ou WhatsApp *</label><input id="lead-manual-telefone" name="telefone" type="tel" maxlength="20" autocomplete="tel" required></div>
           <div class="lead-manual-field"><label for="lead-manual-cidade">Cidade *</label><input id="lead-manual-cidade" name="cidade" maxlength="100" required></div>
           <div class="lead-manual-field"><label for="lead-manual-tipo-atendimento">Interesse do cliente *</label><select id="lead-manual-tipo-atendimento" name="tipo_atendimento" required><option value="">Selecione uma categoria</option><option value="compra">Compra</option><option value="aluguel">Aluguel</option><option value="financiamento">Financiamento</option></select></div>
+          <div class="lead-manual-field"><label for="lead-manual-vendedor">Vendedor responsável</label><select id="lead-manual-vendedor" name="vendedor_responsavel"><option value="">Não atribuído</option><option>Thomas</option><option>Antonio</option><option>Sandra</option></select></div>
           <div class="lead-manual-field"><label for="lead-manual-email">E-mail (opcional)</label><input id="lead-manual-email" name="email" type="email" maxlength="254" autocomplete="email"></div>
           <div class="lead-manual-field"><label for="lead-manual-imovel">Tipo de imóvel</label><select id="lead-manual-imovel" name="tipo_imovel"><option value="">Não informado</option><option>Casa</option><option>Apartamento</option><option>Barracão</option><option>Ponto Comercial</option><option>Sítio/Fazenda</option><option>Terreno</option><option>Área de Lazer</option></select></div>
           <div class="lead-manual-field"><label id="lead-manual-valor-label" for="lead-manual-valor">Valor máximo (R$)</label><input id="lead-manual-valor" name="valor_maximo" type="text" inputmode="numeric" maxlength="11" placeholder="Ex.: 350.000"></div>
@@ -1004,6 +1005,7 @@ tr:last-child td{
         <div><label for="filtro-lead-busca">Buscar</label><input id="filtro-lead-busca" type="search" placeholder="Nome, telefone ou cidade"></div>
         <div><label for="filtro-lead-tipo">Interesse</label><select id="filtro-lead-tipo"><option value="">Todos</option><option value="compra">Compra</option><option value="aluguel">Aluguel</option><option value="financiamento">Financiamento</option></select></div>
         <div><label for="filtro-lead-status">Situação</label><select id="filtro-lead-status"><option value="">Todas</option><option value="novo">Novo</option><option value="em_contato">Em contato</option><option value="simulacao">Simulação em andamento</option><option value="convertido">Convertido</option><option value="encerrado">Encerrado</option></select></div>
+        <div><label for="filtro-lead-vendedor">Vendedor responsável</label><select id="filtro-lead-vendedor"><option value="">Todos</option><option value="Thomas">Thomas</option><option value="Antonio">Antonio</option><option value="Sandra">Sandra</option><option value="__sem_atribuicao">Não atribuído</option></select></div>
         <span id="leads-contador" style="font-size:12px;color:var(--ink-soft);"></span>
       </div>
       <div id="leads-status" role="status" aria-live="polite" style="display:none;margin-bottom:12px;"></div>
@@ -1862,6 +1864,7 @@ const LEAD_TYPE_LABELS = {
   aluguel: "Aluguel",
   financiamento: "Financiamento"
 };
+const LEAD_SELLERS = ["Thomas", "Antonio", "Sandra"];
 
 function normalizarTextoLead(valor) {
   return String(valor || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
@@ -1922,6 +1925,7 @@ function renderizarFormularioEdicaoLead(lead) {
         <div class="lead-edit-field"><label for="lead-edit-email-${id}">E-mail</label><input id="lead-edit-email-${id}" name="email" type="email" maxlength="254" value="${escapeHtml(lead.email || "")}"></div>
         <div class="lead-edit-field"><label for="lead-edit-cidade-${id}">Cidade *</label><input id="lead-edit-cidade-${id}" name="cidade" maxlength="100" value="${escapeHtml(lead.cidade)}" required></div>
         <div class="lead-edit-field"><label for="lead-edit-categoria-${id}">Interesse *</label><select id="lead-edit-categoria-${id}" name="tipo_atendimento" required>${Object.entries(LEAD_TYPE_LABELS).map(([key, label]) => `<option value="${key}" ${selecionado(lead.tipo_atendimento, key)}>${label}</option>`).join("")}</select></div>
+        <div class="lead-edit-field"><label for="lead-edit-vendedor-${id}">Vendedor responsável</label><select id="lead-edit-vendedor-${id}" name="vendedor_responsavel"><option value="" ${selecionado(lead.vendedor_responsavel, "")}>Não atribuído</option>${LEAD_SELLERS.map(nome => `<option value="${nome}" ${selecionado(lead.vendedor_responsavel, nome)}>${nome}</option>`).join("")}</select></div>
         <div class="lead-edit-field"><label for="lead-edit-imovel-${id}">Tipo de imóvel</label><select id="lead-edit-imovel-${id}" name="tipo_imovel"><option value="">Não informado</option>${tiposImovel.map(tipo => `<option value="${escapeHtml(tipo)}" ${selecionado(lead.tipo_imovel, tipo)}>${escapeHtml(tipo)}</option>`).join("")}</select></div>
         <div class="lead-edit-field"><label for="lead-edit-valor-${id}">Valor máximo (R$)</label><input id="lead-edit-valor-${id}" name="valor_maximo" type="text" inputmode="numeric" maxlength="11" value="${escapeHtml(valor)}" data-lead-edit-price></div>
         <div class="lead-edit-field"><label for="lead-edit-quartos-${id}">Quartos mínimos</label><select id="lead-edit-quartos-${id}" name="quartos_minimos">${quartos.map(q => `<option value="${q}" ${selecionado(lead.quartos_minimos, q)}>${q === "" ? "Qualquer quantidade" : q === "0" ? "Sem preferência" : `${q} ou mais`}</option>`).join("")}</select></div>
@@ -1939,9 +1943,12 @@ function renderizarLeads() {
   const busca = normalizarTextoLead(document.getElementById("filtro-lead-busca")?.value);
   const status = document.getElementById("filtro-lead-status")?.value || "";
   const tipoAtendimento = document.getElementById("filtro-lead-tipo")?.value || "";
+  const vendedor = document.getElementById("filtro-lead-vendedor")?.value || "";
   const filtrados = leadsCache.filter(lead => {
     if (status && lead.status !== status) return false;
     if (tipoAtendimento && lead.tipo_atendimento !== tipoAtendimento) return false;
+    if (vendedor === "__sem_atribuicao" && lead.vendedor_responsavel) return false;
+    if (vendedor && vendedor !== "__sem_atribuicao" && lead.vendedor_responsavel !== vendedor) return false;
     const haystack = normalizarTextoLead(`${lead.nome} ${lead.telefone} ${lead.cidade} ${lead.email || ""}`);
     return !busca || haystack.includes(busca);
   });
@@ -1964,7 +1971,7 @@ function renderizarLeads() {
     return `<article class="lead-card" data-lead-id="${escapeHtml(lead.id)}">
       <div class="lead-card-head">
         <div class="lead-identity"><span class="lead-avatar" aria-hidden="true">${escapeHtml(iniciais)}</span><div><h3>${escapeHtml(lead.nome)}</h3><div class="lead-card-contact"><a href="https://wa.me/55${escapeHtml(String(lead.telefone).replace(/\D/g, "").replace(/^55/, ""))}" target="_blank" rel="noopener">${escapeHtml(lead.telefone)}</a>${lead.email ? ` · ${escapeHtml(lead.email)}` : ""}</div></div></div>
-        <div class="lead-head-meta"><span class="lead-type-pill type-${tipoKey}">${escapeHtml(LEAD_TYPE_LABELS[tipoKey])}</span><span class="lead-status-pill status-${statusKey}">${escapeHtml(LEAD_STATUS_LABELS[statusKey])}</span><span class="lead-source-pill">${origemLabel}</span><span class="lead-card-meta">${escapeHtml(formatarDataLead(lead.created_at))} · ${escapeHtml(lead.cidade)}</span></div>
+        <div class="lead-head-meta"><span class="lead-type-pill type-${tipoKey}">${escapeHtml(LEAD_TYPE_LABELS[tipoKey])}</span><span class="lead-status-pill status-${statusKey}">${escapeHtml(LEAD_STATUS_LABELS[statusKey])}</span><span class="lead-source-pill">${origemLabel}</span><span class="lead-card-meta">Adicionado em ${escapeHtml(formatarDataLead(lead.created_at))} · ${escapeHtml(lead.cidade)}</span>${lead.vendedor_responsavel ? `<span class="lead-source-pill">Vendedor: ${escapeHtml(lead.vendedor_responsavel)}</span>` : ""}</div>
       </div>
       <div class="lead-card-grid">
         <section class="lead-card-section"><h4>O que procura</h4><div class="lead-card-meta">${escapeHtml(obterDetalhesLead(lead))}</div></section>
@@ -2078,6 +2085,7 @@ async function salvarDadosLead(form) {
         quartos_minimos: dados.get("quartos_minimos") === "" ? null : Number(dados.get("quartos_minimos")),
         entrada_faixa: dados.get("entrada_faixa") || null,
         pretende_usar_fgts: dados.get("pretende_usar_fgts") || null,
+        vendedor_responsavel: dados.get("vendedor_responsavel") || null,
         status, observacoes
       })
     });
@@ -2090,6 +2098,7 @@ async function salvarDadosLead(form) {
         quartos_minimos: dados.get("quartos_minimos") === "" ? null : Number(dados.get("quartos_minimos")),
         entrada_faixa: dados.get("entrada_faixa") || null,
         pretende_usar_fgts: dados.get("pretende_usar_fgts") === "sim" ? 1 : dados.get("pretende_usar_fgts") === "nao" ? 0 : null,
+        vendedor_responsavel: dados.get("vendedor_responsavel") || null,
         status, observacoes
       });
     }
@@ -2148,6 +2157,7 @@ document.getElementById("btn-atualizar-leads")?.addEventListener("click", carreg
 document.getElementById("filtro-lead-busca")?.addEventListener("input", renderizarLeads);
 document.getElementById("filtro-lead-status")?.addEventListener("change", renderizarLeads);
 document.getElementById("filtro-lead-tipo")?.addEventListener("change", renderizarLeads);
+document.getElementById("filtro-lead-vendedor")?.addEventListener("change", renderizarLeads);
 
 const formularioLeadManual = document.getElementById("form-lead-manual");
 const tipoAtendimentoManual = document.getElementById("lead-manual-tipo-atendimento");
@@ -2196,6 +2206,7 @@ formularioLeadManual?.addEventListener("submit", async event => {
       body: JSON.stringify({
         nome: form.get("nome"), telefone: form.get("telefone"), email: form.get("email"),
         cidade: form.get("cidade"), tipo_atendimento: form.get("tipo_atendimento"),
+        vendedor_responsavel: form.get("vendedor_responsavel") || null,
         tipo_imovel: form.get("tipo_imovel"), valor_maximo: valorDigitos ? Number(valorDigitos) : null,
         quartos_minimos: form.get("quartos_minimos") === "" ? null : Number(form.get("quartos_minimos")),
         observacoes: form.get("observacoes"), consentiu_contato: form.get("consentiu_contato") === "on"

@@ -5,6 +5,7 @@ const PROPERTY_TYPES = new Set([
 ]);
 const ENTRY_RANGES = new Set(["ate_20_mil", "20_a_50_mil", "50_a_100_mil", "acima_100_mil"]);
 const LEAD_TYPES = new Set(["compra", "aluguel", "financiamento"]);
+const SELLERS = new Set(["Thomas", "Antonio", "Sandra"]);
 const MAX_BODY_BYTES = 12_000;
 
 function responseJson(body, status, cors) {
@@ -76,6 +77,7 @@ function normalizarCadastro(body, manual = false) {
       : body.pretende_usar_fgts === false || body.pretende_usar_fgts === "nao"
         ? 0 : NaN;
   const tipoAtendimento = manual ? String(body?.tipo_atendimento || "").trim() : "financiamento";
+  const vendedorResponsavel = manual ? String(body?.vendedor_responsavel || "").trim() || null : null;
 
   if (String(body?.website || "").trim()) return { spam: true };
   if (nome.length < 2 || nome.length > 100) throw new Error("Informe seu nome (até 100 caracteres).");
@@ -83,6 +85,7 @@ function normalizarCadastro(body, manual = false) {
   if (email && (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) throw new Error("Confira o e-mail informado.");
   if (cidade.length < 2 || cidade.length > 100) throw new Error("Informe a cidade desejada.");
   if (!LEAD_TYPES.has(tipoAtendimento)) throw new Error("Selecione compra, aluguel ou financiamento.");
+  if (vendedorResponsavel && !SELLERS.has(vendedorResponsavel)) throw new Error("Selecione um vendedor válido.");
   if (tipo && !PROPERTY_TYPES.has(tipo)) throw new Error("Selecione um tipo de imóvel válido.");
   if (valor !== null && (!Number.isSafeInteger(valor) || valor < 1 || valor > 100_000_000)) throw new Error("Confira o valor máximo do imóvel.");
   if (quartos !== null && (!Number.isInteger(quartos) || quartos < 0 || quartos > 20)) throw new Error("Confira a quantidade mínima de quartos.");
@@ -94,7 +97,7 @@ function normalizarCadastro(body, manual = false) {
   return { nome, telefone, email: email || null, cidade, tipo_imovel: tipo || null,
     valor_maximo: valor, quartos_minimos: quartos, entrada_faixa: entrada,
     pretende_usar_fgts: fgts, consentiu_contato: 1, versao_aviso_privacidade: "2026-10-v1",
-    tipo_atendimento: tipoAtendimento, origem_cadastro: manual ? "painel" : "site", observacoes };
+    tipo_atendimento: tipoAtendimento, origem_cadastro: manual ? "painel" : "site", vendedor_responsavel, observacoes };
 }
 
 async function criarLead(request, env, cors) {
@@ -120,11 +123,11 @@ async function criarLead(request, env, cors) {
     await env.DB.prepare(`INSERT INTO financing_leads
       (id, nome, telefone, email, cidade, tipo_imovel, valor_maximo, quartos_minimos,
        entrada_faixa, pretende_usar_fgts, consentiu_contato, versao_aviso_privacidade,
-       tipo_atendimento, origem_cadastro, observacoes)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+       tipo_atendimento, origem_cadastro, vendedor_responsavel, observacoes)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
       .bind(id, lead.nome, lead.telefone, lead.email, lead.cidade, lead.tipo_imovel,
         lead.valor_maximo, lead.quartos_minimos, lead.entrada_faixa, lead.pretende_usar_fgts,
-        lead.consentiu_contato, lead.versao_aviso_privacidade, lead.tipo_atendimento, lead.origem_cadastro, lead.observacoes).run();
+        lead.consentiu_contato, lead.versao_aviso_privacidade, lead.tipo_atendimento, lead.origem_cadastro, lead.vendedor_responsavel, lead.observacoes).run();
   } catch (error) {
     console.error("Falha ao gravar lead de financiamento:", error);
     return responseJson({ error: "Não foi possível salvar sua solicitação agora. Tente novamente." }, 503, cors);
@@ -146,11 +149,11 @@ async function criarLeadManual(request, env, cors) {
     await env.DB.prepare(`INSERT INTO financing_leads
       (id, nome, telefone, email, cidade, tipo_imovel, valor_maximo, quartos_minimos,
        entrada_faixa, pretende_usar_fgts, consentiu_contato, versao_aviso_privacidade,
-       tipo_atendimento, origem_cadastro, observacoes)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+       tipo_atendimento, origem_cadastro, vendedor_responsavel, observacoes)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
       .bind(id, lead.nome, lead.telefone, lead.email, lead.cidade, lead.tipo_imovel,
         lead.valor_maximo, lead.quartos_minimos, lead.entrada_faixa, lead.pretende_usar_fgts,
-        lead.consentiu_contato, lead.versao_aviso_privacidade, lead.tipo_atendimento, lead.origem_cadastro, lead.observacoes).run();
+        lead.consentiu_contato, lead.versao_aviso_privacidade, lead.tipo_atendimento, lead.origem_cadastro, lead.vendedor_responsavel, lead.observacoes).run();
   } catch (error) {
     console.error("Falha ao gravar cadastro manual:", error);
     return responseJson({ error: "Não foi possível salvar o cadastro agora." }, 503, cors);
@@ -188,7 +191,7 @@ async function listarLeads(request, env, cors) {
   try {
     const { results } = await env.DB.prepare(`SELECT id, created_at, updated_at, nome, telefone,
       email, cidade, tipo_imovel, valor_maximo, quartos_minimos, entrada_faixa,
-      pretende_usar_fgts, status, observacoes, tipo_atendimento, origem_cadastro
+      pretende_usar_fgts, status, observacoes, tipo_atendimento, origem_cadastro, vendedor_responsavel
       FROM financing_leads ORDER BY created_at DESC LIMIT ?`).bind(limit).all();
     return responseJson({ leads: results || [] }, 200, cors);
   } catch (error) {
@@ -217,11 +220,11 @@ async function atualizarLead(request, env, cors, id) {
     const result = cadastro
       ? await env.DB.prepare(`UPDATE financing_leads SET
           nome = ?, telefone = ?, email = ?, cidade = ?, tipo_imovel = ?, valor_maximo = ?,
-          quartos_minimos = ?, entrada_faixa = ?, pretende_usar_fgts = ?, tipo_atendimento = ?,
+          quartos_minimos = ?, entrada_faixa = ?, pretende_usar_fgts = ?, tipo_atendimento = ?, vendedor_responsavel = ?,
           status = ?, observacoes = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
           WHERE id = ?`).bind(cadastro.nome, cadastro.telefone, cadastro.email, cadastro.cidade,
           cadastro.tipo_imovel, cadastro.valor_maximo, cadastro.quartos_minimos,
-          cadastro.entrada_faixa, cadastro.pretende_usar_fgts, cadastro.tipo_atendimento,
+          cadastro.entrada_faixa, cadastro.pretende_usar_fgts, cadastro.tipo_atendimento, cadastro.vendedor_responsavel,
           status, observacoes, id).run()
       : await env.DB.prepare(`UPDATE financing_leads
           SET status = ?, observacoes = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
