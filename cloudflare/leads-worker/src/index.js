@@ -97,7 +97,8 @@ function normalizarCadastro(body, manual = false) {
   return { nome, telefone, email: email || null, cidade, tipo_imovel: tipo || null,
     valor_maximo: valor, quartos_minimos: quartos, entrada_faixa: entrada,
     pretende_usar_fgts: fgts, consentiu_contato: 1, versao_aviso_privacidade: "2026-10-v1",
-    tipo_atendimento: tipoAtendimento, origem_cadastro: manual ? "painel" : "site", vendedor_responsavel, observacoes };
+    tipo_atendimento: tipoAtendimento, origem_cadastro: manual ? "painel" : "site",
+    vendedor_responsavel: vendedorResponsavel, observacoes };
 }
 
 async function criarLead(request, env, cors) {
