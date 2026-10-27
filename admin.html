@@ -858,7 +858,7 @@ tr:last-child td{
 .lead-card-actions label{display:block;font-size:10px;font-weight:800;color:var(--ink-soft);margin-bottom:5px;}
 .lead-card-actions select,.lead-card-actions textarea{width:100%;}
 .lead-card-actions textarea{min-height:42px;resize:vertical;}
-.lead-offer-dialog{width:min(760px,calc(100vw - 28px));max-height:85vh;padding:0;border:0;border-radius:16px;box-shadow:0 24px 80px #10201840;color:var(--ink);}
+.lead-offer-dialog{position:fixed;inset:50% auto auto 50%;transform:translate(-50%,-50%);margin:0;width:min(760px,calc(100vw - 28px));max-height:85vh;padding:0;overflow:hidden;border:0;border-radius:16px;box-shadow:0 24px 80px #10201840;color:var(--ink);}
 .lead-offer-dialog::backdrop{background:#10181499;backdrop-filter:blur(3px);}
 .lead-offer-dialog-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:22px 24px;border-bottom:1px solid var(--line);}
 .lead-offer-dialog-head h2{margin:0 0 5px;font-size:21px;}
@@ -879,6 +879,10 @@ tr:last-child td{
 .lead-edit-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;}
 .lead-edit-field label{display:block;margin-bottom:5px;color:var(--ink-soft);font-size:10px;font-weight:800;}
 .lead-edit-field input,.lead-edit-field select{width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font:12px Inter,sans-serif;}
+.lead-edit-consent{grid-column:1/-1;display:flex;align-items:flex-start;gap:11px;padding:13px 14px;border:1px solid #dce8df;border-radius:10px;background:#f4f8f5;cursor:pointer;}
+.lead-edit-consent input[type="checkbox"]{appearance:auto;flex:0 0 18px;width:18px;height:18px;min-height:18px;margin:1px 0 0;padding:0;border:0;border-radius:4px;box-shadow:none;accent-color:var(--green);}
+.lead-edit-consent span{display:grid;gap:4px;color:var(--ink);font-size:12px;font-weight:700;line-height:1.4;}
+.lead-edit-consent small{color:var(--ink-soft);font-size:11px;font-weight:400;}
 .lead-edit-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:13px;}
 .lead-edit-actions span{font-size:11px;color:var(--ink-soft);}
 .lead-edit-save{min-height:38px;padding:9px 13px;border:0;border-radius:8px;background:var(--green);color:#fff;font:700 12px Inter,sans-serif;cursor:pointer;}
@@ -1940,7 +1944,7 @@ function renderizarFormularioEdicaoLead(lead) {
         <div class="lead-edit-field"><label for="lead-edit-cidade-${id}">Cidade *</label><input id="lead-edit-cidade-${id}" name="cidade" maxlength="100" value="${escapeHtml(lead.cidade)}" required></div>
         <div class="lead-edit-field"><label for="lead-edit-categoria-${id}">Interesse *</label><select id="lead-edit-categoria-${id}" name="tipo_atendimento" required>${Object.entries(LEAD_TYPE_LABELS).map(([key, label]) => `<option value="${key}" ${selecionado(lead.tipo_atendimento, key)}>${label}</option>`).join("")}</select></div>
         <div class="lead-edit-field"><label for="lead-edit-vendedor-${id}">Vendedor responsável</label><select id="lead-edit-vendedor-${id}" name="vendedor_responsavel"><option value="" ${selecionado(lead.vendedor_responsavel, "")}>Não atribuído</option>${LEAD_SELLERS.map(nome => `<option value="${nome}" ${selecionado(lead.vendedor_responsavel, nome)}>${nome}</option>`).join("")}</select></div>
-        <div class="lead-edit-field"><label class="lead-manual-consent"><input type="checkbox" name="consentiu_ofertas_whatsapp" ${Number(lead.consentiu_ofertas_whatsapp) === 1 ? "checked" : ""}><span>Autorizou avisos de imóveis compatíveis pelo WhatsApp</span></label></div>
+        <label class="lead-edit-consent"><input type="checkbox" name="consentiu_ofertas_whatsapp" ${Number(lead.consentiu_ofertas_whatsapp) === 1 ? "checked" : ""}><span>Autorização para avisos de imóveis<small>Marque somente após confirmar que o cliente autorizou receber avisos pelo WhatsApp.</small></span></label>
         <div class="lead-edit-field"><label for="lead-edit-imovel-${id}">Tipo de imóvel</label><select id="lead-edit-imovel-${id}" name="tipo_imovel"><option value="">Não informado</option>${tiposImovel.map(tipo => `<option value="${escapeHtml(tipo)}" ${selecionado(lead.tipo_imovel, tipo)}>${escapeHtml(tipo)}</option>`).join("")}</select></div>
         <div class="lead-edit-field"><label for="lead-edit-valor-${id}">Valor máximo (R$)</label><input id="lead-edit-valor-${id}" name="valor_maximo" type="text" inputmode="numeric" maxlength="11" value="${escapeHtml(valor)}" data-lead-edit-price></div>
         <div class="lead-edit-field"><label for="lead-edit-quartos-${id}">Quartos mínimos</label><select id="lead-edit-quartos-${id}" name="quartos_minimos">${quartos.map(q => `<option value="${q}" ${selecionado(lead.quartos_minimos, q)}>${q === "" ? "Qualquer quantidade" : q === "0" ? "Sem preferência" : `${q} ou mais`}</option>`).join("")}</select></div>
@@ -4321,6 +4325,14 @@ function renderizarTabela(
 
 
             <td class="acoes">
+
+              <button
+                class="btn btn-outline btn-sm"
+                type="button"
+                onclick="sugerirClientesWhatsappParaImovel('${escapeHtml(im.id)}')"
+              >
+                Ver clientes compatíveis
+              </button>
 
               <button
                 class="btn btn-outline btn-sm"
