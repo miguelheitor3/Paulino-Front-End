@@ -864,6 +864,9 @@ tr:last-child td{
 .lead-offer-dialog-head h2{margin:0 0 5px;font-size:21px;}
 .lead-offer-dialog-head p{margin:0;color:var(--ink-soft);font-size:13px;}
 .lead-offer-dialog-body{padding:16px 24px 24px;overflow:auto;max-height:65vh;}
+.lead-offer-loading{display:flex;align-items:center;gap:11px;padding:10px 0;color:var(--ink-soft);font-size:13px;}
+.lead-offer-spinner{width:18px;height:18px;flex:0 0 18px;border:2px solid #dce8df;border-top-color:var(--green);border-radius:50%;animation:lead-offer-spin .75s linear infinite;}
+@keyframes lead-offer-spin{to{transform:rotate(360deg)}}
 .lead-offer-list{display:grid;gap:10px;}
 .lead-offer-person{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px;border:1px solid var(--line);border-radius:10px;background:#fff;}
 .lead-offer-person strong{display:block;margin-bottom:3px;}
@@ -2019,6 +2022,18 @@ async function sugerirClientesWhatsappParaImovel(imovelId) {
   try {
     const imovel = imoveisCache.find(item => String(item.id) === String(imovelId));
     if (!imovel) return;
+    const dialogId = "lead-offer-dialog";
+    let dialog = document.getElementById(dialogId);
+    if (!dialog) {
+      document.body.insertAdjacentHTML("beforeend", `<dialog class="lead-offer-dialog" id="${dialogId}" aria-labelledby="lead-offer-title"></dialog>`);
+      dialog = document.getElementById(dialogId);
+      dialog.addEventListener("click", event => {
+        if (event.target === dialog) dialog.close();
+      });
+    }
+    dialog.innerHTML = `<div class="lead-offer-dialog-head"><div><h2 id="lead-offer-title">Buscando clientes</h2><p>${escapeHtml(imovel.titulo || "Imóvel")}</p></div><form method="dialog"><button class="lead-offer-close" aria-label="Fechar">Fechar</button></form></div><div class="lead-offer-dialog-body"><div class="lead-offer-loading"><span class="lead-offer-spinner" aria-hidden="true"></span><span>Verificando compatibilidade e autorização...</span></div></div>`;
+    if (!dialog.open) dialog.showModal();
+
     const { leads = [] } = await requisicaoLeads("/api/admin/leads?limit=500");
     const compativeis = leads.filter(lead =>
       ["compra", "financiamento"].includes(lead.tipo_atendimento) &&
@@ -2030,12 +2045,6 @@ async function sugerirClientesWhatsappParaImovel(imovelId) {
       ? Number(imovel.preco).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })
       : "consulte o valor";
     const urlImovel = new URL(`imovel.html?id=${encodeURIComponent(imovel.id)}`, window.location.href).href;
-    const dialogId = "lead-offer-dialog";
-    let dialog = document.getElementById(dialogId);
-    if (!dialog) {
-      document.body.insertAdjacentHTML("beforeend", `<dialog class="lead-offer-dialog" id="${dialogId}" aria-labelledby="lead-offer-title"></dialog>`);
-      dialog = document.getElementById(dialogId);
-    }
     const rows = autorizados.map(lead => {
       const digits = String(lead.telefone || "").replace(/\D/g, "");
       const whatsappNumber = digits.startsWith("55") ? digits : `55${digits}`;
@@ -2048,7 +2057,12 @@ async function sugerirClientesWhatsappParaImovel(imovelId) {
     if (!dialog.open) dialog.showModal();
   } catch (error) {
     console.warn("Não foi possível consultar clientes compatíveis para este imóvel:", error);
-    mostrarMsg("Imóvel salvo. Não foi possível consultar os clientes autorizados para avisos pelo WhatsApp; confira a permissão da aba Clientes e tente novamente.", "erro");
+    const dialog = document.getElementById("lead-offer-dialog");
+    if (dialog?.open) {
+      dialog.innerHTML = `<div class="lead-offer-dialog-head"><div><h2 id="lead-offer-title">Não foi possível carregar</h2><p>Confira sua conexão e a permissão de acesso aos clientes.</p></div><form method="dialog"><button class="lead-offer-close">Fechar</button></form></div><div class="lead-offer-dialog-body"><p>Tente abrir a lista novamente em alguns instantes.</p></div>`;
+    } else {
+      mostrarMsg("Não foi possível consultar os clientes compatíveis. Confira sua conexão e a permissão de acesso à aba Clientes.", "erro");
+    }
   }
 }
 
