@@ -291,6 +291,7 @@
         <div class="form-honeypot" aria-hidden="true"><label for="lead-website">Deixe este campo vazio</label><input id="lead-website" name="website" tabindex="-1" autocomplete="off"></div>
       </div>
       <label class="cadastro-consent"><input type="checkbox" name="consentiu_contato" required><span>Autorizo a Paulino Imóveis a usar os dados informados para responder a esta solicitação e entrar em contato comigo sobre financiamento e imóveis compatíveis. *</span></label>
+      <label class="cadastro-consent"><input type="checkbox" name="consentiu_ofertas_whatsapp"><span>Quero receber pelo WhatsApp avisos sobre novos imóveis que combinem com o que procuro. Esta autorização é opcional e posso pedir para parar a qualquer momento.</span></label>
       <button class="cadastro-submit" type="submit">Enviar solicitação</button>
       <div class="cadastro-feedback" id="cadastro-feedback" role="status" aria-live="polite"></div>
       <p class="cadastro-nota">Não envie CPF, documentos ou comprovantes por este formulário. As informações de entrada e FGTS são opcionais. Para dúvidas, você também pode falar conosco pelo WhatsApp.</p>
@@ -299,7 +300,7 @@
         <summary>Aviso de privacidade</summary>
         <p>A Paulino Imóveis utiliza as informações enviadas neste formulário para responder ao pedido de financiamento, entrar em contato com você e identificar imóveis disponíveis que possam corresponder às preferências informadas.</p>
         <p>O formulário coleta nome, telefone, cidade e preferências de imóvel; e-mail, faixa aproximada para entrada e intenção de uso do FGTS são opcionais. Os dados ficam armazenados em banco protegido na Cloudflare e podem ser consultados pela equipe autorizada da imobiliária. Este cadastro não realiza análise ou decisão automática de crédito nem envia documentos a instituições financeiras.</p>
-        <p>As informações serão mantidas enquanto forem necessárias para atender à solicitação e cumprir obrigações aplicáveis. Para solicitar acesso, correção ou exclusão, escreva para <a href="mailto:imobiliariapaulino@gmail.com">imobiliariapaulino@gmail.com</a>. O envio não autoriza campanhas ou ofertas automáticas futuras por WhatsApp.</p>
+        <p>As informações serão mantidas enquanto forem necessárias para atender à solicitação e cumprir obrigações aplicáveis. Para solicitar acesso, correção ou exclusão, escreva para <a href="mailto:imobiliariapaulino@gmail.com">imobiliariapaulino@gmail.com</a>. O envio do formulário, por si só, não autoriza o recebimento de ofertas. Se você marcar a autorização opcional acima, a equipe poderá enviar manualmente pelo WhatsApp avisos de imóveis compatíveis. Você pode pedir para parar a qualquer momento.</p>
       </details>
     </form>
   </div>
@@ -611,6 +612,7 @@ cadastroFinanciamento?.addEventListener("submit", async event => {
     entrada_faixa: form.get("entrada_faixa") || null,
     pretende_usar_fgts: form.get("pretende_usar_fgts") || null,
     consentiu_contato: form.get("consentiu_contato") === "on",
+    consentiu_ofertas_whatsapp: form.get("consentiu_ofertas_whatsapp") === "on",
     website: form.get("website")
   };
   try {

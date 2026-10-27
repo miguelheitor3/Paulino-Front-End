@@ -78,6 +78,7 @@ function normalizarCadastro(body, manual = false) {
         ? 0 : NaN;
   const tipoAtendimento = manual ? String(body?.tipo_atendimento || "").trim() : "financiamento";
   const vendedorResponsavel = manual ? String(body?.vendedor_responsavel || "").trim() || null : null;
+  const consentiuOfertasWhatsapp = body?.consentiu_ofertas_whatsapp === true ? 1 : 0;
 
   if (String(body?.website || "").trim()) return { spam: true };
   if (nome.length < 2 || nome.length > 100) throw new Error("Informe seu nome (até 100 caracteres).");
@@ -96,9 +97,9 @@ function normalizarCadastro(body, manual = false) {
 
   return { nome, telefone, email: email || null, cidade, tipo_imovel: tipo || null,
     valor_maximo: valor, quartos_minimos: quartos, entrada_faixa: entrada,
-    pretende_usar_fgts: fgts, consentiu_contato: 1, versao_aviso_privacidade: "2026-10-v1",
+    pretende_usar_fgts: fgts, consentiu_contato: 1, versao_aviso_privacidade: "2026-10-v2",
     tipo_atendimento: tipoAtendimento, origem_cadastro: manual ? "painel" : "site",
-    vendedor_responsavel: vendedorResponsavel, observacoes };
+    vendedor_responsavel: vendedorResponsavel, consentiu_ofertas_whatsapp: consentiuOfertasWhatsapp, observacoes };
 }
 
 async function criarLead(request, env, cors) {
@@ -124,11 +125,11 @@ async function criarLead(request, env, cors) {
     await env.DB.prepare(`INSERT INTO financing_leads
       (id, nome, telefone, email, cidade, tipo_imovel, valor_maximo, quartos_minimos,
        entrada_faixa, pretende_usar_fgts, consentiu_contato, versao_aviso_privacidade,
-       tipo_atendimento, origem_cadastro, vendedor_responsavel, observacoes)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+       tipo_atendimento, origem_cadastro, vendedor_responsavel, consentiu_ofertas_whatsapp, observacoes)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
       .bind(id, lead.nome, lead.telefone, lead.email, lead.cidade, lead.tipo_imovel,
         lead.valor_maximo, lead.quartos_minimos, lead.entrada_faixa, lead.pretende_usar_fgts,
-        lead.consentiu_contato, lead.versao_aviso_privacidade, lead.tipo_atendimento, lead.origem_cadastro, lead.vendedor_responsavel, lead.observacoes).run();
+        lead.consentiu_contato, lead.versao_aviso_privacidade, lead.tipo_atendimento, lead.origem_cadastro, lead.vendedor_responsavel, lead.consentiu_ofertas_whatsapp, lead.observacoes).run();
   } catch (error) {
     console.error("Falha ao gravar lead de financiamento:", error);
     return responseJson({ error: "Não foi possível salvar sua solicitação agora. Tente novamente." }, 503, cors);
@@ -150,11 +151,11 @@ async function criarLeadManual(request, env, cors) {
     await env.DB.prepare(`INSERT INTO financing_leads
       (id, nome, telefone, email, cidade, tipo_imovel, valor_maximo, quartos_minimos,
        entrada_faixa, pretende_usar_fgts, consentiu_contato, versao_aviso_privacidade,
-       tipo_atendimento, origem_cadastro, vendedor_responsavel, observacoes)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+       tipo_atendimento, origem_cadastro, vendedor_responsavel, consentiu_ofertas_whatsapp, observacoes)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
       .bind(id, lead.nome, lead.telefone, lead.email, lead.cidade, lead.tipo_imovel,
         lead.valor_maximo, lead.quartos_minimos, lead.entrada_faixa, lead.pretende_usar_fgts,
-        lead.consentiu_contato, lead.versao_aviso_privacidade, lead.tipo_atendimento, lead.origem_cadastro, lead.vendedor_responsavel, lead.observacoes).run();
+        lead.consentiu_contato, lead.versao_aviso_privacidade, lead.tipo_atendimento, lead.origem_cadastro, lead.vendedor_responsavel, lead.consentiu_ofertas_whatsapp, lead.observacoes).run();
   } catch (error) {
     console.error("Falha ao gravar cadastro manual:", error);
     return responseJson({ error: "Não foi possível salvar o cadastro agora." }, 503, cors);
@@ -192,7 +193,8 @@ async function listarLeads(request, env, cors) {
   try {
     const { results } = await env.DB.prepare(`SELECT id, created_at, updated_at, nome, telefone,
       email, cidade, tipo_imovel, valor_maximo, quartos_minimos, entrada_faixa,
-      pretende_usar_fgts, status, observacoes, tipo_atendimento, origem_cadastro, vendedor_responsavel
+      pretende_usar_fgts, status, observacoes, tipo_atendimento, origem_cadastro, vendedor_responsavel,
+      consentiu_ofertas_whatsapp
       FROM financing_leads ORDER BY created_at DESC LIMIT ?`).bind(limit).all();
     return responseJson({ leads: results || [] }, 200, cors);
   } catch (error) {
@@ -222,10 +224,12 @@ async function atualizarLead(request, env, cors, id) {
       ? await env.DB.prepare(`UPDATE financing_leads SET
           nome = ?, telefone = ?, email = ?, cidade = ?, tipo_imovel = ?, valor_maximo = ?,
           quartos_minimos = ?, entrada_faixa = ?, pretende_usar_fgts = ?, tipo_atendimento = ?, vendedor_responsavel = ?,
+          consentiu_ofertas_whatsapp = ?,
           status = ?, observacoes = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
           WHERE id = ?`).bind(cadastro.nome, cadastro.telefone, cadastro.email, cadastro.cidade,
           cadastro.tipo_imovel, cadastro.valor_maximo, cadastro.quartos_minimos,
           cadastro.entrada_faixa, cadastro.pretende_usar_fgts, cadastro.tipo_atendimento, cadastro.vendedor_responsavel,
+          cadastro.consentiu_ofertas_whatsapp,
           status, observacoes, id).run()
       : await env.DB.prepare(`UPDATE financing_leads
           SET status = ?, observacoes = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')

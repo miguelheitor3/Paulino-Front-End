@@ -858,6 +858,19 @@ tr:last-child td{
 .lead-card-actions label{display:block;font-size:10px;font-weight:800;color:var(--ink-soft);margin-bottom:5px;}
 .lead-card-actions select,.lead-card-actions textarea{width:100%;}
 .lead-card-actions textarea{min-height:42px;resize:vertical;}
+.lead-offer-dialog{width:min(760px,calc(100vw - 28px));max-height:85vh;padding:0;border:0;border-radius:16px;box-shadow:0 24px 80px #10201840;color:var(--ink);}
+.lead-offer-dialog::backdrop{background:#10181499;backdrop-filter:blur(3px);}
+.lead-offer-dialog-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:22px 24px;border-bottom:1px solid var(--line);}
+.lead-offer-dialog-head h2{margin:0 0 5px;font-size:21px;}
+.lead-offer-dialog-head p{margin:0;color:var(--ink-soft);font-size:13px;}
+.lead-offer-dialog-body{padding:16px 24px 24px;overflow:auto;max-height:65vh;}
+.lead-offer-list{display:grid;gap:10px;}
+.lead-offer-person{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px;border:1px solid var(--line);border-radius:10px;background:#fff;}
+.lead-offer-person strong{display:block;margin-bottom:3px;}
+.lead-offer-person small{color:var(--ink-soft);}
+.lead-offer-send{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:10px 14px;border:0;border-radius:8px;background:#16835d;color:#fff;font-weight:700;text-decoration:none;}
+.lead-offer-close{padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);cursor:pointer;}
+@media(max-width:560px){.lead-offer-dialog-head,.lead-offer-dialog-body{padding-left:16px;padding-right:16px;}.lead-offer-person{align-items:flex-start;flex-direction:column;}.lead-offer-send{width:100%;}}
 .lead-card-actions button{min-height:39px;white-space:nowrap;}
 .lead-edit-wrap{margin:0 20px;background:#fbfcfb;border:1px solid #e5ebe6;border-radius:10px;}
 .lead-edit-wrap summary{padding:12px 14px;color:var(--green);font-size:12px;font-weight:800;cursor:pointer;}
@@ -998,6 +1011,7 @@ tr:last-child td{
           <div class="lead-manual-field"><label for="lead-manual-quartos">Quartos mínimos</label><select id="lead-manual-quartos" name="quartos_minimos"><option value="">Qualquer quantidade</option><option value="0">Sem preferência</option><option value="1">1 ou mais</option><option value="2">2 ou mais</option><option value="3">3 ou mais</option><option value="4">4 ou mais</option></select></div>
           <div class="lead-manual-field lead-manual-full"><label for="lead-manual-observacoes">Observação inicial (opcional)</label><textarea id="lead-manual-observacoes" name="observacoes" maxlength="2000" placeholder="Ex.: veio pelo WhatsApp, procura casa com garagem..."></textarea></div>
           <div class="lead-manual-field lead-manual-full"><label class="lead-manual-consent"><input type="checkbox" name="consentiu_contato" required><span>Confirmo que o cliente autorizou o registro dos dados e o contato da equipe para este atendimento. *</span></label></div>
+          <div class="lead-manual-field lead-manual-full"><label class="lead-manual-consent"><input type="checkbox" name="consentiu_ofertas_whatsapp"><span>O cliente autorizou receber pelo WhatsApp avisos manuais sobre imóveis compatíveis.</span></label></div>
           <div class="lead-manual-actions lead-manual-full"><span class="lead-manual-hint">O cadastro ficará marcado como incluído manualmente.</span><button class="lead-manual-save" type="submit">Salvar cliente</button></div>
         </form>
       </details>
@@ -1926,6 +1940,7 @@ function renderizarFormularioEdicaoLead(lead) {
         <div class="lead-edit-field"><label for="lead-edit-cidade-${id}">Cidade *</label><input id="lead-edit-cidade-${id}" name="cidade" maxlength="100" value="${escapeHtml(lead.cidade)}" required></div>
         <div class="lead-edit-field"><label for="lead-edit-categoria-${id}">Interesse *</label><select id="lead-edit-categoria-${id}" name="tipo_atendimento" required>${Object.entries(LEAD_TYPE_LABELS).map(([key, label]) => `<option value="${key}" ${selecionado(lead.tipo_atendimento, key)}>${label}</option>`).join("")}</select></div>
         <div class="lead-edit-field"><label for="lead-edit-vendedor-${id}">Vendedor responsável</label><select id="lead-edit-vendedor-${id}" name="vendedor_responsavel"><option value="" ${selecionado(lead.vendedor_responsavel, "")}>Não atribuído</option>${LEAD_SELLERS.map(nome => `<option value="${nome}" ${selecionado(lead.vendedor_responsavel, nome)}>${nome}</option>`).join("")}</select></div>
+        <div class="lead-edit-field"><label class="lead-manual-consent"><input type="checkbox" name="consentiu_ofertas_whatsapp" ${Number(lead.consentiu_ofertas_whatsapp) === 1 ? "checked" : ""}><span>Autorizou avisos de imóveis compatíveis pelo WhatsApp</span></label></div>
         <div class="lead-edit-field"><label for="lead-edit-imovel-${id}">Tipo de imóvel</label><select id="lead-edit-imovel-${id}" name="tipo_imovel"><option value="">Não informado</option>${tiposImovel.map(tipo => `<option value="${escapeHtml(tipo)}" ${selecionado(lead.tipo_imovel, tipo)}>${escapeHtml(tipo)}</option>`).join("")}</select></div>
         <div class="lead-edit-field"><label for="lead-edit-valor-${id}">Valor máximo (R$)</label><input id="lead-edit-valor-${id}" name="valor_maximo" type="text" inputmode="numeric" maxlength="11" value="${escapeHtml(valor)}" data-lead-edit-price></div>
         <div class="lead-edit-field"><label for="lead-edit-quartos-${id}">Quartos mínimos</label><select id="lead-edit-quartos-${id}" name="quartos_minimos">${quartos.map(q => `<option value="${q}" ${selecionado(lead.quartos_minimos, q)}>${q === "" ? "Qualquer quantidade" : q === "0" ? "Sem preferência" : `${q} ou mais`}</option>`).join("")}</select></div>
@@ -1994,6 +2009,43 @@ async function requisicaoLeads(path, options = {}) {
   const result = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(result.error || `Falha ao acessar os cadastros (HTTP ${response.status}).`);
   return result;
+}
+
+async function sugerirClientesWhatsappParaImovel(imovelId) {
+  try {
+    const imovel = imoveisCache.find(item => String(item.id) === String(imovelId));
+    if (!imovel) return;
+    const { leads = [] } = await requisicaoLeads("/api/admin/leads?limit=500");
+    const compativeis = leads.filter(lead =>
+      ["compra", "financiamento"].includes(lead.tipo_atendimento) &&
+      imoveisCompativeisLead(lead).some(item => String(item.id) === String(imovel.id))
+    );
+    const autorizados = compativeis.filter(lead => Number(lead.consentiu_ofertas_whatsapp) === 1);
+    const telefoneImovel = [imovel.bairro, imovel.cidade].filter(Boolean).join(", ");
+    const precoImovel = Number(imovel.preco) > 0
+      ? Number(imovel.preco).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })
+      : "consulte o valor";
+    const urlImovel = new URL(`imovel.html?id=${encodeURIComponent(imovel.id)}`, window.location.href).href;
+    const dialogId = "lead-offer-dialog";
+    let dialog = document.getElementById(dialogId);
+    if (!dialog) {
+      document.body.insertAdjacentHTML("beforeend", `<dialog class="lead-offer-dialog" id="${dialogId}" aria-labelledby="lead-offer-title"></dialog>`);
+      dialog = document.getElementById(dialogId);
+    }
+    const rows = autorizados.map(lead => {
+      const digits = String(lead.telefone || "").replace(/\D/g, "");
+      const whatsappNumber = digits.startsWith("55") ? digits : `55${digits}`;
+      const text = `Olá, ${lead.nome}! Aqui é da Paulino Imóveis. Entrou um imóvel que combina com o que você procura: ${imovel.titulo}${telefoneImovel ? `, em ${telefoneImovel}` : ""}, por ${precoImovel}. Veja os detalhes: ${urlImovel}. Se não quiser mais receber avisos de imóveis pelo WhatsApp, é só nos avisar.`;
+      const href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
+      return `<article class="lead-offer-person"><div><strong>${escapeHtml(lead.nome)}</strong><small>${escapeHtml(lead.telefone)}${lead.vendedor_responsavel ? ` · Responsável: ${escapeHtml(lead.vendedor_responsavel)}` : ""}</small></div><a class="lead-offer-send" href="${escapeHtml(href)}" target="_blank" rel="noopener">Abrir WhatsApp</a></article>`;
+    }).join("");
+    const semAutorizacao = compativeis.length - autorizados.length;
+    dialog.innerHTML = `<div class="lead-offer-dialog-head"><div><h2 id="lead-offer-title">Clientes compatíveis</h2><p>${escapeHtml(imovel.titulo || "Novo imóvel")} · ${autorizados.length} cliente(s) autorizaram avisos pelo WhatsApp</p></div><form method="dialog"><button class="lead-offer-close" aria-label="Fechar">Fechar</button></form></div><div class="lead-offer-dialog-body">${rows ? `<div class="lead-offer-list">${rows}</div>` : `<p>Nenhum cliente compatível autorizou avisos pelo WhatsApp.</p>`}${semAutorizacao ? `<p class="lead-card-meta" style="margin-top:14px;">${semAutorizacao} cliente(s) compatível(is) ainda não autorizaram esses avisos. Peça autorização antes de enviar ofertas.</p>` : ""}</div>`;
+    if (!dialog.open) dialog.showModal();
+  } catch (error) {
+    console.warn("Não foi possível consultar clientes compatíveis para este imóvel:", error);
+    mostrarMsg("Imóvel salvo. Não foi possível consultar os clientes autorizados para avisos pelo WhatsApp; confira a permissão da aba Clientes e tente novamente.", "erro");
+  }
 }
 
 function mostrarStatusLeads(mensagem, erro = false) {
@@ -2086,6 +2138,7 @@ async function salvarDadosLead(form) {
         entrada_faixa: dados.get("entrada_faixa") || null,
         pretende_usar_fgts: dados.get("pretende_usar_fgts") || null,
         vendedor_responsavel: dados.get("vendedor_responsavel") || null,
+        consentiu_ofertas_whatsapp: dados.get("consentiu_ofertas_whatsapp") === "on",
         status, observacoes
       })
     });
@@ -2099,6 +2152,7 @@ async function salvarDadosLead(form) {
         entrada_faixa: dados.get("entrada_faixa") || null,
         pretende_usar_fgts: dados.get("pretende_usar_fgts") === "sim" ? 1 : dados.get("pretende_usar_fgts") === "nao" ? 0 : null,
         vendedor_responsavel: dados.get("vendedor_responsavel") || null,
+        consentiu_ofertas_whatsapp: dados.get("consentiu_ofertas_whatsapp") === "on" ? 1 : 0,
         status, observacoes
       });
     }
@@ -2207,6 +2261,7 @@ formularioLeadManual?.addEventListener("submit", async event => {
         nome: form.get("nome"), telefone: form.get("telefone"), email: form.get("email"),
         cidade: form.get("cidade"), tipo_atendimento: form.get("tipo_atendimento"),
         vendedor_responsavel: form.get("vendedor_responsavel") || null,
+        consentiu_ofertas_whatsapp: form.get("consentiu_ofertas_whatsapp") === "on",
         tipo_imovel: form.get("tipo_imovel"), valor_maximo: valorDigitos ? Number(valorDigitos) : null,
         quartos_minimos: form.get("quartos_minimos") === "" ? null : Number(form.get("quartos_minimos")),
         observacoes: form.get("observacoes"), consentiu_contato: form.get("consentiu_contato") === "on"
@@ -3177,6 +3232,7 @@ async function salvarImovel(ev) {
   const fd = new FormData(form);
 
   const btn = document.getElementById("btn-salvar");
+  let novoImovelSalvoId = null;
 
   btn.disabled = true;
   btn.textContent = editandoId
@@ -3407,6 +3463,8 @@ async function salvarImovel(ev) {
         }
       }
 
+      novoImovelSalvoId = novoId;
+
       mostrarMsg(
         "Imóvel cadastrado com sucesso.",
         "ok"
@@ -3420,6 +3478,7 @@ async function salvarImovel(ev) {
     cancelarEdicao();
 
     await carregarTabela();
+    if (novoImovelSalvoId) await sugerirClientesWhatsappParaImovel(novoImovelSalvoId);
 
   } catch (err) {
 

@@ -30,3 +30,7 @@ O formulário aceita até cinco envios por endereço de rede a cada dez minutos;
 - `DELETE /api/admin/leads/:id`: exclui um cadastro mediante confirmação no painel; exige sessão de administrador.
 
 As origens permitidas ficam em `ALLOWED_ORIGINS`. A configuração inclui o domínio público e endereços comuns de desenvolvimento local (`localhost` nas portas 5500 e 8000). Se o domínio público ou a porta local mudar, ajuste essa variável e publique novamente com `npx wrangler deploy`.
+
+## Avisos manuais de imóveis compatíveis pelo WhatsApp
+
+A migração `0004_consentimento_ofertas_whatsapp.sql` adiciona o campo de autorização específica, opcional e desmarcado por padrão. Depois de publicar a migração e o Worker, o painel só oferece botões de WhatsApp para clientes compatíveis que autorizaram esse tipo de aviso. O sistema não envia mensagens sozinho; cada mensagem abre no WhatsApp para a equipe revisar e enviar manualmente.
