@@ -94,6 +94,8 @@
   .hero-title{font-family:'Archivo',sans-serif;font-weight:800;font-size:clamp(34px,4vw,52px);line-height:1.06;letter-spacing:-.01em;margin:16px 0 20px;}
   .hero-title .accent{color:var(--green);}
   .hero-sub{font-size:16px;color:var(--ink-soft);line-height:1.6;max-width:440px;margin-bottom:32px;}
+  .hero-offers-link{display:inline-flex;align-items:center;gap:8px;margin-top:22px;padding:12px 16px;border:1px solid #b9d0bf;border-radius:9px;background:#fff;color:var(--green);font-size:13px;font-weight:800;box-shadow:0 5px 16px rgba(12,59,44,.08);transition:transform .15s ease,box-shadow .15s ease;}
+  .hero-offers-link:hover{transform:translateY(-2px);box-shadow:0 9px 22px rgba(12,59,44,.13);}
   .hero-stats{display:flex;gap:36px;}
   .stat-num{font-family:'Archivo',sans-serif;font-weight:800;font-size:26px;color:var(--green);}
   .stat-label{font-size:12px;color:var(--ink-soft);margin-top:2px;}
@@ -235,12 +237,31 @@
   .home-cta:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(12,24,18,.12);}
   .home-cta-financiamento{background:var(--green);color:#fff;}
   .home-cta-anunciar{background:var(--offwhite);color:var(--ink);border:1px solid var(--line);}
+  .home-cta-ofertas{background:linear-gradient(145deg,#f1f8f2,#e4f0e7);color:var(--green);border:1px solid #c8dccd;}
   .home-cta-kicker{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;opacity:.72;margin-bottom:12px;}
   .home-cta h2{font:700 24px/1.2 Archivo,sans-serif;max-width:460px;}
   .home-cta p{font-size:13.5px;line-height:1.6;margin-top:9px;max-width:480px;opacity:.78;}
   .home-cta-link{display:inline-flex;align-items:center;gap:8px;margin-top:auto;padding-top:20px;font-size:13px;font-weight:800;}
   .home-cta-link span{font-size:18px;transition:transform .18s ease;}
   .home-cta:hover .home-cta-link span{transform:translateX(4px);}
+  .offers-signup{padding:0 32px 96px;scroll-margin-top:24px;}
+  .offers-signup-card{max-width:1176px;margin:0 auto;padding:34px;border:1px solid #d7e4da;border-radius:18px;background:linear-gradient(135deg,#f4f8f4,#fff);box-shadow:0 16px 38px rgba(12,59,44,.08);}
+  .offers-signup-head{max-width:700px;margin-bottom:22px;}
+  .offers-signup-head h2{font:700 29px/1.15 Archivo,sans-serif;color:var(--green);margin:8px 0;}
+  .offers-signup-head p{color:var(--ink-soft);font-size:14px;line-height:1.6;}
+  .offers-signup-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+  .offers-signup-field label{display:block;margin-bottom:6px;color:var(--ink-soft);font-size:11px;font-weight:800;}
+  .offers-signup-field input,.offers-signup-field select{width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font:13px Inter,sans-serif;}
+  .offers-signup-consent{grid-column:1/-1;display:flex;align-items:flex-start;gap:10px;padding:14px;border:1px solid #d6e4d9;border-radius:10px;background:#fff;color:var(--ink-soft);font-size:12px;line-height:1.55;cursor:pointer;}
+  .offers-signup-consent input{flex:0 0 18px;width:18px;height:18px;margin-top:1px;accent-color:var(--green);}
+  .offers-signup-actions{grid-column:1/-1;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .offers-signup-submit{min-height:46px;padding:12px 19px;border:0;border-radius:9px;background:var(--green);color:#fff;font:700 13px Inter,sans-serif;cursor:pointer;}
+  .offers-signup-submit:hover{background:var(--green-dark);}
+  .offers-signup-submit:disabled{opacity:.65;cursor:wait;}
+  .offers-signup-note{color:var(--ink-soft);font-size:11px;line-height:1.5;}
+  .offers-signup-feedback{grid-column:1/-1;min-height:18px;color:var(--green);font-size:13px;font-weight:700;}
+  .offers-signup-feedback.error{color:var(--red);}
+  .offers-signup-honeypot{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;}
 
   /* FAQ */
   .faq{padding-bottom:96px;}
@@ -273,6 +294,7 @@
     .faq-grid{grid-template-columns:1fr;}
     .footer-grid{grid-template-columns:1fr 1fr;}
     .home-ctas{grid-template-columns:1fr 1fr;}
+    .offers-signup-form{grid-template-columns:1fr 1fr;}
     nav{display:none;}
     .mobile-nav-toggle{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--green);font:700 12px Inter;cursor:pointer;white-space:nowrap;}
     .header-inner.menu-aberto nav{display:flex;position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:110;flex-direction:column;gap:0;padding:8px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 28px rgba(12,24,18,.14);}
@@ -295,6 +317,12 @@
     .home-ctas{grid-template-columns:1fr;padding:0 20px;margin-bottom:68px;}
     .home-cta{min-height:210px;padding:25px;}
     .home-cta h2{font-size:22px;}
+    .offers-signup{padding:0 20px 68px;}
+    .offers-signup-card{padding:23px 18px;}
+    .offers-signup-head h2{font-size:24px;}
+    .offers-signup-form{grid-template-columns:1fr;}
+    .offers-signup-consent,.offers-signup-actions,.offers-signup-feedback{grid-column:auto;}
+    .offers-signup-submit{width:100%;}
     .footer-grid{grid-template-columns:1fr;}
   }
 
@@ -365,6 +393,7 @@
           <div><div class="stat-num">4</div><div class="stat-label">cidades atendidas</div></div>
           <div><div class="stat-num">CRECI</div><div class="stat-label">37888 registrado</div></div>
         </div>
+        <a class="hero-offers-link" href="#receber-ofertas">🔔 Receber ofertas personalizadas <span aria-hidden="true">→</span></a>
       </div>
       <div class="hero-photo">
         <a id="hero-photo-link" href="#" style="display:block;text-decoration:none;">
@@ -512,7 +541,35 @@
     <p>Cadastro gratuito, avaliação com base no mercado local e divulgação para nossa base ativa de interessados.</p>
     <span class="home-cta-link">Anunciar meu imóvel <span aria-hidden="true">→</span></span>
   </a>
+  <a class="home-cta home-cta-ofertas" href="#receber-ofertas">
+    <span class="home-cta-kicker">Novos imóveis para você</span>
+    <h2>Receba ofertas que combinam com a sua busca</h2>
+    <p>Conte o que procura e receba no WhatsApp avisos de imóveis compatíveis, sem precisar acompanhar o site todos os dias.</p>
+    <span class="home-cta-link">Quero receber ofertas <span aria-hidden="true">→</span></span>
+  </a>
 </div>
+
+<section class="offers-signup" id="receber-ofertas">
+  <div class="offers-signup-card">
+    <div class="offers-signup-head">
+      <span class="eyebrow">Receber ofertas personalizadas</span>
+      <h2>Conte o que você procura</h2>
+      <p>Quando surgir um imóvel disponível que combine com seus critérios, nossa equipe poderá avisar você pelo WhatsApp.</p>
+    </div>
+    <form class="offers-signup-form" id="form-ofertas-personalizadas">
+      <div class="offers-signup-field"><label for="ofertas-nome">Seu nome *</label><input id="ofertas-nome" name="nome" maxlength="100" autocomplete="name" required></div>
+      <div class="offers-signup-field"><label for="ofertas-telefone">WhatsApp *</label><input id="ofertas-telefone" name="telefone" type="tel" maxlength="20" autocomplete="tel" placeholder="(35) 99999-9999" required></div>
+      <div class="offers-signup-field"><label for="ofertas-cidade">Cidade onde procura *</label><input id="ofertas-cidade" name="cidade" maxlength="100" autocomplete="address-level2" placeholder="Ex.: Três Pontas" required></div>
+      <div class="offers-signup-field"><label for="ofertas-tipo-imovel">Tipo de imóvel</label><select id="ofertas-tipo-imovel" name="tipo_imovel"><option value="">Qualquer tipo</option><option>Casa</option><option>Apartamento</option><option>Barracão</option><option>Ponto Comercial</option><option>Sítio/Fazenda</option><option>Terreno</option><option>Área de Lazer</option></select></div>
+      <div class="offers-signup-field"><label for="ofertas-valor-maximo">Valor máximo (R$)</label><input id="ofertas-valor-maximo" name="valor_maximo" type="text" inputmode="numeric" maxlength="11" placeholder="Ex.: 350.000"></div>
+      <div class="offers-signup-field"><label for="ofertas-quartos">Quartos mínimos</label><select id="ofertas-quartos" name="quartos_minimos"><option value="">Qualquer quantidade</option><option value="0">Sem preferência</option><option value="1">1 ou mais</option><option value="2">2 ou mais</option><option value="3">3 ou mais</option><option value="4">4 ou mais</option></select></div>
+      <div class="offers-signup-honeypot" aria-hidden="true"><label for="ofertas-website">Deixe este campo vazio</label><input id="ofertas-website" name="website" tabindex="-1" autocomplete="off"></div>
+      <label class="offers-signup-consent"><input type="checkbox" name="consentiu_ofertas_whatsapp" required><span>Autorizo a Paulino Imóveis a usar estes dados para me enviar pelo WhatsApp ofertas de imóveis compatíveis com a minha busca. Sei que posso pedir para parar a qualquer momento. *</span></label>
+      <div class="offers-signup-actions"><button class="offers-signup-submit" type="submit">Quero receber ofertas</button><span class="offers-signup-note">Cadastro gratuito. A equipe seleciona imóveis disponíveis e envia os avisos manualmente.</span></div>
+      <div class="offers-signup-feedback" id="ofertas-feedback" role="status" aria-live="polite"></div>
+    </form>
+  </div>
+</section>
 
 <section class="faq">
   <div class="wrap faq-grid">
@@ -1745,6 +1802,67 @@ if (menuMobileBotao && menuMobileNav) {
   menuMobileNav.addEventListener("click", event => { if (event.target.closest("a")) fecharMenuMobile(); });
   document.addEventListener("keydown", event => { if (event.key === "Escape") fecharMenuMobile(); });
 }
+
+const formularioOfertas = document.getElementById("form-ofertas-personalizadas");
+const valorOfertasInput = document.getElementById("ofertas-valor-maximo");
+valorOfertasInput?.addEventListener("input", () => {
+  const cursor = valorOfertasInput.selectionStart ?? valorOfertasInput.value.length;
+  const digitosAntesCursor = valorOfertasInput.value.slice(0, cursor).replace(/\D/g, "").length;
+  const digitos = valorOfertasInput.value.replace(/\D/g, "").slice(0, 9);
+  const formatado = digitos.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  valorOfertasInput.value = formatado;
+  let posicao = 0;
+  let contagem = 0;
+  while (posicao < formatado.length && contagem < digitosAntesCursor) {
+    if (/\d/.test(formatado[posicao])) contagem++;
+    posicao++;
+  }
+  valorOfertasInput.setSelectionRange(posicao, posicao);
+});
+
+formularioOfertas?.addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!formularioOfertas.reportValidity()) return;
+  const feedback = document.getElementById("ofertas-feedback");
+  const button = formularioOfertas.querySelector("button[type='submit']");
+  const dados = new FormData(formularioOfertas);
+  const valorDigitos = String(dados.get("valor_maximo") || "").replace(/\D/g, "");
+  if (valorDigitos && Number(valorDigitos) > 100000000) {
+    feedback.textContent = "O valor máximo permitido é R$ 100.000.000.";
+    feedback.classList.add("error");
+    return;
+  }
+  feedback.textContent = "";
+  feedback.classList.remove("error");
+  button.disabled = true;
+  button.textContent = "Salvando suas preferências...";
+  try {
+    if (!window.LEADS_WORKER_URL) throw new Error("O cadastro de ofertas ainda não está configurado.");
+    const response = await fetch(`${window.LEADS_WORKER_URL.replace(/\/$/, "")}/api/leads`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nome: dados.get("nome"), telefone: dados.get("telefone"), cidade: dados.get("cidade"),
+        tipo_imovel: dados.get("tipo_imovel") || null,
+        valor_maximo: valorDigitos ? Number(valorDigitos) : null,
+        quartos_minimos: dados.get("quartos_minimos") === "" ? null : Number(dados.get("quartos_minimos")),
+        tipo_atendimento: "compra", consentiu_contato: true,
+        consentiu_ofertas_whatsapp: dados.get("consentiu_ofertas_whatsapp") === "on",
+        website: dados.get("website")
+      })
+    });
+    const resultado = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(resultado.error || "Não foi possível salvar suas preferências. Tente novamente.");
+    formularioOfertas.reset();
+    feedback.textContent = "Pronto! Suas preferências foram cadastradas. Quando surgir um imóvel compatível, nossa equipe poderá avisar você pelo WhatsApp.";
+  } catch (error) {
+    feedback.textContent = error?.message || "Não foi possível concluir o cadastro agora. Tente novamente.";
+    feedback.classList.add("error");
+  } finally {
+    button.disabled = false;
+    button.textContent = "Quero receber ofertas";
+  }
+});
 </script>
 </body>
 </html>

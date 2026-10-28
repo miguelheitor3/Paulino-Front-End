@@ -76,7 +76,7 @@ function normalizarCadastro(body, manual = false) {
       ? 1
       : body.pretende_usar_fgts === false || body.pretende_usar_fgts === "nao"
         ? 0 : NaN;
-  const tipoAtendimento = manual ? String(body?.tipo_atendimento || "").trim() : "financiamento";
+  const tipoAtendimento = manual ? String(body?.tipo_atendimento || "").trim() : String(body?.tipo_atendimento || "financiamento").trim();
   const vendedorResponsavel = manual ? String(body?.vendedor_responsavel || "").trim() || null : null;
   const consentiuOfertasWhatsapp = body?.consentiu_ofertas_whatsapp === true ? 1 : 0;
 
@@ -86,6 +86,7 @@ function normalizarCadastro(body, manual = false) {
   if (email && (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) throw new Error("Confira o e-mail informado.");
   if (cidade.length < 2 || cidade.length > 100) throw new Error("Informe a cidade desejada.");
   if (!LEAD_TYPES.has(tipoAtendimento)) throw new Error("Selecione compra, aluguel ou financiamento.");
+  if (!manual && tipoAtendimento === "compra" && consentiuOfertasWhatsapp !== 1) throw new Error("Autorize o recebimento de ofertas pelo WhatsApp para concluir o cadastro.");
   if (vendedorResponsavel && !SELLERS.has(vendedorResponsavel)) throw new Error("Selecione um vendedor válido.");
   if (tipo && !PROPERTY_TYPES.has(tipo)) throw new Error("Selecione um tipo de imóvel válido.");
   if (valor !== null && (!Number.isSafeInteger(valor) || valor < 1 || valor > 100_000_000)) throw new Error("Confira o valor máximo do imóvel.");
@@ -97,7 +98,7 @@ function normalizarCadastro(body, manual = false) {
 
   return { nome, telefone, email: email || null, cidade, tipo_imovel: tipo || null,
     valor_maximo: valor, quartos_minimos: quartos, entrada_faixa: entrada,
-    pretende_usar_fgts: fgts, consentiu_contato: 1, versao_aviso_privacidade: "2026-10-v2",
+    pretende_usar_fgts: fgts, consentiu_contato: 1, versao_aviso_privacidade: "2026-10-v3",
     tipo_atendimento: tipoAtendimento, origem_cadastro: manual ? "painel" : "site",
     vendedor_responsavel: vendedorResponsavel, consentiu_ofertas_whatsapp: consentiuOfertasWhatsapp, observacoes };
 }

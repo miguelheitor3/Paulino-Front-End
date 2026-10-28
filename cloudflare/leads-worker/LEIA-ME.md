@@ -23,7 +23,7 @@ O formulário aceita até cinco envios por endereço de rede a cada dez minutos;
 
 ## Rotas
 
-- `POST /api/leads`: recebe um cadastro público validado.
+- `POST /api/leads`: recebe cadastros públicos validados de financiamento e de pessoas que querem receber ofertas personalizadas; o cadastro de ofertas exige autorização específica para WhatsApp.
 - `POST /api/admin/leads`: cria um contato manual classificado como compra, aluguel ou financiamento; exige sessão de administrador e confirmação de autorização do cliente.
 - `GET /api/admin/leads`: lista até 500 cadastros, incluindo vendedor responsável e data de criação; exige sessão de administrador.
 - `PATCH /api/admin/leads/:id`: atualiza situação, observações, contato, interesse, preferências e vendedor responsável; exige sessão de administrador.

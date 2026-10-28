@@ -872,6 +872,25 @@ tr:last-child td{
 .lead-offer-person strong{display:block;margin-bottom:3px;}
 .lead-offer-person small{color:var(--ink-soft);}
 .lead-offer-send{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:10px 14px;border:0;border-radius:8px;background:#16835d;color:#fff;font-weight:700;text-decoration:none;}
+.lead-card-offer-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:13px 20px 0;}
+.lead-card-offer-toolbar small{font-size:11px;color:var(--ink-soft);}
+.lead-card-offer-button{padding:10px 14px;border:0;border-radius:8px;background:#16835d;color:#fff;font:700 12px Inter,sans-serif;cursor:pointer;}
+.lead-card-offer-button:disabled{background:#e7ebe8;color:#66716a;cursor:not-allowed;}
+.lead-picker-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.lead-picker-column{min-width:0;display:flex;flex-direction:column;gap:9px;}
+.lead-picker-column h3{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;}
+.lead-picker-items{display:grid;align-content:start;gap:8px;min-height:190px;max-height:44vh;overflow:auto;padding:10px;border:1px solid var(--line);border-radius:10px;background:#f7f9f7;}
+.lead-picker-items.is-drop-target{outline:2px dashed #16835d;outline-offset:-5px;background:#eff7f1;}
+.lead-picker-property{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;cursor:grab;}
+.lead-picker-property:active{cursor:grabbing;}
+.lead-picker-property strong{display:block;color:var(--ink);font-size:11px;line-height:1.4;}
+.lead-picker-property small{display:block;margin-top:3px;color:var(--ink-soft);font-size:10px;}
+.lead-picker-property button{flex:0 0 auto;padding:6px 9px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--green);font-weight:800;cursor:pointer;}
+.lead-picker-placeholder{align-self:center;padding:15px;color:var(--ink-soft);font-size:12px;text-align:center;line-height:1.5;}
+.lead-picker-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;}
+.lead-picker-footer small{color:var(--ink-soft);font-size:11px;}
+.lead-picker-send{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:8px;background:#16835d;color:#fff;font-weight:800;text-decoration:none;}
+.lead-picker-send.disabled{background:#e7ebe8;color:#66716a;pointer-events:none;}
 .lead-offer-close{padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);cursor:pointer;}
 @media(max-width:560px){.lead-offer-dialog-head,.lead-offer-dialog-body{padding-left:16px;padding-right:16px;}.lead-offer-person{align-items:flex-start;flex-direction:column;}.lead-offer-send{width:100%;}}
 .lead-card-actions button{min-height:39px;white-space:nowrap;}
@@ -896,7 +915,7 @@ tr:last-child td{
 .lead-card-save:disabled{opacity:.6;cursor:wait;}
 @media(max-width:900px){.lead-card-grid{grid-template-columns:1fr}.lead-card-actions{grid-template-columns:minmax(140px,.7fr) 1.3fr}.lead-card-actions button{width:100%}.lead-edit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.lead-manual-form{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:560px){.lead-card-head{align-items:flex-start;padding:15px}.lead-head-meta{width:100%;padding-left:54px}.lead-card-grid{padding:13px 14px 0}.lead-card-actions{grid-template-columns:1fr;padding:14px}.lead-card-actions textarea{min-height:70px}.leads-toolbar input{min-width:0;width:100%}.lead-manual-form{grid-template-columns:1fr}.lead-manual-full{grid-column:auto}.lead-manual-actions{align-items:stretch;flex-direction:column}.lead-manual-actions button{width:100%}.lead-edit-wrap{margin:0 14px}.lead-edit-grid{grid-template-columns:1fr}.lead-edit-actions{align-items:stretch;flex-direction:column}.lead-edit-actions button{width:100%}}
+@media(max-width:560px){.lead-card-head{align-items:flex-start;padding:15px}.lead-head-meta{width:100%;padding-left:54px}.lead-card-grid{padding:13px 14px 0}.lead-card-actions{grid-template-columns:1fr;padding:14px}.lead-card-actions textarea{min-height:70px}.leads-toolbar input{min-width:0;width:100%}.lead-manual-form{grid-template-columns:1fr}.lead-manual-full{grid-column:auto}.lead-manual-actions{align-items:stretch;flex-direction:column}.lead-manual-actions button{width:100%}.lead-edit-wrap{margin:0 14px}.lead-edit-grid{grid-template-columns:1fr}.lead-edit-actions{align-items:stretch;flex-direction:column}.lead-edit-actions button{width:100%}.lead-picker-grid{grid-template-columns:1fr}.lead-picker-items{min-height:120px;max-height:27vh}.lead-picker-footer{align-items:stretch;flex-direction:column}.lead-picker-footer a{width:100%}.lead-card-offer-toolbar{padding:12px 14px 0}.lead-card-offer-button{width:100%}}
 
 </style>
 
@@ -1913,6 +1932,10 @@ function formatarDataLead(valor) {
   return Number.isNaN(data.getTime()) ? "Data não disponível" : data.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
 }
 
+function linkPublicoImovel(id) {
+  return new URL(`imovel.html?id=${encodeURIComponent(id)}`, "https://www.paulinoimobiliaria.com.br/").href;
+}
+
 function obterDetalhesLead(lead) {
   const partes = [];
   if (lead.tipo_imovel) partes.push(lead.tipo_imovel);
@@ -1995,6 +2018,7 @@ function renderizarLeads() {
         <div class="lead-identity"><span class="lead-avatar" aria-hidden="true">${escapeHtml(iniciais)}</span><div><h3>${escapeHtml(lead.nome)}</h3><div class="lead-card-contact"><a href="https://wa.me/55${escapeHtml(String(lead.telefone).replace(/\D/g, "").replace(/^55/, ""))}" target="_blank" rel="noopener">${escapeHtml(lead.telefone)}</a>${lead.email ? ` · ${escapeHtml(lead.email)}` : ""}</div></div></div>
         <div class="lead-head-meta"><span class="lead-type-pill type-${tipoKey}">${escapeHtml(LEAD_TYPE_LABELS[tipoKey])}</span><span class="lead-status-pill status-${statusKey}">${escapeHtml(LEAD_STATUS_LABELS[statusKey])}</span><span class="lead-source-pill">${origemLabel}</span><span class="lead-card-meta">Adicionado em ${escapeHtml(formatarDataLead(lead.created_at))} · ${escapeHtml(lead.cidade)}</span>${lead.vendedor_responsavel ? `<span class="lead-source-pill">Vendedor: ${escapeHtml(lead.vendedor_responsavel)}</span>` : ""}</div>
       </div>
+      <div class="lead-card-offer-toolbar"><button class="lead-card-offer-button" type="button" data-action="pick-lead-properties" data-lead-id="${escapeHtml(lead.id)}" ${Number(lead.consentiu_ofertas_whatsapp) === 1 ? "" : "disabled title=\"Cliente ainda não autorizou receber ofertas pelo WhatsApp\""}>Escolher imóveis e enviar WhatsApp</button><small>${Number(lead.consentiu_ofertas_whatsapp) === 1 ? "Selecione apenas os imóveis que deseja incluir na mensagem." : "É necessário registrar a autorização do cliente antes de enviar ofertas."}</small></div>
       <div class="lead-card-grid">
         <section class="lead-card-section"><h4>O que procura</h4><div class="lead-card-meta">${escapeHtml(obterDetalhesLead(lead))}</div></section>
         <section class="lead-card-section"><h4>Imóveis compatíveis <span class="lead-match-count">${matches.length}</span></h4>${matches.length ? `<ul class="lead-matches">${linksVisiveis}</ul>${adicionaisExpansiveis}` : `<div class="lead-card-meta">Nenhum imóvel disponível corresponde a todos os critérios atuais.</div>`}</section>
@@ -2044,7 +2068,7 @@ async function sugerirClientesWhatsappParaImovel(imovelId) {
     const precoImovel = Number(imovel.preco) > 0
       ? Number(imovel.preco).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })
       : "consulte o valor";
-    const urlImovel = new URL(`imovel.html?id=${encodeURIComponent(imovel.id)}`, window.location.href).href;
+    const urlImovel = linkPublicoImovel(imovel.id);
     const rows = autorizados.map(lead => {
       const digits = String(lead.telefone || "").replace(/\D/g, "");
       const whatsappNumber = digits.startsWith("55") ? digits : `55${digits}`;
@@ -2064,6 +2088,85 @@ async function sugerirClientesWhatsappParaImovel(imovelId) {
       mostrarMsg("Não foi possível consultar os clientes compatíveis. Confira sua conexão e a permissão de acesso à aba Clientes.", "erro");
     }
   }
+}
+
+let seletorImoveisLead = null;
+
+function renderizarSeletorImoveisLead() {
+  const dialog = document.getElementById("lead-property-picker");
+  if (!dialog || !seletorImoveisLead) return;
+  const { lead, properties, selectedIds } = seletorImoveisLead;
+  const disponiveis = properties.filter(im => !selectedIds.has(String(im.id)));
+  const escolhidos = properties.filter(im => selectedIds.has(String(im.id)));
+  const montarItem = (im, selecionado) => {
+    const local = [im.bairro, im.cidade].filter(Boolean).join(", ");
+    const meta = [im.codigo ? `Cód. ${im.codigo}` : "", local, fmtPreco(im.preco)].filter(Boolean).join(" · ");
+    return `<article class="lead-picker-property" draggable="true" data-picker-property="${escapeHtml(im.id)}"><div><strong>${escapeHtml(im.titulo || "Imóvel")}</strong><small>${escapeHtml(meta)}</small></div><button type="button" data-picker-action="${selecionado ? "remove" : "add"}" data-property-id="${escapeHtml(im.id)}" aria-label="${selecionado ? "Remover" : "Adicionar"} ${escapeHtml(im.titulo || "imóvel")}">${selecionado ? "Remover" : "＋ Adicionar"}</button></article>`;
+  };
+  const numero = String(lead.telefone || "").replace(/\D/g, "");
+  const whatsappNumber = numero.startsWith("55") ? numero : `55${numero}`;
+  const links = escolhidos.map((im, index) => {
+    const link = linkPublicoImovel(im.id);
+    return `${index + 1}. ${im.titulo || "Imóvel"}${im.codigo ? ` (cód. ${im.codigo})` : ""} — ${[im.bairro, im.cidade].filter(Boolean).join(", ")} — ${fmtPreco(im.preco)}\n${link}`;
+  });
+  const mensagem = `Olá, ${lead.nome}! Separei ${escolhidos.length} ${escolhidos.length === 1 ? "imóvel" : "imóveis"} que combinam com o que você procura:\n\n${links.join("\n\n")}\n\nSe quiser mais informações ou agendar uma visita, responda por aqui. Se preferir não receber mais avisos pelo WhatsApp, é só me avisar.`;
+  const href = escolhidos.length ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensagem)}` : "";
+  dialog.innerHTML = `<div class="lead-offer-dialog-head"><div><h2 id="lead-picker-title">Escolha os imóveis para enviar</h2><p>${escapeHtml(lead.nome)} · arraste os imóveis ou use “Adicionar”</p></div><form method="dialog"><button class="lead-offer-close" aria-label="Fechar">Fechar</button></form></div><div class="lead-offer-dialog-body"><div class="lead-picker-grid"><section class="lead-picker-column"><h3>Compatíveis <span>${disponiveis.length}</span></h3><div class="lead-picker-items" data-picker-list="available">${disponiveis.length ? disponiveis.map(im => montarItem(im, false)).join("") : `<div class="lead-picker-placeholder">Todos os imóveis compatíveis foram selecionados.</div>`}</div></section><section class="lead-picker-column"><h3>Selecionados <span>${escolhidos.length}</span></h3><div class="lead-picker-items" data-picker-list="selected">${escolhidos.length ? escolhidos.map(im => montarItem(im, true)).join("") : `<div class="lead-picker-placeholder">Arraste imóveis para este espaço ou clique em “Adicionar”.</div>`}</div></section></div><div class="lead-picker-footer"><small>${escolhidos.length} imóvel(is) na mensagem. A mensagem abre pronta no WhatsApp para você revisar e enviar.</small><a class="lead-picker-send${escolhidos.length ? "" : " disabled"}" ${escolhidos.length ? `href="${escapeHtml(href)}" target="_blank" rel="noopener"` : `aria-disabled="true" tabindex="-1"`}>Enviar ${escolhidos.length ? ` ${escolhidos.length} ` : ""}pelo WhatsApp</a></div></div>`;
+}
+
+function abrirSeletorImoveisLead(leadId) {
+  const lead = leadsCache.find(item => String(item.id) === String(leadId));
+  if (!lead) return;
+  if (Number(lead.consentiu_ofertas_whatsapp) !== 1) {
+    mostrarStatusLeads("Este cliente ainda não autorizou receber avisos de imóveis pelo WhatsApp.", true);
+    return;
+  }
+  const properties = imoveisCompativeisLead(lead);
+  seletorImoveisLead = { lead, properties, selectedIds: new Set() };
+  let dialog = document.getElementById("lead-property-picker");
+  if (!dialog) {
+    document.body.insertAdjacentHTML("beforeend", `<dialog class="lead-offer-dialog" id="lead-property-picker" aria-labelledby="lead-picker-title"></dialog>`);
+    dialog = document.getElementById("lead-property-picker");
+    dialog.addEventListener("click", event => {
+      if (event.target === dialog) dialog.close();
+      const action = event.target.closest("[data-picker-action]");
+      if (!action || !seletorImoveisLead) return;
+      const id = String(action.dataset.propertyId);
+      if (action.dataset.pickerAction === "add") seletorImoveisLead.selectedIds.add(id);
+      else seletorImoveisLead.selectedIds.delete(id);
+      renderizarSeletorImoveisLead();
+    });
+    dialog.addEventListener("dragstart", event => {
+      const item = event.target.closest("[data-picker-property]");
+      if (!item) return;
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", item.dataset.pickerProperty);
+    });
+    dialog.addEventListener("dragover", event => {
+      const area = event.target.closest('[data-picker-list="selected"]');
+      if (!area) return;
+      event.preventDefault();
+      area.classList.add("is-drop-target");
+    });
+    dialog.addEventListener("dragleave", event => {
+      const area = event.target.closest("[data-picker-list]");
+      if (area && !area.contains(event.relatedTarget)) area.classList.remove("is-drop-target");
+    });
+    dialog.addEventListener("drop", event => {
+      const area = event.target.closest('[data-picker-list="selected"]');
+      if (!area || !seletorImoveisLead) return;
+      event.preventDefault();
+      area.classList.remove("is-drop-target");
+      const id = event.dataTransfer.getData("text/plain");
+      if (seletorImoveisLead.properties.some(im => String(im.id) === id)) {
+        seletorImoveisLead.selectedIds.add(id);
+        renderizarSeletorImoveisLead();
+      }
+    });
+    dialog.addEventListener("close", () => { seletorImoveisLead = null; });
+  }
+  renderizarSeletorImoveisLead();
+  if (!dialog.open) dialog.showModal();
 }
 
 function mostrarStatusLeads(mensagem, erro = false) {
@@ -2213,6 +2316,8 @@ document.getElementById("lista-leads")?.addEventListener("click", event => {
   if (button) salvarLead(button.closest(".lead-card"));
   const deleteButton = event.target.closest("[data-action='delete-lead']");
   if (deleteButton) excluirLead(deleteButton.closest(".lead-card"));
+  const pickButton = event.target.closest("[data-action='pick-lead-properties']");
+  if (pickButton && !pickButton.disabled) abrirSeletorImoveisLead(pickButton.dataset.leadId);
 });
 document.getElementById("lista-leads")?.addEventListener("input", event => {
   const input = event.target.closest("[data-lead-edit-price]");
