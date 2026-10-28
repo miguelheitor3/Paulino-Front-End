@@ -259,8 +259,12 @@
   .offers-signup-submit:hover{background:var(--green-dark);}
   .offers-signup-submit:disabled{opacity:.65;cursor:wait;}
   .offers-signup-note{color:var(--ink-soft);font-size:11px;line-height:1.5;}
-  .offers-signup-feedback{grid-column:1/-1;min-height:18px;color:var(--green);font-size:13px;font-weight:700;}
-  .offers-signup-feedback.error{color:var(--red);}
+  .offers-signup-feedback{grid-column:1/-1;display:none;align-items:flex-start;gap:13px;padding:17px 18px;border-radius:12px;font-size:13px;line-height:1.55;}
+  .offers-signup-feedback.success{display:flex;border:1px solid #acd0b4;background:#eaf5ec;color:#174d2d;box-shadow:0 6px 18px rgba(24,94,52,.08);}
+  .offers-signup-feedback.success::before{content:"✓";display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;border-radius:50%;background:#1e7543;color:#fff;font-size:18px;font-weight:800;line-height:1;}
+  .offers-signup-feedback.error{display:flex;border:1px solid #e9b8b4;background:#fff1f0;color:#9f201b;}
+  .offers-signup-feedback strong{display:block;margin-bottom:2px;font:700 16px Archivo,sans-serif;}
+  .offers-signup-feedback span{display:block;}
   .offers-signup-honeypot{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;}
 
   /* FAQ */
@@ -566,7 +570,7 @@
       <div class="offers-signup-honeypot" aria-hidden="true"><label for="ofertas-website">Deixe este campo vazio</label><input id="ofertas-website" name="website" tabindex="-1" autocomplete="off"></div>
       <label class="offers-signup-consent"><input type="checkbox" name="consentiu_ofertas_whatsapp" required><span>Autorizo a Paulino Imóveis a usar estes dados para me enviar pelo WhatsApp ofertas de imóveis compatíveis com a minha busca. Sei que posso pedir para parar a qualquer momento. *</span></label>
       <div class="offers-signup-actions"><button class="offers-signup-submit" type="submit">Quero receber ofertas</button><span class="offers-signup-note">Cadastro gratuito. A equipe seleciona imóveis disponíveis e envia os avisos manualmente.</span></div>
-      <div class="offers-signup-feedback" id="ofertas-feedback" role="status" aria-live="polite"></div>
+      <div class="offers-signup-feedback" id="ofertas-feedback" role="status" aria-live="polite" tabindex="-1"></div>
     </form>
   </div>
 </section>
@@ -1828,12 +1832,13 @@ formularioOfertas?.addEventListener("submit", async event => {
   const dados = new FormData(formularioOfertas);
   const valorDigitos = String(dados.get("valor_maximo") || "").replace(/\D/g, "");
   if (valorDigitos && Number(valorDigitos) > 100000000) {
+    feedback.className = "offers-signup-feedback error";
     feedback.textContent = "O valor máximo permitido é R$ 100.000.000.";
-    feedback.classList.add("error");
+    feedback.focus({ preventScroll: true });
     return;
   }
+  feedback.className = "offers-signup-feedback";
   feedback.textContent = "";
-  feedback.classList.remove("error");
   button.disabled = true;
   button.textContent = "Salvando suas preferências...";
   try {
@@ -1854,10 +1859,13 @@ formularioOfertas?.addEventListener("submit", async event => {
     const resultado = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(resultado.error || "Não foi possível salvar suas preferências. Tente novamente.");
     formularioOfertas.reset();
-    feedback.textContent = "Pronto! Suas preferências foram cadastradas. Quando surgir um imóvel compatível, nossa equipe poderá avisar você pelo WhatsApp.";
+    feedback.className = "offers-signup-feedback success";
+    feedback.innerHTML = "<span><strong>Cadastro confirmado!</strong>Suas preferências foram salvas. Quando aparecer um imóvel compatível, nossa equipe poderá enviar o aviso pelo WhatsApp. Você pode pedir para parar de receber quando quiser.</span>";
+    feedback.focus({ preventScroll: true });
   } catch (error) {
+    feedback.className = "offers-signup-feedback error";
     feedback.textContent = error?.message || "Não foi possível concluir o cadastro agora. Tente novamente.";
-    feedback.classList.add("error");
+    feedback.focus({ preventScroll: true });
   } finally {
     button.disabled = false;
     button.textContent = "Quero receber ofertas";
