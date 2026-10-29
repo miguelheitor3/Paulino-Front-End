@@ -8,6 +8,17 @@ const LEAD_TYPES = new Set(["compra", "aluguel", "financiamento"]);
 const SELLERS = new Set(["Thomas", "Antonio", "Sandra"]);
 const MAX_BODY_BYTES = 12_000;
 
+function cpfValido(cpf) {
+  if (!/^\d{11}$/.test(cpf) || /^(\d)\1{10}$/.test(cpf)) return false;
+  const digito = length => {
+    let soma = 0;
+    for (let i = 0; i < length; i++) soma += Number(cpf[i]) * (length + 1 - i);
+    const resto = (soma * 10) % 11;
+    return resto === 10 ? 0 : resto;
+  };
+  return digito(9) === Number(cpf[9]) && digito(10) === Number(cpf[10]);
+}
+
 function responseJson(body, status, cors) {
   return new Response(JSON.stringify(body), {
     status,
@@ -64,6 +75,7 @@ function normalizarCadastro(body, manual = false) {
   const nome = String(body?.nome || "").trim().replace(/\s+/g, " ");
   const telefone = String(body?.telefone || "").replace(/\D/g, "");
   const email = String(body?.email || "").trim().toLowerCase();
+  const cpf = String(body?.cpf || "").replace(/\D/g, "");
   const cidade = String(body?.cidade || "").trim().replace(/\s+/g, " ");
   const tipo = String(body?.tipo_imovel || "").trim();
   const valor = body?.valor_maximo === "" || body?.valor_maximo == null ? null : Number(body.valor_maximo);
@@ -79,6 +91,11 @@ function normalizarCadastro(body, manual = false) {
   const tipoAtendimento = manual ? String(body?.tipo_atendimento || "").trim() : String(body?.tipo_atendimento || "financiamento").trim();
   const vendedorResponsavel = manual ? String(body?.vendedor_responsavel || "").trim() || null : null;
   const consentiuOfertasWhatsapp = body?.consentiu_ofertas_whatsapp === true ? 1 : 0;
+  const boolField = value => value === true || value === "sim" ? 1 : value === false || value === "nao" ? 0 : null;
+  const temImovelNome = boolField(body?.tem_imovel_nome);
+  const moraTrabalhaTresPontas = boolField(body?.mora_trabalha_tres_pontas);
+  const possuiFgts = boolField(body?.possui_fgts);
+  const fgtsMais35 = boolField(body?.fgts_mais_35_contribuicoes);
 
   if (String(body?.website || "").trim()) return { spam: true };
   if (nome.length < 2 || nome.length > 100) throw new Error("Informe seu nome (até 100 caracteres).");
@@ -86,13 +103,15 @@ function normalizarCadastro(body, manual = false) {
   if (email && (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) throw new Error("Confira o e-mail informado.");
   if (cidade.length < 2 || cidade.length > 100) throw new Error("Informe a cidade desejada.");
   if (!LEAD_TYPES.has(tipoAtendimento)) throw new Error("Selecione compra, aluguel ou financiamento.");
-  if (!manual && tipoAtendimento === "compra" && consentiuOfertasWhatsapp !== 1) throw new Error("Autorize o recebimento de ofertas pelo WhatsApp para concluir o cadastro.");
+  if (!manual && tipoAtendimento !== "financiamento" && consentiuOfertasWhatsapp !== 1) throw new Error("Autorize o recebimento de ofertas pelo WhatsApp para concluir o cadastro.");
   if (vendedorResponsavel && !SELLERS.has(vendedorResponsavel)) throw new Error("Selecione um vendedor válido.");
   if (tipo && !PROPERTY_TYPES.has(tipo)) throw new Error("Selecione um tipo de imóvel válido.");
   if (valor !== null && (!Number.isSafeInteger(valor) || valor < 1 || valor > 100_000_000)) throw new Error("Confira o valor máximo do imóvel.");
   if (quartos !== null && (!Number.isInteger(quartos) || quartos < 0 || quartos > 20)) throw new Error("Confira a quantidade mínima de quartos.");
   if (entrada && !ENTRY_RANGES.has(entrada)) throw new Error("Selecione uma faixa de entrada válida.");
   if (Number.isNaN(fgts)) throw new Error("Selecione uma opção válida sobre o FGTS.");
+  if (cpf && !cpfValido(cpf)) throw new Error("Informe um CPF válido.");
+  if (body?.formulario_financiamento === true && !cpfValido(cpf)) throw new Error("Informe um CPF válido para solicitar o financiamento.");
   if (body?.consentiu_contato !== true) throw new Error("É necessário autorizar o contato para enviar a solicitação.");
   if (observacoes.length > 2000) throw new Error("As observações podem ter até 2.000 caracteres.");
 
@@ -100,7 +119,9 @@ function normalizarCadastro(body, manual = false) {
     valor_maximo: valor, quartos_minimos: quartos, entrada_faixa: entrada,
     pretende_usar_fgts: fgts, consentiu_contato: 1, versao_aviso_privacidade: "2026-10-v3",
     tipo_atendimento: tipoAtendimento, origem_cadastro: manual ? "painel" : "site",
-    vendedor_responsavel: vendedorResponsavel, consentiu_ofertas_whatsapp: consentiuOfertasWhatsapp, observacoes };
+    vendedor_responsavel: vendedorResponsavel, consentiu_ofertas_whatsapp: consentiuOfertasWhatsapp,
+    cpf: cpf || null, tem_imovel_nome: temImovelNome, mora_trabalha_tres_pontas: moraTrabalhaTresPontas,
+    possui_fgts: possuiFgts, fgts_mais_35_contribuicoes: fgtsMais35, observacoes };
 }
 
 async function criarLead(request, env, cors) {
@@ -126,11 +147,13 @@ async function criarLead(request, env, cors) {
     await env.DB.prepare(`INSERT INTO financing_leads
       (id, nome, telefone, email, cidade, tipo_imovel, valor_maximo, quartos_minimos,
        entrada_faixa, pretende_usar_fgts, consentiu_contato, versao_aviso_privacidade,
-       tipo_atendimento, origem_cadastro, vendedor_responsavel, consentiu_ofertas_whatsapp, observacoes)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+       tipo_atendimento, origem_cadastro, vendedor_responsavel, consentiu_ofertas_whatsapp,
+       cpf, tem_imovel_nome, mora_trabalha_tres_pontas, possui_fgts, fgts_mais_35_contribuicoes, observacoes)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
       .bind(id, lead.nome, lead.telefone, lead.email, lead.cidade, lead.tipo_imovel,
         lead.valor_maximo, lead.quartos_minimos, lead.entrada_faixa, lead.pretende_usar_fgts,
-        lead.consentiu_contato, lead.versao_aviso_privacidade, lead.tipo_atendimento, lead.origem_cadastro, lead.vendedor_responsavel, lead.consentiu_ofertas_whatsapp, lead.observacoes).run();
+        lead.consentiu_contato, lead.versao_aviso_privacidade, lead.tipo_atendimento, lead.origem_cadastro, lead.vendedor_responsavel, lead.consentiu_ofertas_whatsapp,
+        lead.cpf, lead.tem_imovel_nome, lead.mora_trabalha_tres_pontas, lead.possui_fgts, lead.fgts_mais_35_contribuicoes, lead.observacoes).run();
   } catch (error) {
     console.error("Falha ao gravar lead de financiamento:", error);
     return responseJson({ error: "Não foi possível salvar sua solicitação agora. Tente novamente." }, 503, cors);
@@ -152,11 +175,13 @@ async function criarLeadManual(request, env, cors) {
     await env.DB.prepare(`INSERT INTO financing_leads
       (id, nome, telefone, email, cidade, tipo_imovel, valor_maximo, quartos_minimos,
        entrada_faixa, pretende_usar_fgts, consentiu_contato, versao_aviso_privacidade,
-       tipo_atendimento, origem_cadastro, vendedor_responsavel, consentiu_ofertas_whatsapp, observacoes)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+       tipo_atendimento, origem_cadastro, vendedor_responsavel, consentiu_ofertas_whatsapp,
+       cpf, tem_imovel_nome, mora_trabalha_tres_pontas, possui_fgts, fgts_mais_35_contribuicoes, observacoes)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
       .bind(id, lead.nome, lead.telefone, lead.email, lead.cidade, lead.tipo_imovel,
         lead.valor_maximo, lead.quartos_minimos, lead.entrada_faixa, lead.pretende_usar_fgts,
-        lead.consentiu_contato, lead.versao_aviso_privacidade, lead.tipo_atendimento, lead.origem_cadastro, lead.vendedor_responsavel, lead.consentiu_ofertas_whatsapp, lead.observacoes).run();
+        lead.consentiu_contato, lead.versao_aviso_privacidade, lead.tipo_atendimento, lead.origem_cadastro, lead.vendedor_responsavel, lead.consentiu_ofertas_whatsapp,
+        lead.cpf, lead.tem_imovel_nome, lead.mora_trabalha_tres_pontas, lead.possui_fgts, lead.fgts_mais_35_contribuicoes, lead.observacoes).run();
   } catch (error) {
     console.error("Falha ao gravar cadastro manual:", error);
     return responseJson({ error: "Não foi possível salvar o cadastro agora." }, 503, cors);
@@ -194,10 +219,17 @@ async function listarLeads(request, env, cors) {
   try {
     const { results } = await env.DB.prepare(`SELECT id, created_at, updated_at, nome, telefone,
       email, cidade, tipo_imovel, valor_maximo, quartos_minimos, entrada_faixa,
-      pretende_usar_fgts, status, observacoes, tipo_atendimento, origem_cadastro, vendedor_responsavel,
+      pretende_usar_fgts, cpf, tem_imovel_nome, mora_trabalha_tres_pontas, possui_fgts, fgts_mais_35_contribuicoes,
+      status, observacoes, tipo_atendimento, origem_cadastro, vendedor_responsavel,
       consentiu_ofertas_whatsapp
       FROM financing_leads ORDER BY created_at DESC LIMIT ?`).bind(limit).all();
-    return responseJson({ leads: results || [] }, 200, cors);
+    const { results: offers } = await env.DB.prepare("SELECT lead_id, property_id, sent_at FROM lead_property_offers").all();
+    const sentByLead = new Map();
+    for (const offer of offers || []) {
+      if (!sentByLead.has(offer.lead_id)) sentByLead.set(offer.lead_id, []);
+      sentByLead.get(offer.lead_id).push({ property_id: offer.property_id, sent_at: offer.sent_at });
+    }
+    return responseJson({ leads: (results || []).map(lead => ({ ...lead, sent_offers: sentByLead.get(lead.id) || [] })) }, 200, cors);
   } catch (error) {
     console.error("Falha ao listar leads:", error);
     return responseJson({ error: "Não foi possível carregar os cadastros." }, 503, cors);
@@ -226,11 +258,14 @@ async function atualizarLead(request, env, cors, id) {
           nome = ?, telefone = ?, email = ?, cidade = ?, tipo_imovel = ?, valor_maximo = ?,
           quartos_minimos = ?, entrada_faixa = ?, pretende_usar_fgts = ?, tipo_atendimento = ?, vendedor_responsavel = ?,
           consentiu_ofertas_whatsapp = ?,
+          cpf = ?, tem_imovel_nome = ?, mora_trabalha_tres_pontas = ?, possui_fgts = ?, fgts_mais_35_contribuicoes = ?,
           status = ?, observacoes = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
           WHERE id = ?`).bind(cadastro.nome, cadastro.telefone, cadastro.email, cadastro.cidade,
           cadastro.tipo_imovel, cadastro.valor_maximo, cadastro.quartos_minimos,
           cadastro.entrada_faixa, cadastro.pretende_usar_fgts, cadastro.tipo_atendimento, cadastro.vendedor_responsavel,
           cadastro.consentiu_ofertas_whatsapp,
+          cadastro.cpf, cadastro.tem_imovel_nome, cadastro.mora_trabalha_tres_pontas,
+          cadastro.possui_fgts, cadastro.fgts_mais_35_contribuicoes,
           status, observacoes, id).run()
       : await env.DB.prepare(`UPDATE financing_leads
           SET status = ?, observacoes = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
@@ -257,6 +292,29 @@ async function excluirLead(request, env, cors, id) {
   }
 }
 
+async function marcarOfertaEnviada(request, env, cors, leadId) {
+  const auth = await validarAdmin(request, env);
+  if (!auth.ok) return responseJson({ error: auth.error }, auth.status, cors);
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(leadId)) return responseJson({ error: "Cadastro não encontrado." }, 404, cors);
+  let body;
+  try { body = await lerJsonLimitado(request); } catch (error) { return responseJson({ error: error.message }, 400, cors); }
+  const propertyId = String(body?.property_id || "").trim();
+  if (!propertyId || propertyId.length > 200 || typeof body?.sent !== "boolean") return responseJson({ error: "Informe o imóvel e a situação do envio." }, 400, cors);
+  try {
+    if (body.sent) {
+      await env.DB.prepare(`INSERT INTO lead_property_offers (lead_id, property_id) VALUES (?, ?)
+        ON CONFLICT(lead_id, property_id) DO NOTHING`).bind(leadId, propertyId).run();
+    } else {
+      await env.DB.prepare("DELETE FROM lead_property_offers WHERE lead_id = ? AND property_id = ?").bind(leadId, propertyId).run();
+    }
+    const { results } = await env.DB.prepare("SELECT property_id, sent_at FROM lead_property_offers WHERE lead_id = ?").bind(leadId).all();
+    return responseJson({ ok: true, sent_offers: results || [] }, 200, cors);
+  } catch (error) {
+    console.error("Falha ao atualizar o histórico de ofertas:", error);
+    return responseJson({ error: "Não foi possível atualizar a situação do imóvel enviado." }, 503, cors);
+  }
+}
+
 export default {
   async fetch(request, env) {
     const cors = corsHeaders(request, env);
@@ -266,6 +324,8 @@ export default {
     if (request.method === "POST" && path === "/api/leads") return criarLead(request, env, cors);
     if (request.method === "POST" && path === "/api/admin/leads") return criarLeadManual(request, env, cors);
     if (request.method === "GET" && path === "/api/admin/leads") return listarLeads(request, env, cors);
+    const offerMatch = path.match(/^\/api\/admin\/leads\/([^/]+)\/offers$/);
+    if (request.method === "PATCH" && offerMatch) return marcarOfertaEnviada(request, env, cors, offerMatch[1]);
     const match = path.match(/^\/api\/admin\/leads\/([^/]+)$/);
     if (request.method === "PATCH" && match) return atualizarLead(request, env, cors, match[1]);
     if (request.method === "DELETE" && match) return excluirLead(request, env, cors, match[1]);

@@ -851,6 +851,10 @@ tr:last-child td{
 .lead-matches{display:grid;gap:7px;margin:0;padding:0;list-style:none;font-size:12px;line-height:1.45;}
 .lead-matches a{display:block;padding:9px 11px;background:#fff;border:1px solid var(--line);border-radius:8px;color:var(--green);font-weight:700;text-decoration:none;transition:border-color .15s,transform .15s;}
 .lead-matches a:hover{border-color:#9db5a5;transform:translateY(-1px);}
+.lead-match-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;align-items:center}
+.lead-match-sent{border:1px solid #cbded0;background:#edf6ef;color:var(--green);border-radius:7px;padding:6px 9px;font-size:11px;font-weight:700;white-space:nowrap}
+.lead-match-toggle{border:1px solid var(--line);background:#fff;color:var(--ink-soft);border-radius:7px;padding:6px 9px;font:600 11px Inter;cursor:pointer;white-space:nowrap}
+.lead-match-toggle:hover{border-color:#9db5a5;color:var(--green)}
 .lead-more-matches{margin-top:9px;padding-top:8px;border-top:1px solid #e3e9e4;font-size:12px;}
 .lead-more-matches summary{color:var(--green);font-weight:800;cursor:pointer;}
 .lead-more-matches ul{display:grid;gap:7px;margin:9px 0 0;padding:0;list-style:none;line-height:1.45;}
@@ -1946,8 +1950,14 @@ function obterDetalhesLead(lead) {
   if (lead.quartos_minimos) partes.push(`${lead.quartos_minimos}+ quartos`);
   const entrada = { ate_20_mil: "entrada até R$ 20 mil", "20_a_50_mil": "entrada de R$ 20 mil a R$ 50 mil", "50_a_100_mil": "entrada de R$ 50 mil a R$ 100 mil", acima_100_mil: "entrada acima de R$ 100 mil" }[lead.entrada_faixa];
   if (entrada) partes.push(entrada);
-  if (lead.pretende_usar_fgts === 1) partes.push("pretende usar FGTS");
-  if (lead.pretende_usar_fgts === 0) partes.push("não pretende usar FGTS");
+  if (lead.possui_fgts == null && lead.pretende_usar_fgts === 1) partes.push("pretende usar FGTS");
+  if (lead.possui_fgts == null && lead.pretende_usar_fgts === 0) partes.push("não pretende usar FGTS");
+  const simNao = value => value === 1 ? "sim" : value === 0 ? "não" : "não informado";
+  if (lead.cpf) partes.push(`CPF ${String(lead.cpf).replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.***.***-$4")}`);
+  if (lead.tem_imovel_nome != null) partes.push(`imóvel no nome: ${simNao(lead.tem_imovel_nome)}`);
+  if (lead.mora_trabalha_tres_pontas != null) partes.push(`mora/trabalha em Três Pontas: ${simNao(lead.mora_trabalha_tres_pontas)}`);
+  if (lead.possui_fgts != null) partes.push(`possui FGTS: ${simNao(lead.possui_fgts)}`);
+  if (lead.fgts_mais_35_contribuicoes != null) partes.push(`mais de 35 contribuições: ${simNao(lead.fgts_mais_35_contribuicoes)}`);
   return partes.length ? partes.join(" · ") : "Preferências adicionais não informadas";
 }
 
@@ -1968,6 +1978,7 @@ function renderizarFormularioEdicaoLead(lead) {
         <div class="lead-edit-field"><label for="lead-edit-telefone-${id}">Telefone ou WhatsApp *</label><input id="lead-edit-telefone-${id}" name="telefone" type="tel" maxlength="20" value="${escapeHtml(lead.telefone)}" required></div>
         <div class="lead-edit-field"><label for="lead-edit-email-${id}">E-mail</label><input id="lead-edit-email-${id}" name="email" type="email" maxlength="254" value="${escapeHtml(lead.email || "")}"></div>
         <div class="lead-edit-field"><label for="lead-edit-cidade-${id}">Cidade *</label><input id="lead-edit-cidade-${id}" name="cidade" maxlength="100" value="${escapeHtml(lead.cidade)}" required></div>
+        <div class="lead-edit-field"><label for="lead-edit-cpf-${id}">CPF</label><input id="lead-edit-cpf-${id}" name="cpf" inputmode="numeric" maxlength="14" value="${escapeHtml(lead.cpf || "")}"></div>
         <div class="lead-edit-field"><label for="lead-edit-categoria-${id}">Interesse *</label><select id="lead-edit-categoria-${id}" name="tipo_atendimento" required>${Object.entries(LEAD_TYPE_LABELS).map(([key, label]) => `<option value="${key}" ${selecionado(lead.tipo_atendimento, key)}>${label}</option>`).join("")}</select></div>
         <div class="lead-edit-field"><label for="lead-edit-vendedor-${id}">Vendedor responsável</label><select id="lead-edit-vendedor-${id}" name="vendedor_responsavel"><option value="" ${selecionado(lead.vendedor_responsavel, "")}>Não atribuído</option>${LEAD_SELLERS.map(nome => `<option value="${nome}" ${selecionado(lead.vendedor_responsavel, nome)}>${nome}</option>`).join("")}</select></div>
         <label class="lead-edit-consent"><input type="checkbox" name="consentiu_ofertas_whatsapp" ${Number(lead.consentiu_ofertas_whatsapp) === 1 ? "checked" : ""}><span>Autorização para avisos de imóveis<small>Marque somente após confirmar que o cliente autorizou receber avisos pelo WhatsApp.</small></span></label>
@@ -1975,7 +1986,7 @@ function renderizarFormularioEdicaoLead(lead) {
         <div class="lead-edit-field"><label for="lead-edit-valor-${id}">Valor máximo (R$)</label><input id="lead-edit-valor-${id}" name="valor_maximo" type="text" inputmode="numeric" maxlength="11" value="${escapeHtml(valor)}" data-lead-edit-price></div>
         <div class="lead-edit-field"><label for="lead-edit-quartos-${id}">Quartos mínimos</label><select id="lead-edit-quartos-${id}" name="quartos_minimos">${quartos.map(q => `<option value="${q}" ${selecionado(lead.quartos_minimos, q)}>${q === "" ? "Qualquer quantidade" : q === "0" ? "Sem preferência" : `${q} ou mais`}</option>`).join("")}</select></div>
         <div class="lead-edit-field"><label for="lead-edit-entrada-${id}">Faixa de entrada</label><select id="lead-edit-entrada-${id}" name="entrada_faixa">${faixasEntrada.map(([value, label]) => `<option value="${value}" ${selecionado(lead.entrada_faixa, value)}>${label}</option>`).join("")}</select></div>
-        <div class="lead-edit-field"><label for="lead-edit-fgts-${id}">Pretende usar FGTS?</label><select id="lead-edit-fgts-${id}" name="pretende_usar_fgts"><option value="" ${selecionado(lead.pretende_usar_fgts, "")}>Não informado</option><option value="sim" ${selecionado(lead.pretende_usar_fgts, 1)}>Sim</option><option value="nao" ${selecionado(lead.pretende_usar_fgts, 0)}>Não</option></select></div>
+        ${[["tem_imovel_nome","Tem imóvel no nome?"],["mora_trabalha_tres_pontas","Mora ou trabalha em Três Pontas?"],["possui_fgts","Possui FGTS?"],["fgts_mais_35_contribuicoes","Mais de 35 contribuições de FGTS?"]].map(([name,label]) => `<div class="lead-edit-field"><label for="lead-edit-${name}-${id}">${label}</label><select id="lead-edit-${name}-${id}" name="${name}"><option value="" ${selecionado(lead[name], "")}>Não informado</option><option value="sim" ${selecionado(lead[name], 1)}>Sim</option><option value="nao" ${selecionado(lead[name], 0)}>Não</option></select></div>`).join("")}
       </div>
       <div class="lead-edit-actions"><span>Os dados de contato e preferências serão atualizados.</span><button class="lead-edit-save" type="submit">Salvar dados do cliente</button></div>
     </form>
@@ -2009,7 +2020,10 @@ function renderizarLeads() {
     const tipoKey = Object.prototype.hasOwnProperty.call(LEAD_TYPE_LABELS, lead.tipo_atendimento) ? lead.tipo_atendimento : "financiamento";
     const origemLabel = lead.origem_cadastro === "painel" ? "Cadastro manual" : "Site";
     const iniciais = String(lead.nome || "?").trim().split(/\s+/).slice(0, 2).map(parte => Array.from(parte)[0] || "").join("").toLocaleUpperCase("pt-BR");
-    const montarLinkImovel = im => `<li><a href="imovel.html?id=${encodeURIComponent(im.id)}" target="_blank" rel="noopener">${escapeHtml(im.titulo || "Imóvel")} — ${escapeHtml([im.bairro, im.cidade].filter(Boolean).join(", "))} — ${escapeHtml(fmtPreco(im.preco))}</a></li>`;
+    const montarLinkImovel = im => {
+      const enviado = (lead.sent_offers || []).find(item => String(item.property_id) === String(im.id));
+      return `<li class="lead-match-item"><a href="imovel.html?id=${encodeURIComponent(im.id)}" target="_blank" rel="noopener">${escapeHtml(im.titulo || "Imóvel")} — ${escapeHtml([im.bairro, im.cidade].filter(Boolean).join(", "))} — ${escapeHtml(fmtPreco(im.preco))}</a><button class="lead-match-toggle" type="button" data-action="toggle-property-offer" data-property-id="${escapeHtml(im.id)}" data-sent="${enviado ? "true" : "false"}">${enviado ? `✓ Enviado · ${escapeHtml(formatarDataLead(enviado.sent_at))}` : "Marcar como enviado"}</button></li>`;
+    };
     const linksVisiveis = matches.slice(0, 4).map(montarLinkImovel).join("");
     const linksAdicionais = matches.slice(4).map(montarLinkImovel).join("");
     const adicionaisExpansiveis = linksAdicionais ? `<details class="lead-more-matches"><summary>Ver mais ${matches.length - 4} imóvel(is)</summary><ul>${linksAdicionais}</ul></details>` : "";
@@ -2101,7 +2115,8 @@ function renderizarSeletorImoveisLead() {
   const montarItem = (im, selecionado) => {
     const local = [im.bairro, im.cidade].filter(Boolean).join(", ");
     const meta = [im.codigo ? `Cód. ${im.codigo}` : "", local, fmtPreco(im.preco)].filter(Boolean).join(" · ");
-    return `<article class="lead-picker-property" draggable="true" data-picker-property="${escapeHtml(im.id)}"><div><strong>${escapeHtml(im.titulo || "Imóvel")}</strong><small>${escapeHtml(meta)}</small></div><button type="button" data-picker-action="${selecionado ? "remove" : "add"}" data-property-id="${escapeHtml(im.id)}" aria-label="${selecionado ? "Remover" : "Adicionar"} ${escapeHtml(im.titulo || "imóvel")}">${selecionado ? "Remover" : "＋ Adicionar"}</button></article>`;
+    const enviado = (lead.sent_offers || []).find(item => String(item.property_id) === String(im.id));
+    return `<article class="lead-picker-property" draggable="true" data-picker-property="${escapeHtml(im.id)}"><div><strong>${escapeHtml(im.titulo || "Imóvel")}${enviado ? ` <span class="lead-match-sent">Já enviado</span>` : ""}</strong><small>${escapeHtml(meta)}${enviado ? ` · Enviado em ${escapeHtml(formatarDataLead(enviado.sent_at))}` : ""}</small></div><button type="button" data-picker-action="${selecionado ? "remove" : "add"}" data-property-id="${escapeHtml(im.id)}" aria-label="${selecionado ? "Remover" : "Adicionar"} ${escapeHtml(im.titulo || "imóvel")}">${selecionado ? "Remover" : "＋ Adicionar"}</button></article>`;
   };
   const numero = String(lead.telefone || "").replace(/\D/g, "");
   const whatsappNumber = numero.startsWith("55") ? numero : `55${numero}`;
@@ -2253,11 +2268,15 @@ async function salvarDadosLead(form) {
       method: "PATCH",
       body: JSON.stringify({
         nome: dados.get("nome"), telefone: dados.get("telefone"), email: dados.get("email"),
-        cidade: dados.get("cidade"), tipo_atendimento: dados.get("tipo_atendimento"),
+        cidade: dados.get("cidade"), cpf: String(dados.get("cpf") || "").replace(/\D/g, ""), tipo_atendimento: dados.get("tipo_atendimento"),
         tipo_imovel: dados.get("tipo_imovel"), valor_maximo: valorDigitos ? Number(valorDigitos) : null,
         quartos_minimos: dados.get("quartos_minimos") === "" ? null : Number(dados.get("quartos_minimos")),
         entrada_faixa: dados.get("entrada_faixa") || null,
-        pretende_usar_fgts: dados.get("pretende_usar_fgts") || null,
+        pretende_usar_fgts: dados.get("possui_fgts") || null,
+        tem_imovel_nome: dados.get("tem_imovel_nome") || null,
+        mora_trabalha_tres_pontas: dados.get("mora_trabalha_tres_pontas") || null,
+        possui_fgts: dados.get("possui_fgts") || null,
+        fgts_mais_35_contribuicoes: dados.get("fgts_mais_35_contribuicoes") || null,
         vendedor_responsavel: dados.get("vendedor_responsavel") || null,
         consentiu_ofertas_whatsapp: dados.get("consentiu_ofertas_whatsapp") === "on",
         status, observacoes
@@ -2267,11 +2286,16 @@ async function salvarDadosLead(form) {
       Object.assign(registro, {
         nome: String(dados.get("nome")).trim(), telefone: String(dados.get("telefone")).replace(/\D/g, ""),
         email: String(dados.get("email") || "").trim() || null, cidade: String(dados.get("cidade")).trim(),
+        cpf: String(dados.get("cpf") || "").replace(/\D/g, "") || null,
+        tem_imovel_nome: dados.get("tem_imovel_nome") === "sim" ? 1 : dados.get("tem_imovel_nome") === "nao" ? 0 : null,
+        mora_trabalha_tres_pontas: dados.get("mora_trabalha_tres_pontas") === "sim" ? 1 : dados.get("mora_trabalha_tres_pontas") === "nao" ? 0 : null,
+        possui_fgts: dados.get("possui_fgts") === "sim" ? 1 : dados.get("possui_fgts") === "nao" ? 0 : null,
+        fgts_mais_35_contribuicoes: dados.get("fgts_mais_35_contribuicoes") === "sim" ? 1 : dados.get("fgts_mais_35_contribuicoes") === "nao" ? 0 : null,
+        pretende_usar_fgts: dados.get("possui_fgts") === "sim" ? 1 : dados.get("possui_fgts") === "nao" ? 0 : null,
         tipo_atendimento: dados.get("tipo_atendimento"), tipo_imovel: dados.get("tipo_imovel") || null,
         valor_maximo: valorDigitos ? Number(valorDigitos) : null,
         quartos_minimos: dados.get("quartos_minimos") === "" ? null : Number(dados.get("quartos_minimos")),
         entrada_faixa: dados.get("entrada_faixa") || null,
-        pretende_usar_fgts: dados.get("pretende_usar_fgts") === "sim" ? 1 : dados.get("pretende_usar_fgts") === "nao" ? 0 : null,
         vendedor_responsavel: dados.get("vendedor_responsavel") || null,
         consentiu_ofertas_whatsapp: dados.get("consentiu_ofertas_whatsapp") === "on" ? 1 : 0,
         status, observacoes
@@ -2311,6 +2335,26 @@ async function excluirLead(card) {
   }
 }
 
+async function atualizarOfertaCliente(button) {
+  const card = button.closest(".lead-card");
+  const lead = leadsCache.find(item => String(item.id) === String(card?.dataset.leadId));
+  if (!lead) return;
+  const propertyId = String(button.dataset.propertyId || "");
+  const sent = button.dataset.sent !== "true";
+  button.disabled = true;
+  try {
+    const result = await requisicaoLeads(`/api/admin/leads/${encodeURIComponent(lead.id)}/offers`, {
+      method: "PATCH", body: JSON.stringify({ property_id: propertyId, sent })
+    });
+    lead.sent_offers = result.sent_offers || [];
+    renderizarLeads();
+    mostrarStatusLeads(sent ? "Imóvel marcado como enviado para este cliente." : "Registro de envio removido.");
+  } catch (error) {
+    button.disabled = false;
+    mostrarStatusLeads(error?.message || "Não foi possível atualizar o envio do imóvel.", true);
+  }
+}
+
 document.getElementById("lista-leads")?.addEventListener("click", event => {
   const button = event.target.closest("[data-action='save-lead']");
   if (button) salvarLead(button.closest(".lead-card"));
@@ -2318,6 +2362,8 @@ document.getElementById("lista-leads")?.addEventListener("click", event => {
   if (deleteButton) excluirLead(deleteButton.closest(".lead-card"));
   const pickButton = event.target.closest("[data-action='pick-lead-properties']");
   if (pickButton && !pickButton.disabled) abrirSeletorImoveisLead(pickButton.dataset.leadId);
+  const offerButton = event.target.closest("[data-action='toggle-property-offer']");
+  if (offerButton) atualizarOfertaCliente(offerButton);
 });
 document.getElementById("lista-leads")?.addEventListener("input", event => {
   const input = event.target.closest("[data-lead-edit-price]");

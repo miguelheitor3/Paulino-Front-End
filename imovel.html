@@ -363,6 +363,18 @@
     border-color:var(--green);
   }
 
+  .foto-principal{cursor:zoom-in}
+  .photo-lightbox{width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:0;border:0;background:rgba(7,12,9,.97);color:#fff;overflow:hidden}
+  .photo-lightbox::backdrop{background:rgba(7,12,9,.97)}
+  .photo-lightbox-inner{position:relative;width:100%;height:100%;display:grid;place-items:center}
+  .photo-lightbox-image{max-width:calc(100vw - 120px);max-height:calc(100dvh - 100px);object-fit:contain}
+  .photo-lightbox-close,.photo-lightbox-nav{position:absolute;z-index:2;border:0;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;cursor:pointer;display:grid;place-items:center}
+  .photo-lightbox-close{right:22px;top:20px;width:46px;height:46px;font-size:27px}
+  .photo-lightbox-nav{top:50%;transform:translateY(-50%);width:52px;height:52px;font-size:32px}
+  .photo-lightbox-nav.prev{left:22px}.photo-lightbox-nav.next{right:22px}
+  .photo-lightbox-count{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font-size:14px;background:rgba(255,255,255,.14);padding:7px 14px;border-radius:20px}
+  @media(max-width:600px){.photo-lightbox-image{max-width:calc(100vw - 24px);max-height:calc(100dvh - 80px)}.photo-lightbox-nav{width:42px;height:42px}.photo-lightbox-nav.prev{left:8px}.photo-lightbox-nav.next{right:8px}.photo-lightbox-close{right:10px;top:10px}}
+
   .miniaturas button span{position:absolute;inset:0;display:grid;place-items:center;color:#fff;text-shadow:0 1px 4px #000;font-size:14px;pointer-events:none;}
 
   #media-principal img{object-fit:cover;}
@@ -970,7 +982,7 @@
 </div>
 
 <div class="wrap">
-  <a class="voltar" href="index.html">← Voltar para o catálogo</a>
+  <a class="voltar" id="voltar-catalogo" href="index.html">← Voltar para o catálogo</a>
 </div>
 
 <div class="wrap" id="conteudo">
@@ -1151,6 +1163,15 @@
 
 <script>
 const params = new URLSearchParams(location.search);
+document.getElementById("voltar-catalogo")?.addEventListener("click", event => {
+  try {
+    const anterior = new URL(document.referrer);
+    if (anterior.origin === location.origin && (anterior.pathname.endsWith("/") || /(^|\/)index\.html$/.test(anterior.pathname)) && history.length > 1) {
+      event.preventDefault();
+      history.back();
+    }
+  } catch { /* mantém o link para index.html como alternativa segura */ }
+});
 const id = params.get("id");
 let imovelAtual = null;
 
@@ -1420,14 +1441,28 @@ async function carregar(){
     document.getElementById("desc-fade").style.display = "none";
   }
 
-  // Galeria de Fotos
-  if(fotos.length > 1){
+  // Galeria com visualização em tela cheia
+  {
     let idx = 0;
     const mediaPrincipal = document.getElementById("media-principal");
     const contador = document.getElementById("foto-contador");
     const miniaturas = [...document.querySelectorAll("#miniaturas button")];
     const botaoAnterior = document.querySelector(".foto-nav.prev");
     const botaoProximo = document.querySelector(".foto-nav.next");
+    const lightbox = document.createElement("dialog");
+    lightbox.className = "photo-lightbox";
+    lightbox.setAttribute("aria-label", "Galeria de fotos do imóvel");
+    lightbox.innerHTML = `<div class="photo-lightbox-inner"><button type="button" class="photo-lightbox-close" aria-label="Fechar">×</button>${fotos.length > 1 ? `<button type="button" class="photo-lightbox-nav prev" aria-label="Foto anterior">‹</button><button type="button" class="photo-lightbox-nav next" aria-label="Próxima foto">›</button>` : ""}<img class="photo-lightbox-image" alt="${escapeHtml(imovel.titulo)}"><span class="photo-lightbox-count"></span></div>`;
+    document.body.append(lightbox);
+    const lightboxImage = lightbox.querySelector(".photo-lightbox-image");
+    const lightboxCount = lightbox.querySelector(".photo-lightbox-count");
+    const moverFotoNoLightbox = direcao => {
+      let proximo = idx;
+      for (let tentativas = 0; tentativas < fotos.length; tentativas++) {
+        proximo = (proximo + direcao + fotos.length) % fotos.length;
+        if (!isVideoMedia(fotos[proximo])) { mostrarFoto(proximo); return; }
+      }
+    };
 
     function mostrarFoto(novoIdx){
       idx = (novoIdx + fotos.length) % fotos.length;
@@ -1435,20 +1470,33 @@ async function carregar(){
         ? `<video src="${escapeHtml(fotos[idx])}" controls autoplay playsinline preload="metadata" aria-label="Vídeo do imóvel"></video>`
         : `<img src="${escapeHtml(fotos[idx])}" alt="${escapeHtml(imovel.titulo)}" width="1080" height="1080" decoding="async">`;
       if(contador) contador.textContent = `${idx + 1} / ${fotos.length}`;
+      lightboxImage.src = fotos[idx];
+      lightboxCount.textContent = `${idx + 1} / ${fotos.length}`;
       miniaturas.forEach((miniatura,i) => miniatura.classList.toggle("ativa", i === idx));
     }
 
     if(botaoAnterior) botaoAnterior.addEventListener("click", () => mostrarFoto(idx - 1));
     if(botaoProximo) botaoProximo.addEventListener("click", () => mostrarFoto(idx + 1));
+    mediaPrincipal?.addEventListener("click", event => {
+      if (event.target.closest("video")) return;
+      mostrarFoto(idx);
+      lightbox.showModal();
+    });
+    lightbox.querySelector(".photo-lightbox-close").addEventListener("click", () => lightbox.close());
+    lightbox.querySelector(".photo-lightbox-nav.prev")?.addEventListener("click", () => moverFotoNoLightbox(-1));
+    lightbox.querySelector(".photo-lightbox-nav.next")?.addEventListener("click", () => moverFotoNoLightbox(1));
+    lightbox.addEventListener("click", event => { if (event.target === lightbox) lightbox.close(); });
+    document.addEventListener("keydown", event => {
+      if(!lightbox.open) return;
+      if(event.key === "ArrowLeft") moverFotoNoLightbox(-1);
+      if(event.key === "ArrowRight") moverFotoNoLightbox(1);
+    });
 
     miniaturas.forEach(miniatura => {
       miniatura.addEventListener("click", () => mostrarFoto(Number(miniatura.dataset.idx)));
     });
 
-    document.addEventListener("keydown", event => {
-      if(event.key === "ArrowLeft") mostrarFoto(idx - 1);
-      if(event.key === "ArrowRight") mostrarFoto(idx + 1);
-    });
+    mediaPrincipal?.querySelector("img")?.setAttribute("title", "Clique para ampliar a foto");
   }
 
   carregarImoveisSimilares(imovel);

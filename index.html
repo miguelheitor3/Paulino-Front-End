@@ -564,6 +564,7 @@
       <div class="offers-signup-field"><label for="ofertas-nome">Seu nome *</label><input id="ofertas-nome" name="nome" maxlength="100" autocomplete="name" required></div>
       <div class="offers-signup-field"><label for="ofertas-telefone">WhatsApp *</label><input id="ofertas-telefone" name="telefone" type="tel" maxlength="20" autocomplete="tel" placeholder="(35) 99999-9999" required></div>
       <div class="offers-signup-field"><label for="ofertas-cidade">Cidade onde procura *</label><input id="ofertas-cidade" name="cidade" maxlength="100" autocomplete="address-level2" placeholder="Ex.: Três Pontas" required></div>
+      <div class="offers-signup-field"><label for="ofertas-finalidade">O que você procura? *</label><select id="ofertas-finalidade" name="tipo_atendimento" required><option value="">Selecione</option><option value="compra">Compra</option><option value="aluguel">Aluguel</option><option value="financiamento">Financiamento</option></select></div>
       <div class="offers-signup-field"><label for="ofertas-tipo-imovel">Tipo de imóvel</label><select id="ofertas-tipo-imovel" name="tipo_imovel"><option value="">Qualquer tipo</option><option>Casa</option><option>Apartamento</option><option>Barracão</option><option>Ponto Comercial</option><option>Sítio/Fazenda</option><option>Terreno</option><option>Área de Lazer</option></select></div>
       <div class="offers-signup-field"><label for="ofertas-valor-maximo">Valor máximo (R$)</label><input id="ofertas-valor-maximo" name="valor_maximo" type="text" inputmode="numeric" maxlength="11" placeholder="Ex.: 350.000"></div>
       <div class="offers-signup-field"><label for="ofertas-quartos">Quartos mínimos</label><select id="ofertas-quartos" name="quartos_minimos"><option value="">Qualquer quantidade</option><option value="0">Sem preferência</option><option value="1">1 ou mais</option><option value="2">2 ou mais</option><option value="3">3 ou mais</option><option value="4">4 ou mais</option></select></div>
@@ -1830,6 +1831,7 @@ formularioOfertas?.addEventListener("submit", async event => {
   const feedback = document.getElementById("ofertas-feedback");
   const button = formularioOfertas.querySelector("button[type='submit']");
   const dados = new FormData(formularioOfertas);
+  const finalidade = String(dados.get("tipo_atendimento") || "");
   const valorDigitos = String(dados.get("valor_maximo") || "").replace(/\D/g, "");
   if (valorDigitos && Number(valorDigitos) > 100000000) {
     feedback.className = "offers-signup-feedback error";
@@ -1837,6 +1839,7 @@ formularioOfertas?.addEventListener("submit", async event => {
     feedback.focus({ preventScroll: true });
     return;
   }
+  const whatsappWindow = finalidade === "financiamento" ? window.open("about:blank", "_blank") : null;
   feedback.className = "offers-signup-feedback";
   feedback.textContent = "";
   button.disabled = true;
@@ -1851,18 +1854,32 @@ formularioOfertas?.addEventListener("submit", async event => {
         tipo_imovel: dados.get("tipo_imovel") || null,
         valor_maximo: valorDigitos ? Number(valorDigitos) : null,
         quartos_minimos: dados.get("quartos_minimos") === "" ? null : Number(dados.get("quartos_minimos")),
-        tipo_atendimento: "compra", consentiu_contato: true,
+        tipo_atendimento: finalidade, consentiu_contato: true,
         consentiu_ofertas_whatsapp: dados.get("consentiu_ofertas_whatsapp") === "on",
         website: dados.get("website")
       })
     });
     const resultado = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(resultado.error || "Não foi possível salvar suas preferências. Tente novamente.");
+    let contatoFinanceiro = "";
+    if (finalidade === "financiamento") {
+      const mensagem = `Olá! Acabei de solicitar contato sobre financiamento pelo site da Paulino Imóveis. Meu nome é ${dados.get("nome")} e meu telefone é ${dados.get("telefone")}. Gostaria de continuar o atendimento.`;
+      contatoFinanceiro = `https://wa.me/553597097389?text=${encodeURIComponent(mensagem)}`;
+      if (whatsappWindow) whatsappWindow.location.href = contatoFinanceiro;
+    }
     formularioOfertas.reset();
     feedback.className = "offers-signup-feedback success";
-    feedback.innerHTML = "<span><strong>Cadastro confirmado!</strong>Suas preferências foram salvas. Quando aparecer um imóvel compatível, nossa equipe poderá enviar o aviso pelo WhatsApp. Você pode pedir para parar de receber quando quiser.</span>";
+    if (finalidade === "financiamento") {
+      const proximoPasso = whatsappWindow
+        ? "O WhatsApp foi aberto com uma mensagem pronta; confira e toque em Enviar para iniciar o atendimento."
+        : `<a href="${contatoFinanceiro}" target="_blank" rel="noopener">Clique aqui para abrir o WhatsApp</a> e toque em Enviar.`;
+      feedback.innerHTML = `<span><strong>Cadastro confirmado!</strong>Suas preferências foram salvas. ${proximoPasso}</span>`;
+    } else {
+      feedback.innerHTML = "<span><strong>Cadastro confirmado!</strong>Suas preferências foram salvas. Quando aparecer um imóvel compatível, nossa equipe poderá enviar o aviso pelo WhatsApp. Você pode pedir para parar de receber quando quiser.</span>";
+    }
     feedback.focus({ preventScroll: true });
   } catch (error) {
+    whatsappWindow?.close();
     feedback.className = "offers-signup-feedback error";
     feedback.textContent = error?.message || "Não foi possível concluir o cadastro agora. Tente novamente.";
     feedback.focus({ preventScroll: true });

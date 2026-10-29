@@ -217,8 +217,8 @@
       <a href="index.html#resultados">Alugar</a>
       <a href="index.html#resultados">Terrenos</a>
       <a href="financiamento.html" class="ativo">Financiamento</a>
-      <a href="https://wa.me/5535997097389?text=Ol%C3%A1%2C%20gostaria%20de%20negociar%20um%20im%C3%B3vel." target="_blank" rel="noopener">Negociar imóvel</a>
-      <a class="mobile-nav-contact" href="https://wa.me/5535997097389?text=Ol%C3%A1%2C%20gostaria%20de%20simular%20um%20financiamento%20imobili%C3%A1rio." target="_blank" rel="noopener">Falar no WhatsApp</a>
+      <a href="https://wa.me/553597097389?text=Ol%C3%A1%2C%20gostaria%20de%20negociar%20um%20im%C3%B3vel." target="_blank" rel="noopener">Negociar imóvel</a>
+      <a class="mobile-nav-contact" href="https://wa.me/553597097389?text=Ol%C3%A1%2C%20gostaria%20de%20simular%20um%20financiamento%20imobili%C3%A1rio." target="_blank" rel="noopener">Falar no WhatsApp</a>
       <button class="mobile-nav-login" type="button">Entrar</button>
     </nav>
     <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="navegacao-financiamento">☰ Menu</button>
@@ -226,7 +226,7 @@
       <a class="btn-outline-header" href="anunciar.html">Anunciar imóvel</a>
       <button class="btn-login-header" id="btn-login-header" type="button">Entrar</button>
       <a class="btn-outline-header" id="btn-admin-header" href="/admin" style="display:none;">Administrador</a>
-      <a class="btn-green" href="https://wa.me/5535997097389?text=Ol%C3%A1%2C%20gostaria%20de%20simular%20um%20financiamento%20imobili%C3%A1rio." target="_blank" rel="noopener">Falar no WhatsApp</a>
+      <a class="btn-green" href="https://wa.me/553597097389?text=Ol%C3%A1%2C%20gostaria%20de%20simular%20um%20financiamento%20imobili%C3%A1rio." target="_blank" rel="noopener">Falar no WhatsApp</a>
     </div>
   </div>
 </header>
@@ -275,31 +275,34 @@
     <form class="cadastro-card" id="form-cadastro-financiamento">
       <div class="cadastro-head">
         <span class="eyebrow">Vamos conversar</span>
-        <h2>Conte o que você procura</h2>
+        <h2>Vamos simular um Financiamento para você</h2>
         <p>Deixe seus dados e preferências para que nossa equipe possa entrar em contato e ajudar a encontrar imóveis compatíveis com seu perfil.</p>
       </div>
       <div class="cadastro-grid">
         <div class="cadastro-field"><label for="lead-nome">Nome completo *</label><input id="lead-nome" name="nome" maxlength="100" autocomplete="name" required></div>
         <div class="cadastro-field"><label for="lead-telefone">Telefone ou WhatsApp *</label><input id="lead-telefone" name="telefone" type="tel" maxlength="20" autocomplete="tel" placeholder="(35) 99999-9999" required></div>
         <div class="cadastro-field"><label for="lead-email">E-mail (opcional)</label><input id="lead-email" name="email" type="email" maxlength="254" autocomplete="email"></div>
+        <div class="cadastro-field"><label for="lead-cpf">CPF *</label><input id="lead-cpf" name="cpf" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="000.000.000-00" required></div>
         <div class="cadastro-field"><label for="lead-cidade">Cidade onde procura *</label><input id="lead-cidade" name="cidade" maxlength="100" autocomplete="address-level2" placeholder="Ex.: Três Pontas" required></div>
+        <div class="cadastro-field"><label for="lead-imovel-nome">Tem imóvel no nome?</label><select id="lead-imovel-nome" name="tem_imovel_nome"><option value="">Prefiro não informar</option><option value="sim">Sim</option><option value="nao">Não</option></select></div>
+        <div class="cadastro-field"><label for="lead-tres-pontas">Mora ou trabalha em Três Pontas?</label><select id="lead-tres-pontas" name="mora_trabalha_tres_pontas"><option value="">Prefiro não informar</option><option value="sim">Sim</option><option value="nao">Não</option></select></div>
         <div class="cadastro-field"><label for="lead-tipo">Tipo de imóvel</label><select id="lead-tipo" name="tipo_imovel"><option value="">Ainda não defini</option><option>Casa</option><option>Apartamento</option><option>Barracão</option><option>Ponto Comercial</option><option>Sítio/Fazenda</option><option>Terreno</option><option>Área de Lazer</option></select></div>
         <div class="cadastro-field"><label for="lead-valor">Valor máximo que pretende buscar (R$)</label><input id="lead-valor" name="valor_maximo" type="text" inputmode="numeric" autocomplete="off" maxlength="11" aria-describedby="lead-valor-ajuda" placeholder="Ex.: 350.000"><small id="lead-valor-ajuda" class="cadastro-nota">Digite apenas números; os pontos de milhar aparecem automaticamente.</small></div>
-        <div class="cadastro-field"><label for="lead-quartos">Quantidade mínima de quartos</label><select id="lead-quartos" name="quartos_minimos"><option value="">Qualquer quantidade</option><option value="0">Não é um critério</option><option value="1">1 ou mais</option><option value="2">2 ou mais</option><option value="3">3 ou mais</option><option value="4">4 ou mais</option></select></div>
         <div class="cadastro-field"><label for="lead-entrada">Faixa aproximada de entrada disponível</label><select id="lead-entrada" name="entrada_faixa"><option value="">Prefiro não informar</option><option value="ate_20_mil">Até R$ 20 mil</option><option value="20_a_50_mil">De R$ 20 mil a R$ 50 mil</option><option value="50_a_100_mil">De R$ 50 mil a R$ 100 mil</option><option value="acima_100_mil">Acima de R$ 100 mil</option></select></div>
-        <div class="cadastro-field"><label for="lead-fgts">Pretende usar FGTS?</label><select id="lead-fgts" name="pretende_usar_fgts"><option value="">Ainda não sei / prefiro não informar</option><option value="sim">Sim</option><option value="nao">Não</option></select></div>
+        <div class="cadastro-field"><label for="lead-fgts">Possui FGTS?</label><select id="lead-fgts" name="possui_fgts"><option value="">Prefiro não informar</option><option value="sim">Sim</option><option value="nao">Não</option></select></div>
+        <div class="cadastro-field"><label for="lead-fgts-35">Se possui, tem mais de 35 contribuições?</label><select id="lead-fgts-35" name="fgts_mais_35_contribuicoes"><option value="">Prefiro não informar</option><option value="sim">Sim</option><option value="nao">Não</option></select></div>
         <div class="form-honeypot" aria-hidden="true"><label for="lead-website">Deixe este campo vazio</label><input id="lead-website" name="website" tabindex="-1" autocomplete="off"></div>
       </div>
       <label class="cadastro-consent"><input type="checkbox" name="consentiu_contato" required><span>Autorizo a Paulino Imóveis a usar os dados informados para responder a esta solicitação e entrar em contato comigo sobre financiamento e imóveis compatíveis. *</span></label>
       <label class="cadastro-consent"><input type="checkbox" name="consentiu_ofertas_whatsapp"><span>Quero receber pelo WhatsApp avisos sobre novos imóveis que combinem com o que procuro. Esta autorização é opcional e posso pedir para parar a qualquer momento.</span></label>
       <button class="cadastro-submit" type="submit">Enviar solicitação</button>
       <div class="cadastro-feedback" id="cadastro-feedback" role="status" aria-live="polite"></div>
-      <p class="cadastro-nota">Não envie CPF, documentos ou comprovantes por este formulário. As informações de entrada e FGTS são opcionais. Para dúvidas, você também pode falar conosco pelo WhatsApp.</p>
+      <p class="cadastro-nota">Seu CPF será usado somente para esta solicitação de simulação e ficará visível à equipe autorizada. Não envie documentos ou comprovantes. Para dúvidas, você também pode falar conosco pelo WhatsApp.</p>
       <p class="cadastro-nota"><a href="#aviso-privacidade">Leia o aviso de privacidade deste cadastro</a>.</p>
       <details class="aviso-privacidade" id="aviso-privacidade">
         <summary>Aviso de privacidade</summary>
         <p>A Paulino Imóveis utiliza as informações enviadas neste formulário para responder ao pedido de financiamento, entrar em contato com você e identificar imóveis disponíveis que possam corresponder às preferências informadas.</p>
-        <p>O formulário coleta nome, telefone, cidade e preferências de imóvel; e-mail, faixa aproximada para entrada e intenção de uso do FGTS são opcionais. Os dados ficam armazenados em banco protegido na Cloudflare e podem ser consultados pela equipe autorizada da imobiliária. Este cadastro não realiza análise ou decisão automática de crédito nem envia documentos a instituições financeiras.</p>
+        <p>O formulário coleta nome, telefone, CPF, cidade e preferências de imóvel; e-mail, faixa aproximada para entrada, situação de imóvel em seu nome, vínculo com Três Pontas e informações sobre FGTS são opcionais. Os dados ficam armazenados em banco protegido na Cloudflare e podem ser consultados pela equipe autorizada da imobiliária. Este cadastro não realiza análise ou decisão automática de crédito nem envia documentos a instituições financeiras.</p>
         <p>As informações serão mantidas enquanto forem necessárias para atender à solicitação e cumprir obrigações aplicáveis. Para solicitar acesso, correção ou exclusão, escreva para <a href="mailto:imobiliariapaulino@gmail.com">imobiliariapaulino@gmail.com</a>. O envio do formulário, por si só, não autoriza o recebimento de ofertas. Se você marcar a autorização opcional acima, a equipe poderá enviar manualmente pelo WhatsApp avisos de imóveis compatíveis. Você pode pedir para parar a qualquer momento.</p>
       </details>
     </form>
@@ -579,6 +582,11 @@ atualizarLoginHeader();
 const cadastroFinanciamento = document.getElementById("form-cadastro-financiamento");
 const feedbackCadastro = document.getElementById("cadastro-feedback");
 const valorMaximoInput = document.getElementById("lead-valor");
+const cpfInput = document.getElementById("lead-cpf");
+cpfInput?.addEventListener("input", () => {
+  const digits = cpfInput.value.replace(/\D/g, "").slice(0, 11);
+  cpfInput.value = digits.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+});
 valorMaximoInput?.addEventListener("input", () => {
   const cursor = valorMaximoInput.selectionStart ?? valorMaximoInput.value.length;
   const digitosAntesCursor = valorMaximoInput.value.slice(0, cursor).replace(/\D/g, "").length;
@@ -600,17 +608,23 @@ cadastroFinanciamento?.addEventListener("submit", async event => {
   feedbackCadastro.className = "cadastro-feedback";
   feedbackCadastro.textContent = "";
   const button = cadastroFinanciamento.querySelector(".cadastro-submit");
+  const whatsappWindow = window.open("about:blank", "_blank");
   button.disabled = true;
   button.textContent = "Enviando...";
   const form = new FormData(cadastroFinanciamento);
   const valorRaw = String(form.get("valor_maximo") || "").replace(/\D/g, "");
   const payload = {
+    formulario_financiamento: true,
     nome: form.get("nome"), telefone: form.get("telefone"), email: form.get("email"),
     cidade: form.get("cidade"), tipo_imovel: form.get("tipo_imovel"),
     valor_maximo: valorRaw ? Number(valorRaw) : null,
-    quartos_minimos: form.get("quartos_minimos") === "" ? null : Number(form.get("quartos_minimos")),
     entrada_faixa: form.get("entrada_faixa") || null,
-    pretende_usar_fgts: form.get("pretende_usar_fgts") || null,
+    pretende_usar_fgts: form.get("possui_fgts") || null,
+    possui_fgts: form.get("possui_fgts") || null,
+    fgts_mais_35_contribuicoes: form.get("fgts_mais_35_contribuicoes") || null,
+    cpf: String(form.get("cpf") || "").replace(/\D/g, ""),
+    tem_imovel_nome: form.get("tem_imovel_nome") || null,
+    mora_trabalha_tres_pontas: form.get("mora_trabalha_tres_pontas") || null,
     consentiu_contato: form.get("consentiu_contato") === "on",
     consentiu_ofertas_whatsapp: form.get("consentiu_ofertas_whatsapp") === "on",
     website: form.get("website")
@@ -623,9 +637,13 @@ cadastroFinanciamento?.addEventListener("submit", async event => {
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.error || "Não foi possível enviar agora. Tente novamente ou fale conosco pelo WhatsApp.");
     cadastroFinanciamento.reset();
-    feedbackCadastro.textContent = "Solicitação enviada. Nossa equipe entrará em contato para conversar sobre seu financiamento e os imóveis que podem combinar com o que você procura.";
+    const mensagem = `Olá! Acabei de solicitar uma simulação de financiamento pelo site da Paulino Imóveis. Meu nome é ${form.get("nome")} e meu telefone é ${form.get("telefone")}. Gostaria de continuar o atendimento.`;
+    const whatsappUrl = `https://wa.me/553597097389?text=${encodeURIComponent(mensagem)}`;
+    if (whatsappWindow) whatsappWindow.location.href = whatsappUrl;
+    feedbackCadastro.innerHTML = `Solicitação salva! ${whatsappWindow ? "O WhatsApp foi aberto com uma mensagem pronta. Confira e toque em Enviar para iniciar o atendimento." : `Seu navegador bloqueou a abertura automática. <a href="${whatsappUrl}" target="_blank" rel="noopener">Clique aqui para abrir o WhatsApp</a> e toque em Enviar.`}`;
     feedbackCadastro.className = "cadastro-feedback ok";
   } catch (error) {
+    whatsappWindow?.close();
     feedbackCadastro.textContent = error?.message || "Não foi possível enviar agora. Tente novamente ou fale conosco pelo WhatsApp.";
     feedbackCadastro.className = "cadastro-feedback erro";
   } finally {

@@ -19,6 +19,8 @@ Worker separado do serviço que atende às mídias no Cloudflare R2. Ele grava e
 
 O formulário aceita até cinco envios por endereço de rede a cada dez minutos; o endereço é guardado apenas como hash HMAC temporário. Se o deploy mostrar uma URL `workers.dev` diferente, atualize `LEADS_WORKER_URL` no arquivo `assets/config.js` e publique o site.
 
+A migração `0005_financing_profile_and_property_offers.sql` acrescenta CPF e as novas respostas do formulário de financiamento, além do histórico manual de imóveis sinalizados como enviados para cada cliente. Ao atualizar uma instalação existente, aplique a migração pendente antes de publicar o Worker e o site: `npx wrangler d1 migrations apply paulino-financiamento-leads --remote`. O CPF é exibido apenas no editor autenticado do painel; mantenha o acesso administrativo restrito.
+
 `SUPABASE_ANON_KEY` é usada pelo Worker para validar a sessão no Supabase Auth. Nunca configure a chave `service_role` neste Worker ou no navegador.
 
 ## Rotas
