@@ -823,16 +823,16 @@ tr:last-child td{
 .lead-manual-hint{color:var(--ink-soft);font-size:11px;}
 .lead-manual-save{min-height:40px;padding:10px 16px;border:0;border-radius:8px;background:var(--green);color:#fff;font:700 13px Inter,sans-serif;cursor:pointer;}
 .lead-manual-save:disabled{opacity:.65;cursor:wait;}
-.lead-list{display:grid;gap:18px;}
+.lead-list{display:grid;gap:12px;}
 .lead-card{overflow:hidden;background:#fff;border:1px solid #dce5df;border-radius:14px;box-shadow:0 5px 18px rgba(12,59,44,.07);}
-.lead-card-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:17px 20px;background:linear-gradient(110deg,#f1f6f2,#fbfcfb);border-bottom:1px solid var(--line);}
-.lead-identity{display:flex;align-items:center;gap:12px;min-width:0;}
-.lead-avatar{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border-radius:12px;background:var(--green);color:#fff;font:700 14px Archivo,sans-serif;letter-spacing:.03em;}
-.lead-card h3{font:700 17px Archivo,sans-serif;margin:0 0 4px;color:var(--ink);}
+.lead-card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;background:linear-gradient(110deg,#f1f6f2,#fbfcfb);border-bottom:1px solid var(--line);}
+.lead-identity{display:flex;align-items:center;gap:9px;min-width:0;}
+.lead-avatar{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border-radius:10px;background:var(--green);color:#fff;font:700 13px Archivo,sans-serif;letter-spacing:.03em;}
+.lead-card h3{font:700 16px Archivo,sans-serif;margin:0 0 3px;color:var(--ink);}
 .lead-card-contact,.lead-card-meta{font-size:12px;line-height:1.55;color:var(--ink-soft);}
 .lead-card-contact a{color:var(--green);font-weight:700;text-decoration:none;}
 .lead-card-contact a:hover{text-decoration:underline;}
-.lead-head-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.lead-head-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
 .lead-status-pill,.lead-match-count{display:inline-flex;align-items:center;min-height:25px;padding:4px 9px;border-radius:999px;font-size:10px;font-weight:800;white-space:nowrap;}
 .lead-status-pill{background:#eaf4ed;color:#185c34;}
 .lead-status-pill.status-em_contato{background:#eaf2ff;color:#2456a3;}
@@ -844,12 +844,12 @@ tr:last-child td{
 .lead-type-pill.type-compra{background:#e9efff;color:#31529a;}
 .lead-type-pill.type-aluguel{background:#fff1df;color:#8b5600;}
 .lead-source-pill{background:#f0f1f0;color:#616a64;}
-.lead-card-grid{display:grid;grid-template-columns:minmax(220px,.85fr) minmax(0,1.4fr);gap:12px;padding:17px 20px 0;}
-.lead-card-section{min-width:0;padding:14px 15px;background:#f8faf8;border:1px solid #e8eee9;border-radius:10px;}
-.lead-card h4{display:flex;align-items:center;gap:7px;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft);margin:0 0 9px;}
+.lead-card-grid{display:grid;grid-template-columns:minmax(220px,.85fr) minmax(0,1.4fr);gap:10px;padding:12px 16px 0;}
+.lead-card-section{min-width:0;padding:11px 12px;background:#f8faf8;border:1px solid #e8eee9;border-radius:10px;}
+.lead-card h4{display:flex;align-items:center;gap:7px;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft);margin:0 0 6px;}
 .lead-match-count{min-height:21px;padding:3px 8px;background:#e8efeA;color:var(--green);font-size:10px;letter-spacing:0;}
-.lead-matches{display:grid;gap:7px;margin:0;padding:0;list-style:none;font-size:12px;line-height:1.45;}
-.lead-matches a{display:block;padding:9px 11px;background:#fff;border:1px solid var(--line);border-radius:8px;color:var(--green);font-weight:700;text-decoration:none;transition:border-color .15s,transform .15s;}
+.lead-matches{display:grid;gap:6px;margin:0;padding:0;list-style:none;font-size:12px;line-height:1.4;}
+.lead-matches a{display:block;padding:7px 9px;background:#fff;border:1px solid var(--line);border-radius:8px;color:var(--green);font-weight:700;text-decoration:none;transition:border-color .15s,transform .15s;}
 .lead-matches a:hover{border-color:#9db5a5;transform:translateY(-1px);}
 .lead-match-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;align-items:center}
 .lead-match-sent{border:1px solid #cbded0;background:#edf6ef;color:var(--green);border-radius:7px;padding:6px 9px;font-size:11px;font-weight:700;white-space:nowrap}
@@ -858,7 +858,7 @@ tr:last-child td{
 .lead-more-matches{margin-top:9px;padding-top:8px;border-top:1px solid #e3e9e4;font-size:12px;}
 .lead-more-matches summary{color:var(--green);font-weight:800;cursor:pointer;}
 .lead-more-matches ul{display:grid;gap:7px;margin:9px 0 0;padding:0;list-style:none;line-height:1.45;}
-.lead-card-actions{display:grid;grid-template-columns:minmax(150px,.55fr) minmax(220px,1.35fr) auto auto;gap:10px;align-items:end;margin-top:17px;padding:15px 20px 18px;background:#fcfdfc;border-top:1px solid var(--line);}
+.lead-card-actions{display:grid;grid-template-columns:minmax(150px,.55fr) minmax(220px,1.35fr) auto auto;gap:8px;align-items:end;margin-top:12px;padding:12px 16px 14px;background:#fcfdfc;border-top:1px solid var(--line);}
 .lead-card-actions label{display:block;font-size:10px;font-weight:800;color:var(--ink-soft);margin-bottom:5px;}
 .lead-card-actions select,.lead-card-actions textarea{width:100%;}
 .lead-card-actions textarea{min-height:42px;resize:vertical;}
@@ -876,9 +876,9 @@ tr:last-child td{
 .lead-offer-person strong{display:block;margin-bottom:3px;}
 .lead-offer-person small{color:var(--ink-soft);}
 .lead-offer-send{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:10px 14px;border:0;border-radius:8px;background:#16835d;color:#fff;font-weight:700;text-decoration:none;}
-.lead-card-offer-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:13px 20px 0;}
+.lead-card-offer-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 16px 0;}
 .lead-card-offer-toolbar small{font-size:11px;color:var(--ink-soft);}
-.lead-card-offer-button{padding:10px 14px;border:0;border-radius:8px;background:#16835d;color:#fff;font:700 12px Inter,sans-serif;cursor:pointer;}
+.lead-card-offer-button{padding:8px 12px;border:0;border-radius:8px;background:#16835d;color:#fff;font:700 12px Inter,sans-serif;cursor:pointer;}
 .lead-card-offer-button:disabled{background:#e7ebe8;color:#66716a;cursor:not-allowed;}
 .lead-picker-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .lead-picker-column{min-width:0;display:flex;flex-direction:column;gap:9px;}
@@ -1047,7 +1047,7 @@ tr:last-child td{
       </details>
       <div class="leads-toolbar">
         <div><label for="filtro-lead-busca">Buscar</label><input id="filtro-lead-busca" type="search" placeholder="Nome, telefone ou cidade"></div>
-        <div><label for="filtro-lead-tipo">Interesse</label><select id="filtro-lead-tipo"><option value="">Todos</option><option value="compra">Compra</option><option value="financiamento">Financiamento</option></select></div>
+        <div><label for="filtro-lead-tipo">Interesse</label><select id="filtro-lead-tipo"><option value="">Todos</option><option value="compra">Compra</option><option value="aluguel">Aluguel</option><option value="financiamento">Financiamento</option></select></div>
         <div><label for="filtro-lead-status">Situação</label><select id="filtro-lead-status"><option value="">Todas</option><option value="novo">Novo</option><option value="em_contato">Em contato</option><option value="simulacao">Simulação em andamento</option><option value="convertido">Convertido</option><option value="encerrado">Encerrado</option></select></div>
         <div><label for="filtro-lead-vendedor">Vendedor responsável</label><select id="filtro-lead-vendedor"><option value="">Todos</option><option value="Thomas">Thomas</option><option value="Antonio">Antonio</option><option value="Sandra">Sandra</option><option value="__sem_atribuicao">Não atribuído</option></select></div>
         <span id="leads-contador" style="font-size:12px;color:var(--ink-soft);"></span>
@@ -1953,7 +1953,7 @@ function obterDetalhesLead(lead) {
   if (lead.possui_fgts == null && lead.pretende_usar_fgts === 1) partes.push("pretende usar FGTS");
   if (lead.possui_fgts == null && lead.pretende_usar_fgts === 0) partes.push("não pretende usar FGTS");
   const simNao = value => value === 1 ? "sim" : value === 0 ? "não" : "não informado";
-  if (lead.cpf) partes.push(`CPF ${String(lead.cpf).replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.***.***-$4")}`);
+  if (lead.cpf) partes.push(`CPF ${String(lead.cpf).replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}`);
   if (lead.tem_imovel_nome != null) partes.push(`imóvel no nome: ${simNao(lead.tem_imovel_nome)}`);
   if (lead.mora_trabalha_tres_pontas != null) partes.push(`mora/trabalha em Três Pontas: ${simNao(lead.mora_trabalha_tres_pontas)}`);
   if (lead.possui_fgts != null) partes.push(`possui FGTS: ${simNao(lead.possui_fgts)}`);
@@ -2024,9 +2024,9 @@ function renderizarLeads() {
       const enviado = (lead.sent_offers || []).find(item => String(item.property_id) === String(im.id));
       return `<li class="lead-match-item"><a href="imovel.html?id=${encodeURIComponent(im.id)}" target="_blank" rel="noopener">${escapeHtml(im.titulo || "Imóvel")} — ${escapeHtml([im.bairro, im.cidade].filter(Boolean).join(", "))} — ${escapeHtml(fmtPreco(im.preco))}</a><button class="lead-match-toggle" type="button" data-action="toggle-property-offer" data-property-id="${escapeHtml(im.id)}" data-sent="${enviado ? "true" : "false"}">${enviado ? `✓ Enviado · ${escapeHtml(formatarDataLead(enviado.sent_at))}` : "Marcar como enviado"}</button></li>`;
     };
-    const linksVisiveis = matches.slice(0, 4).map(montarLinkImovel).join("");
-    const linksAdicionais = matches.slice(4).map(montarLinkImovel).join("");
-    const adicionaisExpansiveis = linksAdicionais ? `<details class="lead-more-matches"><summary>Ver mais ${matches.length - 4} imóvel(is)</summary><ul>${linksAdicionais}</ul></details>` : "";
+    const linksVisiveis = matches.slice(0, 2).map(montarLinkImovel).join("");
+    const linksAdicionais = matches.slice(2).map(montarLinkImovel).join("");
+    const adicionaisExpansiveis = linksAdicionais ? `<details class="lead-more-matches"><summary>Ver mais ${matches.length - 2} imóvel(is)</summary><ul>${linksAdicionais}</ul></details>` : "";
     return `<article class="lead-card" data-lead-id="${escapeHtml(lead.id)}">
       <div class="lead-card-head">
         <div class="lead-identity"><span class="lead-avatar" aria-hidden="true">${escapeHtml(iniciais)}</span><div><h3>${escapeHtml(lead.nome)}</h3><div class="lead-card-contact"><a href="https://wa.me/55${escapeHtml(String(lead.telefone).replace(/\D/g, "").replace(/^55/, ""))}" target="_blank" rel="noopener">${escapeHtml(lead.telefone)}</a>${lead.email ? ` · ${escapeHtml(lead.email)}` : ""}</div></div></div>
@@ -2056,6 +2056,24 @@ async function requisicaoLeads(path, options = {}) {
   return result;
 }
 
+async function registrarImoveisEnviados(leadId, propertyIds) {
+  const ids = [...new Set((propertyIds || []).map(String).filter(Boolean))];
+  if (!ids.length) return;
+  const lead = leadsCache.find(item => String(item.id) === String(leadId));
+  let novosRegistros = 0;
+  for (const propertyId of ids) {
+    if ((lead?.sent_offers || []).some(item => String(item.property_id) === propertyId)) continue;
+    const result = await requisicaoLeads(`/api/admin/leads/${encodeURIComponent(leadId)}/offers`, {
+      method: "PATCH", body: JSON.stringify({ property_id: propertyId, sent: true })
+    });
+    if (lead) lead.sent_offers = result.sent_offers || [];
+    novosRegistros++;
+  }
+  if (lead) renderizarLeads();
+  if (seletorImoveisLead && String(seletorImoveisLead.lead.id) === String(leadId)) renderizarSeletorImoveisLead();
+  mostrarStatusLeads(novosRegistros ? `${novosRegistros} imóvel(is) marcado(s) como enviado(s) para o cliente.` : "Este(s) imóvel(is) já estava(m) marcado(s) como enviado(s).");
+}
+
 async function sugerirClientesWhatsappParaImovel(imovelId) {
   try {
     const imovel = imoveisCache.find(item => String(item.id) === String(imovelId));
@@ -2067,6 +2085,15 @@ async function sugerirClientesWhatsappParaImovel(imovelId) {
       dialog = document.getElementById(dialogId);
       dialog.addEventListener("click", event => {
         if (event.target === dialog) dialog.close();
+        const sendLink = event.target.closest("[data-action='open-offer-whatsapp']");
+        if (sendLink) {
+          registrarImoveisEnviados(sendLink.dataset.leadId, [sendLink.dataset.propertyId])
+            .then(() => {
+              sendLink.dataset.sent = "true";
+              sendLink.textContent = "✓ Marcado como enviado";
+            })
+            .catch(error => mostrarStatusLeads(error?.message || "WhatsApp aberto, mas não foi possível registrar o imóvel como enviado.", true));
+        }
       });
     }
     dialog.innerHTML = `<div class="lead-offer-dialog-head"><div><h2 id="lead-offer-title">Buscando clientes</h2><p>${escapeHtml(imovel.titulo || "Imóvel")}</p></div><form method="dialog"><button class="lead-offer-close" aria-label="Fechar">Fechar</button></form></div><div class="lead-offer-dialog-body"><div class="lead-offer-loading"><span class="lead-offer-spinner" aria-hidden="true"></span><span>Verificando compatibilidade e autorização...</span></div></div>`;
@@ -2074,7 +2101,7 @@ async function sugerirClientesWhatsappParaImovel(imovelId) {
 
     const { leads = [] } = await requisicaoLeads("/api/admin/leads?limit=500");
     const compativeis = leads.filter(lead =>
-      ["compra", "financiamento"].includes(lead.tipo_atendimento) &&
+      ["compra", "aluguel", "financiamento"].includes(lead.tipo_atendimento) &&
       imoveisCompativeisLead(lead).some(item => String(item.id) === String(imovel.id))
     );
     const autorizados = compativeis.filter(lead => Number(lead.consentiu_ofertas_whatsapp) === 1);
@@ -2088,7 +2115,8 @@ async function sugerirClientesWhatsappParaImovel(imovelId) {
       const whatsappNumber = digits.startsWith("55") ? digits : `55${digits}`;
       const text = `Olá, ${lead.nome}! Aqui é da Paulino Imóveis. Entrou um imóvel que combina com o que você procura: ${imovel.titulo}${telefoneImovel ? `, em ${telefoneImovel}` : ""}, por ${precoImovel}. Veja os detalhes: ${urlImovel}. Se não quiser mais receber avisos de imóveis pelo WhatsApp, é só nos avisar.`;
       const href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
-      return `<article class="lead-offer-person"><div><strong>${escapeHtml(lead.nome)}</strong><small>${escapeHtml(lead.telefone)}${lead.vendedor_responsavel ? ` · Responsável: ${escapeHtml(lead.vendedor_responsavel)}` : ""}</small></div><a class="lead-offer-send" href="${escapeHtml(href)}" target="_blank" rel="noopener">Abrir WhatsApp</a></article>`;
+      const jaEnviado = (lead.sent_offers || []).some(item => String(item.property_id) === String(imovel.id));
+      return `<article class="lead-offer-person"><div><strong>${escapeHtml(lead.nome)}</strong><small>${escapeHtml(lead.telefone)}${lead.vendedor_responsavel ? ` · Responsável: ${escapeHtml(lead.vendedor_responsavel)}` : ""}${jaEnviado ? " · Imóvel já enviado" : ""}</small></div><a class="lead-offer-send" data-action="open-offer-whatsapp" data-lead-id="${escapeHtml(lead.id)}" data-property-id="${escapeHtml(imovel.id)}" href="${escapeHtml(href)}" target="_blank" rel="noopener">${jaEnviado ? "Abrir WhatsApp novamente" : "Abrir WhatsApp"}</a></article>`;
     }).join("");
     const semAutorizacao = compativeis.length - autorizados.length;
     dialog.innerHTML = `<div class="lead-offer-dialog-head"><div><h2 id="lead-offer-title">Clientes compatíveis</h2><p>${escapeHtml(imovel.titulo || "Novo imóvel")} · ${autorizados.length} cliente(s) autorizaram avisos pelo WhatsApp</p></div><form method="dialog"><button class="lead-offer-close" aria-label="Fechar">Fechar</button></form></div><div class="lead-offer-dialog-body">${rows ? `<div class="lead-offer-list">${rows}</div>` : `<p>Nenhum cliente compatível autorizou avisos pelo WhatsApp.</p>`}${semAutorizacao ? `<p class="lead-card-meta" style="margin-top:14px;">${semAutorizacao} cliente(s) compatível(is) ainda não autorizaram esses avisos. Peça autorização antes de enviar ofertas.</p>` : ""}</div>`;
@@ -2126,7 +2154,7 @@ function renderizarSeletorImoveisLead() {
   });
   const mensagem = `Olá, ${lead.nome}! Separei ${escolhidos.length} ${escolhidos.length === 1 ? "imóvel" : "imóveis"} que combinam com o que você procura:\n\n${links.join("\n\n")}\n\nSe quiser mais informações ou agendar uma visita, responda por aqui. Se preferir não receber mais avisos pelo WhatsApp, é só me avisar.`;
   const href = escolhidos.length ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensagem)}` : "";
-  dialog.innerHTML = `<div class="lead-offer-dialog-head"><div><h2 id="lead-picker-title">Escolha os imóveis para enviar</h2><p>${escapeHtml(lead.nome)} · arraste os imóveis ou use “Adicionar”</p></div><form method="dialog"><button class="lead-offer-close" aria-label="Fechar">Fechar</button></form></div><div class="lead-offer-dialog-body"><div class="lead-picker-grid"><section class="lead-picker-column"><h3>Compatíveis <span>${disponiveis.length}</span></h3><div class="lead-picker-items" data-picker-list="available">${disponiveis.length ? disponiveis.map(im => montarItem(im, false)).join("") : `<div class="lead-picker-placeholder">Todos os imóveis compatíveis foram selecionados.</div>`}</div></section><section class="lead-picker-column"><h3>Selecionados <span>${escolhidos.length}</span></h3><div class="lead-picker-items" data-picker-list="selected">${escolhidos.length ? escolhidos.map(im => montarItem(im, true)).join("") : `<div class="lead-picker-placeholder">Arraste imóveis para este espaço ou clique em “Adicionar”.</div>`}</div></section></div><div class="lead-picker-footer"><small>${escolhidos.length} imóvel(is) na mensagem. A mensagem abre pronta no WhatsApp para você revisar e enviar.</small><a class="lead-picker-send${escolhidos.length ? "" : " disabled"}" ${escolhidos.length ? `href="${escapeHtml(href)}" target="_blank" rel="noopener"` : `aria-disabled="true" tabindex="-1"`}>Enviar ${escolhidos.length ? ` ${escolhidos.length} ` : ""}pelo WhatsApp</a></div></div>`;
+  dialog.innerHTML = `<div class="lead-offer-dialog-head"><div><h2 id="lead-picker-title">Escolha os imóveis para enviar</h2><p>${escapeHtml(lead.nome)} · arraste os imóveis ou use “Adicionar”</p></div><form method="dialog"><button class="lead-offer-close" aria-label="Fechar">Fechar</button></form></div><div class="lead-offer-dialog-body"><div class="lead-picker-grid"><section class="lead-picker-column"><h3>Compatíveis <span>${disponiveis.length}</span></h3><div class="lead-picker-items" data-picker-list="available">${disponiveis.length ? disponiveis.map(im => montarItem(im, false)).join("") : `<div class="lead-picker-placeholder">Todos os imóveis compatíveis foram selecionados.</div>`}</div></section><section class="lead-picker-column"><h3>Selecionados <span>${escolhidos.length}</span></h3><div class="lead-picker-items" data-picker-list="selected">${escolhidos.length ? escolhidos.map(im => montarItem(im, true)).join("") : `<div class="lead-picker-placeholder">Arraste imóveis para este espaço ou clique em “Adicionar”.</div>`}</div></section></div><div class="lead-picker-footer"><small>${escolhidos.length} imóvel(is) na mensagem. A mensagem abre pronta no WhatsApp para você revisar e enviar.</small><a class="lead-picker-send${escolhidos.length ? "" : " disabled"}" data-action="send-picked-properties" data-lead-id="${escapeHtml(lead.id)}" data-property-ids="${escapeHtml(JSON.stringify(escolhidos.map(im => String(im.id))))}" ${escolhidos.length ? `href="${escapeHtml(href)}" target="_blank" rel="noopener"` : `aria-disabled="true" tabindex="-1"`}>Enviar ${escolhidos.length ? ` ${escolhidos.length} ` : ""}pelo WhatsApp</a></div></div>`;
 }
 
 function abrirSeletorImoveisLead(leadId) {
@@ -2144,6 +2172,14 @@ function abrirSeletorImoveisLead(leadId) {
     dialog = document.getElementById("lead-property-picker");
     dialog.addEventListener("click", event => {
       if (event.target === dialog) dialog.close();
+      const sendLink = event.target.closest("[data-action='send-picked-properties']");
+      if (sendLink && sendLink.getAttribute("href")) {
+        let propertyIds = [];
+        try { propertyIds = JSON.parse(sendLink.dataset.propertyIds || "[]"); } catch { /* ignora seleção inválida */ }
+        registrarImoveisEnviados(sendLink.dataset.leadId, propertyIds)
+          .catch(error => mostrarStatusLeads(error?.message || "WhatsApp aberto, mas não foi possível registrar os imóveis enviados.", true));
+        return;
+      }
       const action = event.target.closest("[data-picker-action]");
       if (!action || !seletorImoveisLead) return;
       const id = String(action.dataset.propertyId);
