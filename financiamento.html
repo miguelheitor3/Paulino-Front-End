@@ -637,7 +637,39 @@ cadastroFinanciamento?.addEventListener("submit", async event => {
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.error || "Não foi possível enviar agora. Tente novamente ou fale conosco pelo WhatsApp.");
     cadastroFinanciamento.reset();
-    const mensagem = `Olá! Acabei de solicitar uma simulação de financiamento pelo site da Paulino Imóveis. Meu nome é ${form.get("nome")} e meu telefone é ${form.get("telefone")}. Gostaria de continuar o atendimento.`;
+    const valorDigitado = valorRaw ? `R$ ${Number(valorRaw).toLocaleString("pt-BR")}` : "Não informado";
+    const cpfDigitado = String(form.get("cpf") || "").replace(/\D/g, "").replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    const resposta = valor => valor === "sim" ? "Sim" : valor === "nao" ? "Não" : "Não informado";
+    const entrada = {
+      ate_20_mil: "Até R$ 20 mil", "20_a_50_mil": "De R$ 20 mil a R$ 50 mil",
+      "50_a_100_mil": "De R$ 50 mil a R$ 100 mil", acima_100_mil: "Acima de R$ 100 mil"
+    }[form.get("entrada_faixa")] || "Não informado";
+    const mensagem = `Olá! 👋 Seja bem-vindo(a) à Paulino Imóveis!
+
+Que bom saber do seu interesse em conquistar seu imóvel próprio!
+
+Trabalhamos em parceria com o Banco do Brasil para oferecer opções de financiamento imobiliário, com possibilidade de financiar até 80% do valor de avaliação do imóvel, utilizar o FGTS e prazos de até 420 meses, conforme as condições e a aprovação do banco.
+
+🏡 DADOS PARA SIMULAÇÃO DE FINANCIAMENTO
+
+* Nome completo: ${form.get("nome") || "Não informado"}
+* CPF: ${cpfDigitado || "Não informado"}
+* Telefone/WhatsApp: ${form.get("telefone") || "Não informado"}
+* E-mail: ${form.get("email") || "Não informado"}
+* Cidade onde deseja adquirir o imóvel: ${form.get("cidade") || "Não informado"}
+* Possui algum imóvel registrado em seu nome? ${resposta(form.get("tem_imovel_nome"))}
+* Mora ou trabalha em Três Pontas? ${resposta(form.get("mora_trabalha_tres_pontas"))}
+* Tipo de imóvel desejado: ${form.get("tipo_imovel") || "Não informado"}
+* Valor aproximado do imóvel que procura: ${valorDigitado}
+* Qual valor possui disponível para entrada? ${entrada}
+* Possui saldo no FGTS? ${resposta(form.get("possui_fgts"))}
+* Possui mais de 35 meses de contribuição ao FGTS? ${resposta(form.get("fgts_mais_35_contribuicoes"))}
+
+Após o recebimento das informações, nossa equipe dará continuidade ao atendimento e verificará as possibilidades de financiamento para o seu perfil.
+
+Conte com a Paulino Imóveis para transformar seu sonho em realidade! 🏡
+
+Paulino Imóveis | Três Pontas – MG`;
     const whatsappUrl = `https://wa.me/553597097389?text=${encodeURIComponent(mensagem)}`;
     if (whatsappWindow) whatsappWindow.location.href = whatsappUrl;
     feedbackCadastro.innerHTML = `Solicitação salva! ${whatsappWindow ? "O WhatsApp foi aberto com uma mensagem pronta. Confira e toque em Enviar para iniciar o atendimento." : `Seu navegador bloqueou a abertura automática. <a href="${whatsappUrl}" target="_blank" rel="noopener">Clique aqui para abrir o WhatsApp</a> e toque em Enviar.`}`;
