@@ -644,13 +644,13 @@ cadastroFinanciamento?.addEventListener("submit", async event => {
       ate_20_mil: "Até R$ 20 mil", "20_a_50_mil": "De R$ 20 mil a R$ 50 mil",
       "50_a_100_mil": "De R$ 50 mil a R$ 100 mil", acima_100_mil: "Acima de R$ 100 mil"
     }[form.get("entrada_faixa")] || "Não informado";
-    const mensagem = `Olá! 👋 Seja bem-vindo(a) à Paulino Imóveis!
+    const mensagem = `Olá! \u{1F44B} Seja bem-vindo(a) à Paulino Imóveis!
 
 Que bom saber do seu interesse em conquistar seu imóvel próprio!
 
 Trabalhamos em parceria com o Banco do Brasil para oferecer opções de financiamento imobiliário, com possibilidade de financiar até 80% do valor de avaliação do imóvel, utilizar o FGTS e prazos de até 420 meses, conforme as condições e a aprovação do banco.
 
-🏡 DADOS PARA SIMULAÇÃO DE FINANCIAMENTO
+\u{1F3E1} DADOS PARA SIMULAÇÃO DE FINANCIAMENTO
 
 * Nome completo: ${form.get("nome") || "Não informado"}
 * CPF: ${cpfDigitado || "Não informado"}
@@ -667,7 +667,7 @@ Trabalhamos em parceria com o Banco do Brasil para oferecer opções de financia
 
 Após o recebimento das informações, nossa equipe dará continuidade ao atendimento e verificará as possibilidades de financiamento para o seu perfil.
 
-Conte com a Paulino Imóveis para transformar seu sonho em realidade! 🏡
+Conte com a Paulino Imóveis para transformar seu sonho em realidade! \u{1F3E1}
 
 Paulino Imóveis | Três Pontas – MG`;
     const whatsappUrl = `https://wa.me/553597097389?text=${encodeURIComponent(mensagem)}`;
