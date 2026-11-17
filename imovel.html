@@ -1039,6 +1039,7 @@
           <div class="editor-grid">
         <div><label>Cidade</label><input name="cidade"></div>
         <div><label>Bairro</label><input name="bairro"></div>
+        <div><label>Distrito</label><input name="distrito" placeholder="Ex.: Pontalete"></div>
         <div class="full"><label>Rua do imóvel</label><input name="rua"></div>
         <div><label>Número da casa</label><input name="numero_casa" placeholder="Ex.: 123, 123A, s/n"></div>
         <div><label>Ponto de referência</label><input name="ponto_referencia" placeholder="Ex.: Próximo à Praça Central"></div>
@@ -1343,7 +1344,7 @@ async function carregar(){
             ${imovel.codigo ? `<span class="codigo-badge">Código ${escapeHtml(imovel.codigo)}</span>` : ""}
             <h1>${escapeHtml(imovel.titulo)}</h1>
             <div class="local">
-              ${[imovel.bairro, imovel.cidade].filter(Boolean).map(escapeHtml).join(", ")}
+              ${[imovel.bairro, imovel.distrito, imovel.cidade].filter(Boolean).map(escapeHtml).join(", ")}
             </div>
             ${dataPublicacao ? `<div class="data-publicacao">Publicado em ${escapeHtml(dataPublicacao)}</div>` : ""}
           </div>
@@ -1675,7 +1676,7 @@ function preencherEditor(){
   editorMidias=listaFotos.filter(Boolean).map(value=>({kind:"existing",value}));
   renderizarMidiasEditor();
   f.titulo.value=imovelAtual.titulo||""; f.codigo.value=imovelAtual.codigo||""; f.tipo.value=imovelAtual.tipo||"Casa"; f.finalidade.value=imovelAtual.finalidade||"Comprar";
-  f.cidade.value=imovelAtual.cidade||""; f.bairro.value=imovelAtual.bairro||""; f.rua.value=imovelAtual.rua||"";
+  f.cidade.value=imovelAtual.cidade||""; f.bairro.value=imovelAtual.bairro||""; f.distrito.value=imovelAtual.distrito||""; f.rua.value=imovelAtual.rua||"";
   f.numero_casa.value=imovelAtual.numero_casa||""; f.ponto_referencia.value=imovelAtual.ponto_referencia||"";
   f.proprietario.value=imovelAtual.proprietario||""; f.proprietario_telefone.value=imovelAtual.proprietario_telefone||"";
   f.observacoes_internas.value=imovelAtual.observacoes_internas||"";
@@ -1734,7 +1735,7 @@ async function salvarEdicaoDireta(ev){
     const fd=new FormData(editorForm);
     const payload={
       titulo:fd.get("titulo")?.trim()||"", codigo:fd.get("codigo")?.trim()||null, tipo:fd.get("tipo")||null, finalidade:fd.get("finalidade")||null,
-      cidade:fd.get("cidade")?.trim()||null, bairro:fd.get("bairro")?.trim()||null, rua:fd.get("rua")?.trim()||null,
+      cidade:fd.get("cidade")?.trim()||null, bairro:fd.get("bairro")?.trim()||null, distrito:fd.get("distrito")?.trim()||null, rua:fd.get("rua")?.trim()||null,
       numero_casa:fd.get("numero_casa")?.trim()||null,
       ponto_referencia:fd.get("ponto_referencia")?.trim()||null,
       proprietario:fd.get("proprietario")?.trim()||null,
@@ -1784,7 +1785,7 @@ function normalizarSimilar(v){ return String(v||"").normalize("NFD").replace(/[\
 
 function cardSimilarHtml(im){
   const foto=Array.isArray(im.fotos)?im.fotos.filter(Boolean).map(urlFoto).find(Boolean):urlFoto(im.fotos);
-  const local=[im.bairro,im.cidade].filter(Boolean).map(escapeHtml).join(", ");
+  const local=[im.bairro,im.distrito,im.cidade].filter(Boolean).map(escapeHtml).join(", ");
   const specs=[];
   if(im.quartos) specs.push(`${escapeHtml(im.quartos)} ${Number(im.quartos)===1?"quarto":"quartos"}`);
   if(im.area_construida_m2) specs.push(`${escapeHtml(im.area_construida_m2)} m²`);

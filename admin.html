@@ -1320,6 +1320,11 @@ tr:last-child td{
         </div>
 
         <div>
+          <label>Distrito</label>
+          <input name="distrito" placeholder="Ex.: Pontalete">
+        </div>
+
+        <div>
           <label>Rua do imóvel</label>
           <input name="rua" placeholder="Rua, Avenida...">
         </div>
@@ -3458,6 +3463,7 @@ async function salvarImovel(ev) {
 
       cidade: fd.get("cidade")?.trim() || null,
       bairro: fd.get("bairro")?.trim() || null,
+      distrito: fd.get("distrito")?.trim() || null,
 
       preco: parsePrecoBR(fd.get("preco")),
 
@@ -3745,6 +3751,9 @@ function editarImovel(id) {
 
   form.bairro.value =
     im.bairro || "";
+
+  form.distrito.value =
+    im.distrito || "";
 
   form.preco.value =
     im.preco != null
@@ -4639,6 +4648,9 @@ function exportarExcel() {
 
         "Bairro":
           im.bairro || "—",
+
+        "Distrito":
+          im.distrito || "—",
 
         "Rua":
           im.rua || "—",
