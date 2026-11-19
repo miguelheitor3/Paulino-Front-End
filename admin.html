@@ -1325,6 +1325,11 @@ tr:last-child td{
         </div>
 
         <div>
+          <label>Condomínio</label>
+          <input name="condominio" placeholder="Nome do condomínio">
+        </div>
+
+        <div>
           <label>Rua do imóvel</label>
           <input name="rua" placeholder="Rua, Avenida...">
         </div>
@@ -3464,6 +3469,7 @@ async function salvarImovel(ev) {
       cidade: fd.get("cidade")?.trim() || null,
       bairro: fd.get("bairro")?.trim() || null,
       distrito: fd.get("distrito")?.trim() || null,
+      condominio: fd.get("condominio")?.trim() || null,
 
       preco: parsePrecoBR(fd.get("preco")),
 
@@ -3754,6 +3760,9 @@ function editarImovel(id) {
 
   form.distrito.value =
     im.distrito || "";
+
+  form.condominio.value =
+    im.condominio || "";
 
   form.preco.value =
     im.preco != null
@@ -4477,6 +4486,8 @@ function renderizarTabela(
                     ? `${im.rua}${im.numero_casa ? ", " + im.numero_casa : ""}`
                     : (im.numero_casa ? `Nº ${im.numero_casa}` : ""),
                   im.bairro,
+                  im.distrito,
+                  im.condominio,
                   im.cidade
                 ]
                   .filter(Boolean)
@@ -4651,6 +4662,9 @@ function exportarExcel() {
 
         "Distrito":
           im.distrito || "—",
+
+        "Condomínio":
+          im.condominio || "—",
 
         "Rua":
           im.rua || "—",

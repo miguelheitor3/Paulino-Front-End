@@ -35,7 +35,7 @@
 
   // Colunas usadas nos cards/listagens (evita trazer campos desnecessários do banco)
   const CAMPOS_LISTAGEM =
-    "id,codigo,titulo,tipo,finalidade,cidade,bairro,preco,area_construida_m2,area_terreno_m2,quartos,banheiros,vagas,fotos,destaque_manual,disponivel,visualizacoes,criado_em";
+    "id,codigo,titulo,tipo,finalidade,cidade,bairro,distrito,condominio,preco,area_construida_m2,area_terreno_m2,quartos,banheiros,vagas,fotos,destaque_manual,disponivel,visualizacoes,criado_em";
 
   // ------------------------------------------------------------
   // UTILITÁRIOS
@@ -269,7 +269,7 @@
           <div class="card-price">${escapeHtml(fmtPreco(im.preco))}</div>
           <div class="card-code">${im.codigo ? "Código " + escapeHtml(im.codigo) : ""}</div>
           <div class="card-title">${titulo}</div>
-          <div class="card-place">${escapeHtml([im.bairro, im.cidade].filter(Boolean).join(", "))}</div>
+          <div class="card-place">${escapeHtml([im.condominio, im.bairro, im.distrito, im.cidade].filter(Boolean).join(", "))}</div>
           ${specs.length ? `<div class="card-specs">${specs.join("")}</div>` : ""}
         </div>
       </a>`;

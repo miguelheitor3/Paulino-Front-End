@@ -266,6 +266,14 @@
   .offers-signup-feedback strong{display:block;margin-bottom:2px;font:700 16px Archivo,sans-serif;}
   .offers-signup-feedback span{display:block;}
   .offers-signup-honeypot{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;}
+  .offers-prompt{position:fixed;right:22px;bottom:22px;z-index:900;width:min(370px,calc(100vw - 32px));padding:22px;border:1px solid #d7e4da;border-radius:16px;background:#fff;box-shadow:0 18px 48px rgba(12,59,44,.2);display:none;}
+  .offers-prompt.aberto{display:block;animation:offers-prompt-in .22s ease-out;}
+  .offers-prompt-close{position:absolute;top:10px;right:12px;border:0;background:transparent;color:var(--ink-soft);font-size:22px;cursor:pointer;padding:4px 8px;}
+  .offers-prompt h2{font:700 20px/1.2 Archivo,sans-serif;color:var(--green);padding-right:24px;}
+  .offers-prompt p{margin-top:8px;color:var(--ink-soft);font-size:13px;line-height:1.55;}
+  .offers-prompt-link{display:inline-flex;margin-top:14px;padding:11px 14px;border-radius:8px;background:var(--green);color:#fff;font-size:12px;font-weight:800;}
+  @keyframes offers-prompt-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @media(max-width:560px){.offers-prompt{right:16px;bottom:16px}}
 
   /* FAQ */
   .faq{padding-bottom:96px;}
@@ -553,6 +561,15 @@
   </a>
 </div>
 
+<aside class="offers-prompt" id="offers-prompt" aria-labelledby="offers-prompt-title" aria-describedby="offers-prompt-description" aria-hidden="true">
+  <button class="offers-prompt-close" id="offers-prompt-close" type="button" aria-label="Fechar convite">×</button>
+  <h2 id="offers-prompt-title">Quer receber imóveis que combinam com você?</h2>
+  <p id="offers-prompt-description">Conte o que procura e nossa equipe pode avisar quando surgir uma opção compatível.</p>
+  <a class="offers-prompt-link" id="offers-prompt-link" href="#receber-ofertas">Ver ofertas personalizadas →</a>
+</aside>
+
+
+
 <section class="offers-signup" id="receber-ofertas">
   <div class="offers-signup-card">
     <div class="offers-signup-head">
@@ -677,6 +694,34 @@
 <script src="assets/config.js?v=20260930-r2-live"></script>
 <script src="assets/site.js?v=20260930-r2-live"></script>
 <script>
+(() => {
+  const convite = document.getElementById("offers-prompt");
+  const fechar = document.getElementById("offers-prompt-close");
+  const irCadastro = document.getElementById("offers-prompt-link");
+  const formulario = document.getElementById("form-ofertas-personalizadas");
+  const chave = "paulino-convite-ofertas-visto";
+  if (!convite || !fechar || !irCadastro || !formulario) return;
+  let dispensado = false;
+  const esconder = () => {
+    convite.classList.remove("aberto");
+    convite.setAttribute("aria-hidden", "true");
+  };
+  const mostrar = () => {
+    if (dispensado || sessionStorage.getItem(chave) || formulario.getBoundingClientRect().top < innerHeight) return;
+    convite.classList.add("aberto");
+    convite.setAttribute("aria-hidden", "false");
+    sessionStorage.setItem(chave, "1");
+  };
+  const timer = setTimeout(mostrar, 45000);
+  fechar.addEventListener("click", () => { dispensado = true; esconder(); });
+  irCadastro.addEventListener("click", () => { dispensado = true; esconder(); });
+  formulario.addEventListener("submit", esconder);
+  addEventListener("scroll", () => {
+    if (convite.classList.contains("aberto") && formulario.getBoundingClientRect().top < innerHeight) esconder();
+  }, { passive: true });
+  addEventListener("pagehide", () => clearTimeout(timer), { once: true });
+})();
+
 const authBackdrop=document.getElementById("auth-backdrop");
 const authMsg=document.getElementById("auth-msg");
 const authBtn=document.getElementById("btn-login-header");

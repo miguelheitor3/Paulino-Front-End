@@ -85,6 +85,7 @@ footer{background:var(--dark);color:#fff;padding:40px 0}.foot{display:flex;justi
 <div><label>Cidade</label><input name="cidade" placeholder="Três Pontas" required></div>
 <div><label>Bairro</label><input name="bairro" placeholder="Centro"></div>
 <div><label>Distrito</label><input name="distrito" placeholder="Ex.: Pontalete"></div>
+<div><label>Condomínio</label><input name="condominio" placeholder="Nome do condomínio"></div>
 <div class="full"><label>Rua / endereço do imóvel</label><input name="rua" placeholder="Rua, Avenida, número..."></div>
 <div><label>Área construída (m²)</label><input name="area_construida" type="number" step="0.01"></div>
 <div><label>Área do terreno (m²)</label><input name="area_terreno" type="number" step="0.01"></div>
@@ -220,7 +221,7 @@ document.getElementById("form-anuncio").addEventListener("submit",e=>{
  "Olá! Quero anunciar um imóvel.",
  `Finalidade: ${f.get("finalidade")}`,
  `Tipo: ${f.get("tipo")}`,`Título: ${f.get("titulo")}`,`Preço: R$ ${f.get("preco")}`,
- `Cidade: ${f.get("cidade")}`,`Bairro: ${f.get("bairro")||"Não informado"}`,`Distrito: ${f.get("distrito")||"Não informado"}`,`Rua: ${f.get("rua")||"Não informado"}`,
+ `Cidade: ${f.get("cidade")}`,`Bairro: ${f.get("bairro")||"Não informado"}`,`Distrito: ${f.get("distrito")||"Não informado"}`,`Condomínio: ${f.get("condominio")||"Não informado"}`,`Rua: ${f.get("rua")||"Não informado"}`,
  `Área construída: ${f.get("area_construida")||"Não informada"} m²`,`Área do terreno: ${f.get("area_terreno")||"Não informada"} m²`,
  `Quartos: ${f.get("quartos")||"Não informado"}`,`Banheiros: ${f.get("banheiros")||"Não informado"}`,`Vagas: ${f.get("vagas")||"Não informado"}`,
  `Descrição: ${f.get("descricao")||"Não informada"}`,"","Meus dados:",`Nome: ${f.get("nome")}`,`WhatsApp: ${f.get("telefone")}`
