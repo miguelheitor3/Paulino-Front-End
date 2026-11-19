@@ -266,14 +266,23 @@
   .offers-signup-feedback strong{display:block;margin-bottom:2px;font:700 16px Archivo,sans-serif;}
   .offers-signup-feedback span{display:block;}
   .offers-signup-honeypot{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;}
-  .offers-prompt{position:fixed;right:22px;bottom:22px;z-index:900;width:min(370px,calc(100vw - 32px));padding:22px;border:1px solid #d7e4da;border-radius:16px;background:#fff;box-shadow:0 18px 48px rgba(12,59,44,.2);display:none;}
-  .offers-prompt.aberto{display:block;animation:offers-prompt-in .22s ease-out;}
-  .offers-prompt-close{position:absolute;top:10px;right:12px;border:0;background:transparent;color:var(--ink-soft);font-size:22px;cursor:pointer;padding:4px 8px;}
-  .offers-prompt h2{font:700 20px/1.2 Archivo,sans-serif;color:var(--green);padding-right:24px;}
-  .offers-prompt p{margin-top:8px;color:var(--ink-soft);font-size:13px;line-height:1.55;}
-  .offers-prompt-link{display:inline-flex;margin-top:14px;padding:11px 14px;border-radius:8px;background:var(--green);color:#fff;font-size:12px;font-weight:800;}
-  @keyframes offers-prompt-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-  @media(max-width:560px){.offers-prompt{right:16px;bottom:16px}}
+  .offers-prompt{position:fixed;inset:0;z-index:1200;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(8,35,27,.72);backdrop-filter:blur(5px);}
+  .offers-prompt.aberto{display:flex;animation:offers-prompt-fade .25s ease-out;}
+  .offers-prompt-card{position:relative;overflow:hidden;width:min(560px,100%);padding:46px 42px 40px;border:1px solid rgba(255,255,255,.58);border-radius:24px;background:linear-gradient(145deg,#fff 0%,#f2f8f3 100%);box-shadow:0 28px 90px rgba(0,0,0,.36);text-align:center;animation:offers-prompt-rise .38s cubic-bezier(.2,.8,.2,1) both;}
+  .offers-prompt-card:before{content:"";position:absolute;inset:0 0 auto;height:9px;background:linear-gradient(90deg,#94bd5d,#20633f,#94bd5d);}
+  .offers-prompt-icon{display:grid;place-items:center;width:68px;height:68px;margin:0 auto 18px;border-radius:22px;background:#e0efdf;color:#17613c;font-size:32px;box-shadow:0 8px 22px rgba(30,99,63,.14);}
+  .offers-prompt-kicker{display:block;color:#39714b;font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;}
+  .offers-prompt h2{max-width:440px;margin:10px auto 0;font:800 clamp(29px,6vw,42px)/1.08 Archivo,sans-serif;letter-spacing:-.035em;color:#17452f;}
+  .offers-prompt p{max-width:420px;margin:14px auto 0;color:#52665a;font-size:15px;line-height:1.65;}
+  .offers-prompt-benefit{display:inline-flex;align-items:center;gap:8px;margin-top:20px;padding:9px 13px;border:1px solid #d4e5d6;border-radius:999px;background:#fff;color:#315c3d;font-size:12px;font-weight:700;}
+  .offers-prompt-link{display:flex;align-items:center;justify-content:center;gap:10px;min-height:56px;margin-top:25px;padding:14px 22px;border-radius:12px;background:linear-gradient(105deg,#17613c,#257747);box-shadow:0 10px 24px rgba(23,97,60,.25);color:#fff;font-size:15px;font-weight:900;transition:transform .18s,box-shadow .18s;}
+  .offers-prompt-link:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(23,97,60,.32);}
+  .offers-prompt-close{position:absolute;top:16px;right:17px;z-index:1;display:grid;place-items:center;width:42px;height:42px;border:1px solid #dce7dd;border-radius:50%;background:#fff;color:#44554a;font-size:25px;line-height:1;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.08);}
+  .offers-prompt-dismiss{display:inline-block;margin-top:16px;border:0;background:transparent;color:#637368;font:600 12px Inter,sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer;}
+  @keyframes offers-prompt-fade{from{opacity:0}to{opacity:1}}
+  @keyframes offers-prompt-rise{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+  @media(max-width:560px){.offers-prompt{padding:16px}.offers-prompt-card{padding:42px 23px 28px;border-radius:20px}.offers-prompt-icon{width:58px;height:58px;font-size:28px}.offers-prompt p{font-size:14px}.offers-prompt-link{font-size:14px}}
+  @media(prefers-reduced-motion:reduce){.offers-prompt.aberto,.offers-prompt-card{animation:none}.offers-prompt-link{transition:none}}
 
   /* FAQ */
   .faq{padding-bottom:96px;}
@@ -562,10 +571,16 @@
 </div>
 
 <aside class="offers-prompt" id="offers-prompt" aria-labelledby="offers-prompt-title" aria-describedby="offers-prompt-description" aria-hidden="true">
-  <button class="offers-prompt-close" id="offers-prompt-close" type="button" aria-label="Fechar convite">×</button>
-  <h2 id="offers-prompt-title">Quer receber imóveis que combinam com você?</h2>
-  <p id="offers-prompt-description">Conte o que procura e nossa equipe pode avisar quando surgir uma opção compatível.</p>
-  <a class="offers-prompt-link" id="offers-prompt-link" href="#receber-ofertas">Ver ofertas personalizadas →</a>
+  <div class="offers-prompt-card" role="dialog" aria-modal="true">
+    <button class="offers-prompt-close" id="offers-prompt-close" type="button" aria-label="Fechar convite">×</button>
+    <div class="offers-prompt-icon" aria-hidden="true">⌂</div>
+    <span class="offers-prompt-kicker">Seu próximo imóvel pode estar aqui</span>
+    <h2 id="offers-prompt-title">Receba ofertas feitas para você</h2>
+    <p id="offers-prompt-description">Diga o que está procurando e nossa equipe avisa quando surgir um imóvel que combine com seus planos.</p>
+    <span class="offers-prompt-benefit">🔔 Avisos personalizados pelo WhatsApp</span>
+    <a class="offers-prompt-link" id="offers-prompt-link" href="#receber-ofertas">Quero encontrar meu imóvel <span aria-hidden="true">→</span></a>
+    <button class="offers-prompt-dismiss" id="offers-prompt-dismiss" type="button">Agora não, continuar navegando</button>
+  </div>
 </aside>
 
 
@@ -697,29 +712,52 @@
 (() => {
   const convite = document.getElementById("offers-prompt");
   const fechar = document.getElementById("offers-prompt-close");
+  const dispensarBotao = document.getElementById("offers-prompt-dismiss");
   const irCadastro = document.getElementById("offers-prompt-link");
   const formulario = document.getElementById("form-ofertas-personalizadas");
   const chave = "paulino-convite-ofertas-visto";
-  if (!convite || !fechar || !irCadastro || !formulario) return;
+  if (!convite || !fechar || !dispensarBotao || !irCadastro || !formulario) return;
   let dispensado = false;
   const esconder = () => {
     convite.classList.remove("aberto");
     convite.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
   };
   const mostrar = () => {
     if (dispensado || sessionStorage.getItem(chave) || formulario.getBoundingClientRect().top < innerHeight) return;
     convite.classList.add("aberto");
     convite.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    fechar.focus({ preventScroll: true });
     sessionStorage.setItem(chave, "1");
   };
   const timer = setTimeout(mostrar, 45000);
   fechar.addEventListener("click", () => { dispensado = true; esconder(); });
+  dispensarBotao.addEventListener("click", () => { dispensado = true; esconder(); });
   irCadastro.addEventListener("click", () => { dispensado = true; esconder(); });
+  convite.addEventListener("click", event => {
+    if (event.target === convite) { dispensado = true; esconder(); }
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && convite.classList.contains("aberto")) { dispensado = true; esconder(); }
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Tab" && convite.classList.contains("aberto")) {
+      const focaveis = [fechar, irCadastro, dispensarBotao];
+      const primeiro = focaveis[0], ultimo = focaveis[focaveis.length - 1];
+      if (event.shiftKey && document.activeElement === primeiro) { event.preventDefault(); ultimo.focus(); }
+      else if (!event.shiftKey && document.activeElement === ultimo) { event.preventDefault(); primeiro.focus(); }
+    }
+  });
   formulario.addEventListener("submit", esconder);
   addEventListener("scroll", () => {
     if (convite.classList.contains("aberto") && formulario.getBoundingClientRect().top < innerHeight) esconder();
   }, { passive: true });
   addEventListener("pagehide", () => clearTimeout(timer), { once: true });
+  const observer = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && convite.classList.contains("aberto")) esconder();
+  });
+  observer.observe(formulario);
 })();
 
 const authBackdrop=document.getElementById("auth-backdrop");
