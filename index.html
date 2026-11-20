@@ -268,17 +268,17 @@
   .offers-signup-honeypot{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;}
   .offers-prompt{position:fixed;inset:0;z-index:1200;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(8,35,27,.72);backdrop-filter:blur(5px);}
   .offers-prompt.aberto{display:flex;animation:offers-prompt-fade .25s ease-out;}
-  .offers-prompt-card{position:relative;overflow:hidden;width:min(560px,100%);padding:46px 42px 40px;border:1px solid rgba(255,255,255,.58);border-radius:24px;background:linear-gradient(145deg,#fff 0%,#f2f8f3 100%);box-shadow:0 28px 90px rgba(0,0,0,.36);text-align:center;animation:offers-prompt-rise .38s cubic-bezier(.2,.8,.2,1) both;}
+  .offers-prompt-card{position:relative;overflow:hidden;width:min(470px,100%);padding:32px 34px 25px;border:1px solid rgba(255,255,255,.58);border-radius:22px;background:linear-gradient(145deg,#fff 0%,#f2f8f3 100%);box-shadow:0 28px 90px rgba(0,0,0,.36);text-align:center;animation:offers-prompt-rise .38s cubic-bezier(.2,.8,.2,1) both;}
   .offers-prompt-card:before{content:"";position:absolute;inset:0 0 auto;height:9px;background:linear-gradient(90deg,#94bd5d,#20633f,#94bd5d);}
-  .offers-prompt-icon{display:grid;place-items:center;width:68px;height:68px;margin:0 auto 18px;border-radius:22px;background:#e0efdf;color:#17613c;font-size:32px;box-shadow:0 8px 22px rgba(30,99,63,.14);}
-  .offers-prompt-kicker{display:block;color:#39714b;font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;}
-  .offers-prompt h2{max-width:440px;margin:10px auto 0;font:800 clamp(29px,6vw,42px)/1.08 Archivo,sans-serif;letter-spacing:-.035em;color:#17452f;}
-  .offers-prompt p{max-width:420px;margin:14px auto 0;color:#52665a;font-size:15px;line-height:1.65;}
-  .offers-prompt-benefit{display:inline-flex;align-items:center;gap:8px;margin-top:20px;padding:9px 13px;border:1px solid #d4e5d6;border-radius:999px;background:#fff;color:#315c3d;font-size:12px;font-weight:700;}
-  .offers-prompt-link{display:flex;align-items:center;justify-content:center;gap:10px;min-height:56px;margin-top:25px;padding:14px 22px;border-radius:12px;background:linear-gradient(105deg,#17613c,#257747);box-shadow:0 10px 24px rgba(23,97,60,.25);color:#fff;font-size:15px;font-weight:900;transition:transform .18s,box-shadow .18s;}
+  .offers-prompt-icon{display:grid;place-items:center;width:46px;height:46px;margin:0 auto 10px;border-radius:15px;background:#e0efdf;color:#17613c;font-size:24px;box-shadow:0 8px 22px rgba(30,99,63,.14);}
+  .offers-prompt-kicker{display:block;color:#39714b;font-size:10px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;}
+  .offers-prompt h2{max-width:390px;margin:8px auto 0;font:800 clamp(25px,5vw,33px)/1.08 Archivo,sans-serif;letter-spacing:-.035em;color:#17452f;}
+  .offers-prompt p{max-width:370px;margin:10px auto 0;color:#52665a;font-size:13px;line-height:1.5;}
+  .offers-prompt-benefit{display:inline-flex;align-items:center;gap:8px;margin-top:13px;padding:7px 11px;border:1px solid #d4e5d6;border-radius:999px;background:#fff;color:#315c3d;font-size:10px;font-weight:700;}
+  .offers-prompt-link{display:flex;align-items:center;justify-content:center;gap:10px;min-height:46px;margin-top:16px;padding:11px 18px;border-radius:10px;background:linear-gradient(105deg,#17613c,#257747);box-shadow:0 10px 24px rgba(23,97,60,.25);color:#fff;font-size:13px;font-weight:900;transition:transform .18s,box-shadow .18s;}
   .offers-prompt-link:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(23,97,60,.32);}
   .offers-prompt-close{position:absolute;top:16px;right:17px;z-index:1;display:grid;place-items:center;width:42px;height:42px;border:1px solid #dce7dd;border-radius:50%;background:#fff;color:#44554a;font-size:25px;line-height:1;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.08);}
-  .offers-prompt-dismiss{display:inline-block;margin-top:16px;border:0;background:transparent;color:#637368;font:600 12px Inter,sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer;}
+  .offers-prompt-dismiss{display:inline-block;margin-top:12px;border:0;background:transparent;color:#637368;font:600 11px Inter,sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer;}
   @keyframes offers-prompt-fade{from{opacity:0}to{opacity:1}}
   @keyframes offers-prompt-rise{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
   @media(max-width:560px){.offers-prompt{padding:16px}.offers-prompt-card{padding:42px 23px 28px;border-radius:20px}.offers-prompt-icon{width:58px;height:58px;font-size:28px}.offers-prompt p{font-size:14px}.offers-prompt-link{font-size:14px}}
