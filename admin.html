@@ -2556,7 +2556,12 @@ function montarDescricaoImovel() {
 
   const chamada = document.getElementById("f-chamada").value.trim();
   if (chamada) linhas.push(`\n📍 ${chamada}`);
-  linhas.push("\n🌐 Visite nosso site: www.paulinoimobiliaria.com.br", "📞 Agende sua visita!", "(35) 9-9915-8800 - Antonio Corretor", "(35) 9-9823-0122 - Sandra", "(35) 9-9884-0518 - Vendas");
+  linhas.push("\n🌐 Visite nosso site: www.paulinoimobiliaria.com.br", "📞 Agende sua visita!");
+  if (finalidade === "Alugar") {
+    linhas.push("(35) 3266-1985", "(35) 9 9884-8963");
+  } else {
+    linhas.push("(35) 9-9915-8800 - Antonio Corretor", "(35) 9-9823-0122 - Sandra", "(35) 9-9884-0518 - Vendas", "(35) 9 9899-0540");
+  }
   form.elements.descricao.value = linhas.join("\n");
 }
 

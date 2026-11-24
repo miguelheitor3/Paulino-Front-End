@@ -1091,6 +1091,8 @@
       </div>
       <div class="editor-msg" id="editor-save-msg"></div>
       <div class="editor-footer">
+        <button type="button" class="editor-cancel" id="editor-alternar-disponibilidade">Desativar anúncio</button>
+        <button type="button" class="editor-cancel" id="editor-excluir-imovel" style="color:#a52c28;border-color:#d9aaa8;">Excluir imóvel</button>
         <button type="button" class="editor-cancel" id="editor-cancelar">Cancelar</button>
         <button type="submit" class="editor-save" id="editor-salvar">Salvar alterações</button>
       </div>
@@ -1650,6 +1652,60 @@ function abrirEditor(){editorBackdrop.classList.add("aberto");editorBackdrop.set
 function fecharEditor(){editorBackdrop.classList.remove("aberto");editorBackdrop.setAttribute("aria-hidden","true");editorSaveMsg.style.display="none";}
 function mostrarEditorMensagem(el,msg){el.textContent=msg;el.style.display="block";}
 
+function atualizarAcaoDisponibilidadeEditor(){
+  const button=document.getElementById("editor-alternar-disponibilidade");
+  if(button) button.textContent=imovelAtual?.disponivel ? "Desativar anúncio" : "Reativar anúncio";
+}
+
+async function alternarDisponibilidadeEditor(){
+  if(!imovelAtual)return;
+  const disponivel=Boolean(imovelAtual.disponivel);
+  const acao=disponivel?"desativar":"reativar";
+  if(!confirm(`Deseja realmente ${acao} este anúncio?`))return;
+  const button=document.getElementById("editor-alternar-disponibilidade");
+  button.disabled=true;
+  try{
+    const {error}=await sb.from("imoveis").update({disponivel:!disponivel}).eq("id",imovelAtual.id);
+    if(error)throw error;
+    if(disponivel){
+      window.location.href="/";
+      return;
+    }
+    imovelAtual.disponivel=true;
+    atualizarAcaoDisponibilidadeEditor();
+    fecharEditor();
+    await carregar();
+  }catch(error){
+    console.error("Erro ao alterar disponibilidade:",error);
+    mostrarEditorMensagem(editorSaveMsg,error?.message||"Não foi possível alterar a disponibilidade do anúncio.");
+  }finally{
+    button.disabled=false;
+  }
+}
+
+async function excluirImovelEditor(){
+  if(!imovelAtual)return;
+  if(!confirm("Excluir este imóvel permanentemente?\n\nEssa ação não pode ser desfeita."))return;
+  const button=document.getElementById("editor-excluir-imovel");
+  button.disabled=true;
+  try{
+    const imovelExcluido=imovelAtual;
+    const {error}=await sb.from("imoveis").delete().eq("id",imovelExcluido.id);
+    if(error)throw error;
+    const fotos=Array.isArray(imovelExcluido.fotos)?imovelExcluido.fotos:(imovelExcluido.fotos?[imovelExcluido.fotos]:[]);
+    const caminhos=fotos.filter(foto=>foto&&!/^https?:\/\//i.test(String(foto)));
+    if(caminhos.length&&typeof excluirMidias==="function"){
+      try{await excluirMidias(caminhos);}catch(storageError){console.warn("Imóvel removido, mas não foi possível apagar algumas mídias:",storageError);}
+    }
+    fecharEditor();
+    window.location.href="/";
+  }catch(error){
+    console.error("Erro ao excluir imóvel:",error);
+    mostrarEditorMensagem(editorSaveMsg,error?.message||"Não foi possível excluir o imóvel.");
+    button.disabled=false;
+  }
+}
+
 function atualizarOpcoesCondicionaisEditor(){
   const finalidade = editorForm.elements["finalidade"]?.value || "";
   const tipo = editorForm.elements["tipo"]?.value || "";
@@ -1672,6 +1728,7 @@ function atualizarOpcoesCondicionaisEditor(){
 
 function preencherEditor(){
   if(!imovelAtual)return; const f=editorForm;
+  atualizarAcaoDisponibilidadeEditor();
   editorMidias.forEach(item=>{if(item.kind==="new")URL.revokeObjectURL(item.url);});
   const listaFotos=Array.isArray(imovelAtual.fotos)?imovelAtual.fotos:(imovelAtual.fotos?[imovelAtual.fotos]:[]);
   editorMidias=listaFotos.filter(Boolean).map(value=>({kind:"existing",value}));
@@ -1970,6 +2027,8 @@ if (mobileNavButton && mobileNav) {
 }
 
 document.getElementById("editor-form").addEventListener("submit",salvarEdicaoDireta);
+document.getElementById("editor-alternar-disponibilidade").addEventListener("click",alternarDisponibilidadeEditor);
+document.getElementById("editor-excluir-imovel").addEventListener("click",excluirImovelEditor);
 document.getElementById("editor-backdrop").addEventListener("click",e=>{if(e.target===editorBackdrop)fecharEditor();});
 sb.auth.onAuthStateChange(()=>setTimeout(atualizarBotaoEdicao,0));
 
